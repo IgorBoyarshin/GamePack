@@ -14,13 +14,17 @@ public abstract class Game {
     public static Renderer spriteRenderer;
 
     private Window window;
+    protected final float WIDTH;
+    protected final float HEIGHT;
 
     protected boolean alive = true;
 
     protected final long keyboardMillisDelay = 180;
     protected long lastKeyboard = 0;
 
-    public Game(Window window) {
+    public Game(float width, float height, Window window) {
+        WIDTH = width;
+        HEIGHT = height;
         this.window = window;
     }
 

@@ -11,6 +11,7 @@ import himmel.math.Vector4f;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -31,9 +32,7 @@ public class MainMenu extends Game {
 
     private Layer mainLayer;
     private Layer bgLayer;
-
-    private final float WIDTH;
-    private final float HEIGHT;
+    private BackgroundAnimation backgroundAnimation;
 
     private final float BUTTON_WH_RATIO = 8.0f;
     private final float BUTTON_WIDTH;
@@ -43,10 +42,8 @@ public class MainMenu extends Game {
     private final float BG_Z = -0.5f;
 
     public MainMenu(final float width, final float height, Window window) {
-        super(window);
+        super(width, height, window);
 
-        WIDTH = width;
-        HEIGHT = height;
         this.window = window;
         BUTTON_WIDTH = WIDTH * 0.6f;
         BUTTON_HEIGHT = BUTTON_WIDTH / BUTTON_WH_RATIO;
@@ -62,35 +59,28 @@ public class MainMenu extends Game {
                 "Domino",
                 new Vector3f((WIDTH - BUTTON_WIDTH) / 2.0f, HEIGHT - BUTTON_HEIGHT - 5.0f, MENU_Z),
                 new Vector2f(BUTTON_WIDTH, BUTTON_HEIGHT),
-                new Texture("resources//textures//buttonDominoActive.png", Texture.TYPE_RGB),
-                new Texture("resources//textures//buttonDominoIdle.png", Texture.TYPE_RGB),
+                new Texture("resources//main//textures//buttonDominoActive.png", Texture.TYPE_RGB),
+                new Texture("resources//main//textures//buttonDominoIdle.png", Texture.TYPE_RGB),
                 false));
         menu.addButton(new Button(
                 "About",
                 new Vector3f((WIDTH - BUTTON_WIDTH) / 2.0f, HEIGHT - 2.0f * (BUTTON_HEIGHT + 5.0f), MENU_Z),
                 new Vector2f(BUTTON_WIDTH, BUTTON_HEIGHT),
-                new Texture("resources//textures//buttonAboutActive.png", Texture.TYPE_RGB),
-                new Texture("resources//textures//buttonAboutIdle.png", Texture.TYPE_RGB),
+                new Texture("resources//main//textures//buttonAboutActive.png", Texture.TYPE_RGB),
+                new Texture("resources//main//textures//buttonAboutIdle.png", Texture.TYPE_RGB),
                 false));
         menu.addButton(new Button(
                 "Exit",
                 new Vector3f((WIDTH - BUTTON_WIDTH) / 2.0f, HEIGHT - 3.0f * (BUTTON_HEIGHT + 5.0f), MENU_Z),
                 new Vector2f(BUTTON_WIDTH, BUTTON_HEIGHT),
-                new Texture("resources//textures//buttonExitActive.png", Texture.TYPE_RGB),
-                new Texture("resources//textures//buttonExitIdle.png", Texture.TYPE_RGB),
+                new Texture("resources//main//textures//buttonExitActive.png", Texture.TYPE_RGB),
+                new Texture("resources//main//textures//buttonExitIdle.png", Texture.TYPE_RGB),
                 false));
 
         menu.setCurrent("Domino");
-
         menu.submitAll(mainLayer);
 
-
-        bgLayer.add(new Sprite(
-                new Vector3f(0.0f, 0.0f, BG_Z),
-                new Vector2f(WIDTH, HEIGHT),
-                new Vector4f(0.05f, 0.05f, 0.05f, 1.0f),
-                Game.spriteRenderer,
-                Game.spriteShader));
+        backgroundAnimation = new BackgroundAnimation(WIDTH, HEIGHT, bgLayer, BG_Z);
     }
 
     private void keyboard() {
@@ -112,7 +102,7 @@ public class MainMenu extends Game {
 
                 switch (menu.getCurrentButtonName()) {
                     case "Domino":
-                        game = new Domino(window);
+                        game = new Domino(WIDTH, HEIGHT, window);
                         break;
                     case "About":
                         System.out.println("'About' is not implemented yet");
@@ -123,11 +113,17 @@ public class MainMenu extends Game {
                 }
             }
         }
+
+        if (window.isKeyDown(GLFW_KEY_ESCAPE)) {
+            alive = false;
+        }
     }
 
     @Override
     public void update(float delta) {
         if (game == null) {
+            backgroundAnimation.update(delta);
+
             keyboard();
         } else {
             if (game.isAlive()) {
@@ -141,8 +137,8 @@ public class MainMenu extends Game {
     @Override
     public void render() {
         if (game == null) {
-            bgLayer.render();
             mainLayer.render();
+            bgLayer.render();
         } else {
             game.render();
         }

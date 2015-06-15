@@ -42,10 +42,10 @@ public class GamePack {
     public GamePack() {
         window = new Window("GamePack", WIDTH, HEIGHT);
 
-        textShader = new Shader(System.getProperty("user.dir") + "//resources//shaders//font.vert",
-                System.getProperty("user.dir") + "//resources//shaders//font.frag");
-        spriteShader = new Shader(System.getProperty("user.dir") + "//resources//shaders//fast.vert",
-                System.getProperty("user.dir") + "//resources//shaders//fast.frag");
+        textShader = new Shader(System.getProperty("user.dir") + "//resources//main//shaders//font.vert",
+                System.getProperty("user.dir") + "//resources//main//shaders//font.frag");
+        spriteShader = new Shader(System.getProperty("user.dir") + "//resources//main//shaders//fast.vert",
+                System.getProperty("user.dir") + "//resources//main//shaders//fast.frag");
         spriteRenderer = new FastSpriteRenderer();
 
         prepareShaders();
@@ -53,7 +53,7 @@ public class GamePack {
         Game.spriteRenderer = spriteRenderer;
         Game.spriteShader = spriteShader;
 //        Game.textShader = textShader;
-        Text.setFont(new Font("resources//fonts//FontCalibri"));
+        Text.setFont(new Font("resources//main//fonts//FontCalibri"));
         Text.setShader(textShader);
 
         mainMenu = new MainMenu(WIDTH_COORD, HEIGHT_COORD, window);

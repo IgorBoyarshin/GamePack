@@ -1,17 +1,11 @@
 package gamepack;
 
-import gamepack.domino.Domino;
-import himmel.graphics.Sprite;
+import gamepack.domino.DominoGame;
 import himmel.graphics.Texture;
 import himmel.graphics.Window;
 import himmel.graphics.layers.Layer;
 import himmel.math.Vector2f;
 import himmel.math.Vector3f;
-import himmel.math.Vector4f;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -102,7 +96,7 @@ public class MainMenu extends Game {
 
                 switch (menu.getCurrentButtonName()) {
                     case "Domino":
-                        game = new Domino(WIDTH, HEIGHT, window);
+                        game = new DominoGame(WIDTH, HEIGHT, window);
                         break;
                     case "About":
                         System.out.println("'About' is not implemented yet");
@@ -114,9 +108,9 @@ public class MainMenu extends Game {
             }
         }
 
-        if (window.isKeyDown(GLFW_KEY_ESCAPE)) {
-            alive = false;
-        }
+//        if (window.isKeyDown(GLFW_KEY_ESCAPE)) {
+//            alive = false;
+//        }
     }
 
     @Override

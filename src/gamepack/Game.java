@@ -2,7 +2,6 @@ package gamepack;
 
 import himmel.graphics.Shader;
 import himmel.graphics.Window;
-import himmel.graphics.renderers.FastSpriteRenderer;
 import himmel.graphics.renderers.Renderer;
 
 /**
@@ -13,7 +12,7 @@ public abstract class Game {
     public static Shader spriteShader;
     public static Renderer spriteRenderer;
 
-    private Window window;
+    protected Window window;
     protected final float WIDTH;
     protected final float HEIGHT;
 

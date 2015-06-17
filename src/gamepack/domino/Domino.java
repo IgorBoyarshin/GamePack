@@ -20,14 +20,30 @@ public class Domino extends Sprite{
     private static final float DOMINO_HEIGHT = 8.0f;
     private static float tileSize = 1.0f;
 
+    private List<Vector2f> uvUp;
+    private static List<Vector2f> uvDown;
+
     private final int side1;
     private final int side2;
 
     public Domino(final int side1, final int side2, Vector3f position, Vector2f size, List<Vector2f> uv) {
         super(position, size, dominoes, Game.spriteRenderer, Game.spriteShader);
         this.uv = uv;
+        uvUp = uv;
         this.side1 = side1;
         this.side2 = side2;
+    }
+
+    public static void setUvDown(List<Vector2f> theUvDown) {
+        uvDown = theUvDown;
+    }
+
+    public void flipUp() {
+        uv = uvUp;
+    }
+
+    public void flipDown() {
+        uv = uvDown;
     }
 
     public int getSide1() {

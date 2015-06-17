@@ -26,6 +26,10 @@ public class DominoGame extends Game {
 
     private Menu menu;
 
+    private final float fieldSizeCoord = 7.0f;
+    private final int fieldSize = 9;
+    private Sprite field[][];
+
     private final int DOMINOES_AMOUNT = 28;
     private final int HAND_AMOUNT = 5;
     private List<Domino> allDominoes;
@@ -33,17 +37,22 @@ public class DominoGame extends Game {
     private List<Domino> player1;
     private List<Domino> player2;
 
-    //    private List<Texture> dominoTextures;
     private Texture tileTexture;
     private Map<Integer, List<Domino>> dominoes;
 
     public DominoGame(float width, float height, Window window) {
         super(width, height, window);
 
-//        dominoTextures = new ArrayList<>();
         gameLayer = new Layer();
         menuLayer = new Layer();
 
+        player1 = new ArrayList<>();
+        player2 = new ArrayList<>();
+        pool = new ArrayList<>();
+
+        field = new Sprite[fieldSize][fieldSize];
+
+        allDominoes = new ArrayList<>();
         menu = new Menu();
 
         dominoes = new HashMap<>();
@@ -51,6 +60,23 @@ public class DominoGame extends Game {
                 System.getProperty("user.dir") + "//resources//domino//textures//tile4_4.png", Texture.TYPE_RGB);
 
         prepareDominoes();
+        prepareField();
+        preparePoolAndPlayers();
+    }
+
+    private void prepareField() {
+        for (int i = 0; i < fieldSize; i++) {
+            for (int j = 0; j < fieldSize; j++) {
+                field[i][j] = new Sprite(
+                        new Vector3f(i * fieldSizeCoord, j * fieldSizeCoord, gameLayerFieldZ),
+                        new Vector2f(fieldSizeCoord - 0.0f, fieldSizeCoord),
+                        tileTexture,
+                        Game.spriteRenderer,
+                        Game.spriteShader);
+
+                gameLayer.add(field[i][j]);
+            }
+        }
     }
 
     private void prepareDominoes() {
@@ -94,6 +120,18 @@ public class DominoGame extends Game {
                 gameLayer.add(domino);
             }
         }
+
+        List<Vector2f> uvDown = new ArrayList<>();
+        Vector4f coords = new Vector4f(
+                (6 - 0) * dominoWidth / imageWidth,
+                (0 + 1) * dominoHeight / imageHeight,
+                (6 - 0 + 1) * dominoWidth / imageWidth,
+                (0 + 1 + 1) * dominoHeight / imageHeight);
+        uvDown.add(new Vector2f(coords.x, coords.y));
+        uvDown.add(new Vector2f(coords.x, coords.w));
+        uvDown.add(new Vector2f(coords.z, coords.w));
+        uvDown.add(new Vector2f(coords.z, coords.y));
+        Domino.setUvDown(uvDown);
     }
 
     private Domino getDomino(int side1, int side2) {
@@ -116,14 +154,16 @@ public class DominoGame extends Game {
         random.setSeed(System.currentTimeMillis());
 
         for (int i = 0; i < DOMINOES_AMOUNT; i++) {
-            int number = random.nextInt() % numbers.size();
+            int number = Math.abs(random.nextInt()) % numbers.size();
 
             if (i < HAND_AMOUNT) {
-                player1.add(allDominoes.get(number));
-            } else if (i < 2*HAND_AMOUNT){
-                player2.add(allDominoes.get(number));
+                player1.add(allDominoes.get(numbers.get(number)));
+            } else if (i < 2 * HAND_AMOUNT) {
+                player2.add(allDominoes.get(numbers.get(number)));
+                allDominoes.get(numbers.get(number)).flipDown();
             } else {
-                pool.add(allDominoes.get(number));
+                pool.add(allDominoes.get(numbers.get(number)));
+                allDominoes.get(numbers.get(number)).flipDown();
             }
 
             numbers.remove(number);

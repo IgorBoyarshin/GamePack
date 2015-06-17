@@ -75,6 +75,8 @@ public class MainMenu extends Game {
         menu.submitAll(mainLayer);
 
         backgroundAnimation = new BackgroundAnimation(WIDTH, HEIGHT, bgLayer, BG_Z);
+
+        game = new DominoGame(WIDTH, HEIGHT, window);
     }
 
     private void keyboard() {

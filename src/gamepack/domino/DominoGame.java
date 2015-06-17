@@ -83,6 +83,9 @@ public class DominoGame extends Game {
         Texture dominoesTexture = new Texture(
                 System.getProperty("user.dir") + "//resources//domino//textures//dominoes2.png", Texture.TYPE_RGB);
         Domino.setDominoesTexture(dominoesTexture);
+
+        Domino.setDominoWidth(5.0f * 0.7f);
+
         final float imageWidth = 448.0f;
         final float imageHeight = 2.0f * imageWidth;
         final float dominoWidth = 64.0f;
@@ -109,9 +112,8 @@ public class DominoGame extends Game {
                 uv.add(new Vector2f(coords.z, coords.y));
 
                 Vector3f position = new Vector3f((6 - i) * 8.0f, HEIGHT - (i - j) * 8.0f, gameLayerDominoesZ);
-                Vector2f size = new Vector2f(5.0f * 0.7f, -10.0f * 0.7f);
 
-                Domino domino = new Domino(i, j, position, size, uv);
+                Domino domino = new Domino(i, j, position, Domino.DIRECTION.DOWN, uv);
 
                 // TODO: decide what structure to use
                 dominoes.get(i).add(domino);

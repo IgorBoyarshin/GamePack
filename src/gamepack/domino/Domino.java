@@ -14,11 +14,9 @@ import java.util.List;
 /**
  * Created by Igor on 16-Jun-15.
  */
-public class Domino extends Sprite{
+public class Domino extends Sprite {
     private static Texture dominoes;
-    private static final float DOMINO_WIDTH = 4.0f;
-    private static final float DOMINO_HEIGHT = 8.0f;
-    private static float tileSize = 1.0f;
+    private static float DOMINO_WIDTH = 4.0f;
 
     private List<Vector2f> uvUp;
     private static List<Vector2f> uvDown;
@@ -26,8 +24,10 @@ public class Domino extends Sprite{
     private final int side1;
     private final int side2;
 
-    public Domino(final int side1, final int side2, Vector3f position, Vector2f size, List<Vector2f> uv) {
-        super(position, size, dominoes, Game.spriteRenderer, Game.spriteShader);
+    public Domino(final int side1, final int side2, Vector3f position, DIRECTION direction, List<Vector2f> uv) {
+        super(position, new Vector2f(DOMINO_WIDTH * direction.x, DOMINO_WIDTH * direction.y),
+                dominoes, Game.spriteRenderer, Game.spriteShader);
+
         this.uv = uv;
         uvUp = uv;
         this.side1 = side1;
@@ -54,8 +54,8 @@ public class Domino extends Sprite{
         return side2;
     }
 
-    public static void setTileSize(float newTileSize) {
-        tileSize = newTileSize;
+    public static void setDominoWidth(float newDominoWidth) {
+        DOMINO_WIDTH = newDominoWidth;
     }
 
     public void rotateClockWise() {
@@ -68,5 +68,17 @@ public class Domino extends Sprite{
 
     public static void setDominoesTexture(Texture texture) {
         dominoes = texture;
+    }
+
+    public enum DIRECTION {
+        UP(1.0f, 2.0f), RIGHT(2.0f, 1.0f), DOWN(1.0f, -2.0f), LEFT(-2.0f, -1.0f);
+
+        float x;
+        float y;
+
+        DIRECTION(float x, float y) {
+            this.x = x;
+            this.y = y;
+        }
     }
 }

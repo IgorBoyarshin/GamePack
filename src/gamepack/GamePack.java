@@ -15,6 +15,10 @@ import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
 
 /*
 
+TOP_PRIORITY:
+TODO: Himmel: fix textures amount bigger than 16
+
+LOW_PRIORITY:
 TODO: Change Himmel: enable choosing whether to vsync or not
 TODO: Himmel: set proper jar path
 TODO: Himmel: fix font size
@@ -52,7 +56,6 @@ public class GamePack {
 
         Game.spriteRenderer = spriteRenderer;
         Game.spriteShader = spriteShader;
-//        Game.textShader = textShader;
         Text.setFont(new Font("resources//main//fonts//FontCalibri"));
         Text.setShader(textShader);
 

@@ -23,10 +23,9 @@ public class DominoGame extends Game {
     private final float menuLayerZ = 0.5f;
     private final float gameLayerDominoesZ = 0.0f;
     private final float gameLayerFieldZ = -0.5f;
-
     private Menu menu;
 
-    private final float fieldSizeCoord = 7.0f;
+    private final float tileSize = 2.0f;
     private final int fieldSize = 9;
     private Sprite field[][];
 
@@ -46,10 +45,6 @@ public class DominoGame extends Game {
         gameLayer = new Layer();
         menuLayer = new Layer();
 
-        player1 = new ArrayList<>();
-        player2 = new ArrayList<>();
-        pool = new ArrayList<>();
-
         field = new Sprite[fieldSize][fieldSize];
 
         allDominoes = new ArrayList<>();
@@ -67,9 +62,11 @@ public class DominoGame extends Game {
     private void prepareField() {
         for (int i = 0; i < fieldSize; i++) {
             for (int j = 0; j < fieldSize; j++) {
+                final float blockSize = 4 * tileSize;
+
                 field[i][j] = new Sprite(
-                        new Vector3f(i * fieldSizeCoord, j * fieldSizeCoord, gameLayerFieldZ),
-                        new Vector2f(fieldSizeCoord - 0.0f, fieldSizeCoord),
+                        new Vector3f(i * blockSize, j * blockSize, gameLayerFieldZ),
+                        new Vector2f(blockSize, blockSize),
                         tileTexture,
                         Game.spriteRenderer,
                         Game.spriteShader);
@@ -79,12 +76,16 @@ public class DominoGame extends Game {
         }
     }
 
+    private void restart() {
+        preparePoolAndPlayers();
+    }
+
     private void prepareDominoes() {
         Texture dominoesTexture = new Texture(
                 System.getProperty("user.dir") + "//resources//domino//textures//dominoes2.png", Texture.TYPE_RGB);
         Domino.setDominoesTexture(dominoesTexture);
 
-        Domino.setDominoWidth(5.0f * 0.7f);
+        Domino.setTileWidth(2 * tileSize);
 
         final float imageWidth = 448.0f;
         final float imageHeight = 2.0f * imageWidth;
@@ -152,6 +153,10 @@ public class DominoGame extends Game {
             numbers.add(i);
         }
 
+        player1 = new ArrayList<>();
+        player2 = new ArrayList<>();
+        pool = new ArrayList<>();
+
         Random random = new Random();
         random.setSeed(System.currentTimeMillis());
 
@@ -160,6 +165,7 @@ public class DominoGame extends Game {
 
             if (i < HAND_AMOUNT) {
                 player1.add(allDominoes.get(numbers.get(number)));
+                allDominoes.get(numbers.get(number)).flipUp();
             } else if (i < 2 * HAND_AMOUNT) {
                 player2.add(allDominoes.get(numbers.get(number)));
                 allDominoes.get(numbers.get(number)).flipDown();
@@ -170,6 +176,12 @@ public class DominoGame extends Game {
 
             numbers.remove(number);
         }
+
+        positionPoolAndPlayers();
+    }
+
+    private void positionPoolAndPlayers() {
+
     }
 
     @Override
@@ -186,7 +198,14 @@ public class DominoGame extends Game {
         if (System.currentTimeMillis() - lastKeyboard > keyboardMillisDelay) {
             if (window.isKeyDown(GLFW_KEY_ESCAPE)) {
                 lastKeyboard = System.currentTimeMillis();
+
                 alive = false;
+            }
+
+            if (window.isKeyDown(GLFW_KEY_R)) {
+                lastKeyboard = System.currentTimeMillis();
+                System.out.println("restarting");
+                restart();
             }
         }
     }

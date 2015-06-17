@@ -133,8 +133,8 @@ public class MainMenu extends Game {
     @Override
     public void render() {
         if (game == null) {
-            mainLayer.render();
             bgLayer.render();
+            mainLayer.render();
         } else {
             game.render();
         }

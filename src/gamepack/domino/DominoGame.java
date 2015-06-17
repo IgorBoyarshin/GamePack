@@ -27,7 +27,9 @@ public class DominoGame extends Game {
 
     private final float tileSize = 2.0f;
     private final int fieldSize = 9;
+    private final int tilesPerBlock = 4;
     private Sprite field[][];
+    private boolean fieldTaken[][];
 
     private final int DOMINOES_AMOUNT = 28;
     private final int HAND_AMOUNT = 5;
@@ -35,6 +37,10 @@ public class DominoGame extends Game {
     private List<Domino> pool;
     private List<Domino> player1;
     private List<Domino> player2;
+    private CurrentDomino currentDomino;
+    private int currentNumberDomino = 0;
+
+    private boolean player1Move = true;
 
     private Texture tileTexture;
     private Map<Integer, List<Domino>> dominoes;
@@ -46,6 +52,7 @@ public class DominoGame extends Game {
         menuLayer = new Layer();
 
         field = new Sprite[fieldSize][fieldSize];
+        fieldTaken = new boolean[fieldSize * tilesPerBlock][fieldSize * tilesPerBlock];
 
         allDominoes = new ArrayList<>();
         menu = new Menu();
@@ -57,6 +64,9 @@ public class DominoGame extends Game {
         prepareDominoes();
         prepareField();
         preparePoolAndPlayers();
+
+        currentDomino = new CurrentDomino(player1.get(0));
+        currentDomino.submitMaskTo(gameLayer);
     }
 
     private void prepareField() {
@@ -82,10 +92,10 @@ public class DominoGame extends Game {
 
     private void prepareDominoes() {
         Texture dominoesTexture = new Texture(
-                System.getProperty("user.dir") + "//resources//domino//textures//dominoes2.png", Texture.TYPE_RGB);
+                System.getProperty("user.dir") + "//resources//domino//textures//dominoes3.png", Texture.TYPE_RGBA);
         Domino.setDominoesTexture(dominoesTexture);
 
-        Domino.setTileWidth(2 * tileSize);
+        Domino.setTileWidth(tileSize);
 
         final float imageWidth = 448.0f;
         final float imageHeight = 2.0f * imageWidth;
@@ -114,7 +124,7 @@ public class DominoGame extends Game {
 
                 Vector3f position = new Vector3f((6 - i) * 8.0f, HEIGHT - (i - j) * 8.0f, gameLayerDominoesZ);
 
-                Domino domino = new Domino(i, j, position, Domino.DIRECTION.DOWN, uv);
+                Domino domino = new Domino(i, j, position, Domino.DIRECTION.UP, uv);
 
                 // TODO: decide what structure to use
                 dominoes.get(i).add(domino);
@@ -135,6 +145,54 @@ public class DominoGame extends Game {
         uvDown.add(new Vector2f(coords.z, coords.w));
         uvDown.add(new Vector2f(coords.z, coords.y));
         Domino.setUvDown(uvDown);
+
+        List<Vector2f> uv = new ArrayList<>();
+        coords = new Vector4f(
+                (6 - 0) * dominoWidth / imageWidth,
+                (0 + 2) * dominoHeight / imageHeight,
+                (6 - 0 + 1) * dominoWidth / imageWidth,
+                (0 + 1 + 2) * dominoHeight / imageHeight);
+        uv.add(new Vector2f(coords.x, coords.y));
+        uv.add(new Vector2f(coords.x, coords.w));
+        uv.add(new Vector2f(coords.z, coords.w));
+        uv.add(new Vector2f(coords.z, coords.y));
+        Domino.setUvMaskSelected(uv);
+
+        uv = new ArrayList<>();
+        coords = new Vector4f(
+                (6 - 0) * dominoWidth / imageWidth,
+                (0 + 3) * dominoHeight / imageHeight,
+                (6 - 0 + 1) * dominoWidth / imageWidth,
+                (0 + 1 + 3) * dominoHeight / imageHeight);
+        uv.add(new Vector2f(coords.x, coords.y));
+        uv.add(new Vector2f(coords.x, coords.w));
+        uv.add(new Vector2f(coords.z, coords.w));
+        uv.add(new Vector2f(coords.z, coords.y));
+        Domino.setUvMaskGreen(uv);
+
+        uv = new ArrayList<>();
+        coords = new Vector4f(
+                (6 - 0) * dominoWidth / imageWidth,
+                (0 + 4) * dominoHeight / imageHeight,
+                (6 - 0 + 1) * dominoWidth / imageWidth,
+                (0 + 1 + 4) * dominoHeight / imageHeight);
+        uv.add(new Vector2f(coords.x, coords.y));
+        uv.add(new Vector2f(coords.x, coords.w));
+        uv.add(new Vector2f(coords.z, coords.w));
+        uv.add(new Vector2f(coords.z, coords.y));
+        Domino.setUvMaskRed(uv);
+
+        uv = new ArrayList<>();
+        coords = new Vector4f(
+                (6 - 0) * dominoWidth / imageWidth,
+                (0 + 5) * dominoHeight / imageHeight,
+                (6 - 0 + 1) * dominoWidth / imageWidth,
+                (0 + 1 + 5) * dominoHeight / imageHeight);
+        uv.add(new Vector2f(coords.x, coords.y));
+        uv.add(new Vector2f(coords.x, coords.w));
+        uv.add(new Vector2f(coords.z, coords.w));
+        uv.add(new Vector2f(coords.z, coords.y));
+        Domino.setUvMaskNull(uv);
     }
 
     private Domino getDomino(int side1, int side2) {
@@ -181,7 +239,19 @@ public class DominoGame extends Game {
     }
 
     private void positionPoolAndPlayers() {
+        for (Domino domino : pool) {
+            domino.setPosition(20, 20);
+        }
 
+        for (int i = 0; i < player1.size(); i++) {
+            Domino domino = player1.get(i);
+            domino.setPosition(i * Domino.TILES_PER_SIDE + i, 1);
+        }
+
+        for (int i = 0; i < player2.size(); i++) {
+            Domino domino = player2.get(i);
+            domino.setPosition(i * Domino.TILES_PER_SIDE + i, 25);
+        }
     }
 
     @Override
@@ -204,8 +274,22 @@ public class DominoGame extends Game {
 
             if (window.isKeyDown(GLFW_KEY_R)) {
                 lastKeyboard = System.currentTimeMillis();
-                System.out.println("restarting");
+
                 restart();
+            }
+
+            if (window.isKeyDown(GLFW_KEY_RIGHT)) {
+                lastKeyboard = System.currentTimeMillis();
+
+                currentNumberDomino = (currentNumberDomino + 1) % player1.size();
+                currentDomino.setCurrentDomino(player1.get(currentNumberDomino));
+            }
+
+            if (window.isKeyDown(GLFW_KEY_LEFT)) {
+                lastKeyboard = System.currentTimeMillis();
+
+                currentNumberDomino = (currentNumberDomino + 4) % player1.size();
+                currentDomino.setCurrentDomino(player1.get(currentNumberDomino));
             }
         }
     }

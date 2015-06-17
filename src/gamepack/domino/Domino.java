@@ -14,16 +14,21 @@ import java.util.List;
 public class Domino extends Sprite {
     private static Texture dominoes;
     private static float TILE_WIDTH = 2.0f;
+    public static final int TILES_PER_SIDE = 2;
 
     private List<Vector2f> uvUp;
     private static List<Vector2f> uvDown;
+    private static List<Vector2f> uvMaskGreen;
+    private static List<Vector2f> uvMaskRed;
+    private static List<Vector2f> uvMaskSelected;
+    private static List<Vector2f> uvMaskNull;
 
     private DIRECTION direction;
     private final int side1;
     private final int side2;
 
     public Domino(final int side1, final int side2, Vector3f position, DIRECTION direction, List<Vector2f> uv) {
-        super(position, new Vector2f(2 * TILE_WIDTH * direction.x, 2 * TILE_WIDTH * direction.y),
+        super(position, new Vector2f(TILES_PER_SIDE * TILE_WIDTH * direction.x, TILES_PER_SIDE * TILE_WIDTH * direction.y),
                 dominoes, Game.spriteRenderer, Game.spriteShader);
 
         this.direction = direction;
@@ -31,6 +36,10 @@ public class Domino extends Sprite {
         uvUp = uv;
         this.side1 = side1;
         this.side2 = side2;
+    }
+
+    public DIRECTION getDirection() {
+        return direction;
     }
 
     public static void setUvDown(List<Vector2f> theUvDown) {
@@ -61,6 +70,10 @@ public class Domino extends Sprite {
         this.setNewPosition(new Vector3f(x * TILE_WIDTH, y * TILE_WIDTH, getPosition().z));
     }
 
+    public void setDirection(DIRECTION direction) {
+        this.direction = direction;
+    }
+
     public void moveUp() {
         this.move(new Vector3f(0.0f, TILE_WIDTH, 0.0f));
     }
@@ -75,14 +88,50 @@ public class Domino extends Sprite {
 
     public void moveRight() {
         this.move(new Vector3f(TILE_WIDTH, 0.0f, 0.0f));
+
+        this.setSize(new Vector2f(TILES_PER_SIDE * TILE_WIDTH * direction.x, TILES_PER_SIDE * TILE_WIDTH * direction.y));
     }
 
     public void rotateClockWise() {
         direction = DIRECTION.getRirectionByNumber((direction.getNumber() + 1) % 4);
+
+        this.setSize(new Vector2f(TILES_PER_SIDE * TILE_WIDTH * direction.x, TILES_PER_SIDE * TILE_WIDTH * direction.y));
     }
 
     public void rotateCounterClockWise() {
         direction = DIRECTION.getRirectionByNumber((direction.getNumber() + 3) % 4);
+    }
+
+    public static void setUvMaskGreen(List<Vector2f> uv) {
+        uvMaskGreen = uv;
+    }
+
+    public static void setUvMaskNull(List<Vector2f> uv) {
+        uvMaskNull = uv;
+    }
+
+    public void uvMaskNull() {
+        uv = uvMaskNull;
+    }
+
+    public void uvMaskGreen() {
+        uv = uvMaskGreen;
+    }
+
+    public void uvMaskRed() {
+        uv = uvMaskRed;
+    }
+
+    public void uvMaskSelected() {
+        uv = uvMaskSelected;
+    }
+
+    public static void setUvMaskRed(List<Vector2f> uv) {
+        uvMaskRed = uv;
+    }
+
+    public static void setUvMaskSelected(List<Vector2f> uv) {
+        uvMaskSelected = uv;
     }
 
     public static void setDominoesTexture(Texture texture) {

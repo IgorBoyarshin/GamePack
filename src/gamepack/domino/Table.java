@@ -1,21 +1,13 @@
 package gamepack.domino;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Vector;
-
 /**
  * Created by Igor on 18-Jun-15.
  */
 public class Table {
-//    private TableElement root;
-//    private TableElement currentNext;
-//    private TableElement currentPrev;
-
-    private Vector2i prevPos;
-    private Vector2i nextPos;
-    private int prevNumber;
-    private int nextNumber;
+    private Vector2i tailPos;
+    private Vector2i headPos;
+    private int tailNumber;
+    private int headNumber;
 
     private int amount;
 
@@ -29,82 +21,103 @@ public class Table {
         field = new boolean[fieldSize][fieldSize];
     }
 
+    public Vector2i getHeadPos() {
+        return headPos;
+    }
+
+    public Vector2i getTailPos() {
+        return tailPos;
+    }
+
+    public int getTailNumber() {
+        return tailNumber;
+    }
+
+    public int getHeadNumber() {
+        return headNumber;
+    }
+
     public void placeDomino(Domino domino) {
         if (isPositionValid(domino)) {
+            int side1 = domino.getSide1();
+            int side2 = domino.getSide2();
+
+            int posX = (int) (domino.getPosition().x / Domino.getTileWidth());
+            int posY = (int) (domino.getPosition().y / Domino.getTileWidth());
+
             if (amount == 0) {
-//                root = new TableElement(domino);
-//                currentNext = root;
-//                currentPrev = root;
-//                numberNext = domino.getSide1();// they are supposed to be the same
-//                numberPrev = domino.getSide1();
-
-
-                nextNumber = domino.getSide2();
-                prevNumber = domino.getSide1();
-
-                int posX = (int) (domino.getPosition().x / Domino.getTileWidth());
-                int posY = (int) (domino.getPosition().y / Domino.getTileWidth());
+                headNumber = side1;
+                tailNumber = side2;
 
                 switch (domino.getDirection()) {
                     case UP: {
-                        if (domino.getSide1() == domino.getSide2()) {
-                            nextPos = new Vector2i(posX, posY + 1);
-                            prevPos = new Vector2i(posX, posY + 1);
+                        if (side1 == side2) {
+                            headPos = new Vector2i(posX + 1, posY + 2);
+                            tailPos = new Vector2i(posX + 1, posY + 2);
                         } else {
-                            nextPos = new Vector2i(posX, posY + 2);
-                            prevPos = new Vector2i(posX, posY);
+                            headPos = new Vector2i(posX + 1, posY + 3);
+                            tailPos = new Vector2i(posX + 1, posY + 1);
                         }
                         break;
                     }
                     case RIGHT: {
-                        if (domino.getSide1() == domino.getSide2()) {
-                            nextPos = new Vector2i(posX + 1, posY - 2);
-                            prevPos = new Vector2i(posX + 1, posY - 2);
+                        if (side1 == side2) {
+                            headPos = new Vector2i(posX + 2, posY + 1);
+                            tailPos = new Vector2i(posX + 2, posY + 1);
+
                         } else {
-                            nextPos = new Vector2i(posX + 2, posY - 2);
-                            prevPos = new Vector2i(posX, posY - 2);
+                            headPos = new Vector2i(posX + 3, posY + 1);
+                            tailPos = new Vector2i(posX + 1, posY + 1);
                         }
                         break;
                     }
                     case DOWN: {
-                        if (domino.getSide1() == domino.getSide2()) {
-                            nextPos = new Vector2i(posX, posY - 3);
-                            prevPos = new Vector2i(posX, posY - 3);
+                        if (side1 == side2) {
+                            headPos = new Vector2i(posX + 1, posY + 2);
+                            tailPos = new Vector2i(posX + 1, posY + 2);
                         } else {
-                            nextPos = new Vector2i(posX - 2, posY - 4);
-                            prevPos = new Vector2i(posX - 2, posY - 2);
+                            headPos = new Vector2i(posX + 1, posY + 1);
+                            tailPos = new Vector2i(posX + 1, posY + 3);
                         }
                         break;
                     }
                     case LEFT: {
-                        if (domino.getSide1() == domino.getSide2()) {
-                            nextPos = new Vector2i(posX - 3, posY + 1);
-                            prevPos = new Vector2i(posX - 3, posY + 1);
+                        if (side1 == side2) {
+                            headPos = new Vector2i(posX + 2, posY + 1);
+                            tailPos = new Vector2i(posX + 2, posY + 1);
                         } else {
-                            nextPos = new Vector2i(posX - 2, posY - 2);
-                            prevPos = new Vector2i(posX - 4, posY - 2);
+                            headPos = new Vector2i(posX + 1, posY + 1);
+                            tailPos = new Vector2i(posX + 3, posY + 1);
                         }
                         break;
                     }
                 }
 
             } else {
-                int posX = (int) (domino.getPosition().x / Domino.getTileWidth());
-                int posY = (int) (domino.getPosition().y / Domino.getTileWidth());
-
-                if (isPrev(domino)) {
+                if (isHead(domino)) {
                     if (domino.getSide1() == domino.getSide2()) {
-                        prevPos.x = posX + (int)domino.getDirection().getX();
-                        prevPos.y = posY + (int)domino.getDirection().getY();
+                        tailPos = getCenterPos(domino);
                     } else {
-                        if (domino.getSide2() == prevNumber) {
-
+                        if (domino.getSide1() == tailNumber) {
+                            tailNumber = domino.getSide2();
+                            tailPos = getTailPos(domino);
                         } else {
-
+                            tailNumber = domino.getSide1();
+                            tailPos = getHeadPos(domino);
                         }
                     }
                 } else {
-
+                    if (domino.getSide1() == domino.getSide2()) {
+                        headPos = getCenterPos(domino);
+                    } else {
+                        if (domino.getSide1() == tailNumber) {
+                            headNumber = domino.getSide2();
+                            headPos = getTailPos(domino);
+                        } else {
+                            headNumber = domino.getSide1();
+                            headPos = getHeadPos(domino);
+                        }
+                    }
                 }
             }
 
@@ -113,48 +126,99 @@ public class Table {
         }
     }
 
-
-    // TODO: rewrite. Wrong sizes
-    public boolean isPrev(Domino domino) {
+    private Vector2i getCenterPos(Domino domino) {
         int posX = (int) (domino.getPosition().x / Domino.getTileWidth());
         int posY = (int) (domino.getPosition().y / Domino.getTileWidth());
 
         switch (domino.getDirection()) {
+            case UP:
+                return new Vector2i(posX + 1, posY + 2);
+            case RIGHT:
+                return new Vector2i(posX + 2, posY + 1);
+            case DOWN:
+                return new Vector2i(posX + 1, posY + 2);
+            case LEFT:
+                return new Vector2i(posX + 2, posY + 1);
+            default:
+                return null;
+        }
+    }
+
+    private Vector2i getHeadPos(Domino domino) {
+        int posX = (int) (domino.getPosition().x / Domino.getTileWidth());
+        int posY = (int) (domino.getPosition().y / Domino.getTileWidth());
+
+        switch (domino.getDirection()) {
+            case UP:
+                return new Vector2i(posX + 1, posY + 3);
+            case RIGHT:
+                return new Vector2i(posX + 3, posY + 1);
+            case DOWN:
+                return new Vector2i(posX + 1, posY + 1);
+            case LEFT:
+                return new Vector2i(posX + 1, posY + 1);
+            default:
+                return null;
+        }
+    }
+
+    private Vector2i getTailPos(Domino domino) {
+        int posX = (int) (domino.getPosition().x / Domino.getTileWidth());
+        int posY = (int) (domino.getPosition().y / Domino.getTileWidth());
+
+        switch (domino.getDirection()) {
+            case UP:
+                return new Vector2i(posX + 1, posY + 1);
+            case RIGHT:
+                return new Vector2i(posX + 1, posY + 1);
+            case DOWN:
+                return new Vector2i(posX + 1, posY + 3);
+            case LEFT:
+                return new Vector2i(posX + 3, posY + 1);
+            default:
+                return null;
+        }
+    }
+
+    private boolean isHead(Domino domino) {
+        int posX = (int) (domino.getPosition().x / Domino.getTileWidth());
+        int posY = (int) (domino.getPosition().y / Domino.getTileWidth());
+        int centerX = 0;
+        int centerY = 0;
+
+        // Determine where the center of the new domino is
+        switch (domino.getDirection()) {
             case UP: {
-                if (prevPos.x >= posX - 2 && prevPos.x <= posX + 4) {
-                    if (prevPos.y >= posY - 2 && prevPos.y <= posY + 6) {
-                        return true;
-                    }
-                }
+                centerX = posX + 1;
+                centerY = posY + 2;
                 break;
             }
             case RIGHT: {
-                if (prevPos.x >= posX - 2 && prevPos.x <= posX + 6) {
-                    if (prevPos.y >= posY - 4 && prevPos.y <= posY + 2) {
-                        return true;
-                    }
-                }
+                centerX = posX + 2;
+                centerY = posY + 1;
                 break;
             }
             case DOWN: {
-                if (prevPos.x >= posX - 4 && prevPos.x <= posX + 2) {
-                    if (prevPos.y >= posY - 6 && prevPos.y <= posY + 2) {
-                        return true;
-                    }
-                }
+                centerX = posX + 1;
+                centerY = posY + 2;
                 break;
             }
             case LEFT: {
-                if (prevPos.x >= posX - 6 && prevPos.x <= posX + 2) {
-                    if (prevPos.y >= posY - 2 && prevPos.y <= posY + 4) {
-                        return true;
-                    }
-                }
+                centerX = posX + 2;
+                centerY = posY + 1;
                 break;
             }
         }
 
+        if (distance(headPos.x, headPos.y, centerX, centerY) < distance(tailPos.x, tailPos.y, centerX, centerY)) {
+            return true;
+        }
+
         return false;
+    }
+
+    private int distance(int x1, int y1, int x2, int y2) {
+        return ((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
     }
 
     public boolean isPositionValid(Domino domino) {

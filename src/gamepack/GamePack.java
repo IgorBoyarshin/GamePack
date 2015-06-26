@@ -70,7 +70,6 @@ public class GamePack {
         long nano = System.nanoTime();
         final float ONE_SECOND = 1000000000.0f;
 
-//        while (!window.isClosed()) {
         while (!window.isClosed() && mainMenu.isAlive()) {
             window.clear();
 

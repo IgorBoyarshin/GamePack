@@ -29,7 +29,6 @@ public class DominoGame extends Game {
     private final int fieldSize = 9;
     private final int tilesPerBlock = 4;
     private Sprite field[][];
-    private boolean fieldTaken[][];
 
     private final int DOMINOES_AMOUNT = 28;
     private final int HAND_AMOUNT = 5;
@@ -37,13 +36,16 @@ public class DominoGame extends Game {
     private List<Domino> pool;
     private List<Domino> player1;
     private List<Domino> player2;
+
     private CurrentDomino currentDomino;
     private int currentNumberDomino = 0;
 
     private boolean player1Move = true;
+    private Table table;
+
 
     private Texture tileTexture;
-    private Map<Integer, List<Domino>> dominoes;
+//    private Map<Integer, List<Domino>> dominoes;
 
     public DominoGame(float width, float height, Window window) {
         super(width, height, window);
@@ -52,12 +54,11 @@ public class DominoGame extends Game {
         menuLayer = new Layer();
 
         field = new Sprite[fieldSize][fieldSize];
-        fieldTaken = new boolean[fieldSize * tilesPerBlock][fieldSize * tilesPerBlock];
 
         allDominoes = new ArrayList<>();
         menu = new Menu();
 
-        dominoes = new HashMap<>();
+//        dominoes = new HashMap<>();
         tileTexture = new Texture(
                 System.getProperty("user.dir") + "//resources//domino//textures//tile4_4.png", Texture.TYPE_RGB);
 
@@ -67,6 +68,8 @@ public class DominoGame extends Game {
 
         currentDomino = new CurrentDomino(player1.get(0));
         currentDomino.submitMaskTo(gameLayer);
+
+        table = new Table(30);
     }
 
     private void prepareField() {
@@ -90,6 +93,12 @@ public class DominoGame extends Game {
         preparePoolAndPlayers();
     }
 
+    private void makePlayer2Move() {
+
+
+        player1Move = true;
+    }
+
     private void prepareDominoes() {
         Texture dominoesTexture = new Texture(
                 System.getProperty("user.dir") + "//resources//domino//textures//dominoes3.png", Texture.TYPE_RGBA);
@@ -103,7 +112,6 @@ public class DominoGame extends Game {
         final float dominoHeight = 2.0f * dominoWidth;
 
         for (int i = 6; i >= 0; i--) {
-            dominoes.put(i, new ArrayList<>());
             for (int j = i; j >= 0; j--) {
                 List<Vector2f> uv = new ArrayList<>();
                 Vector4f coords = new Vector4f(
@@ -112,87 +120,64 @@ public class DominoGame extends Game {
                         (6 - i + 1) * dominoWidth / imageWidth,
                         (i - j + 1) * dominoHeight / imageHeight);
 
-//                uv.add(new Vector2f(coords.x, coords.w));
-//                uv.add(new Vector2f(coords.x, coords.y));
-//                uv.add(new Vector2f(coords.z, coords.y));
-//                uv.add(new Vector2f(coords.z, coords.w));
-
-                uv.add(new Vector2f(coords.x, coords.y));
                 uv.add(new Vector2f(coords.x, coords.w));
-                uv.add(new Vector2f(coords.z, coords.w));
+                uv.add(new Vector2f(coords.x, coords.y));
                 uv.add(new Vector2f(coords.z, coords.y));
+                uv.add(new Vector2f(coords.z, coords.w));
 
                 Vector3f position = new Vector3f((6 - i) * 8.0f, HEIGHT - (i - j) * 8.0f, gameLayerDominoesZ);
 
                 Domino domino = new Domino(i, j, position, Domino.DIRECTION.UP, uv);
 
-                // TODO: decide what structure to use
-                dominoes.get(i).add(domino);
                 allDominoes.add(domino);
 
                 gameLayer.add(domino);
             }
         }
 
+        float ratioW = dominoWidth / imageWidth;
+        float rationH = dominoHeight / imageHeight;
+        float shift = 1.0f;
+
         List<Vector2f> uvDown = new ArrayList<>();
-        Vector4f coords = new Vector4f(
-                (6 - 0) * dominoWidth / imageWidth,
-                (0 + 1) * dominoHeight / imageHeight,
-                (6 - 0 + 1) * dominoWidth / imageWidth,
-                (0 + 1 + 1) * dominoHeight / imageHeight);
-        uvDown.add(new Vector2f(coords.x, coords.y));
-        uvDown.add(new Vector2f(coords.x, coords.w));
-        uvDown.add(new Vector2f(coords.z, coords.w));
-        uvDown.add(new Vector2f(coords.z, coords.y));
-        Domino.setUvDown(uvDown);
+        uvDown.add(new Vector2f(6.0f * ratioW, (1.0f + shift) * rationH));
+        uvDown.add(new Vector2f(6.0f * ratioW, (0.0f + shift) * rationH));
+        uvDown.add(new Vector2f(7.0f * ratioW, (0.0f + shift) * rationH));
+        uvDown.add(new Vector2f(7.0f * ratioW, (1.0f + shift) * rationH));
 
-        List<Vector2f> uv = new ArrayList<>();
-        coords = new Vector4f(
-                (6 - 0) * dominoWidth / imageWidth,
-                (0 + 2) * dominoHeight / imageHeight,
-                (6 - 0 + 1) * dominoWidth / imageWidth,
-                (0 + 1 + 2) * dominoHeight / imageHeight);
-        uv.add(new Vector2f(coords.x, coords.y));
-        uv.add(new Vector2f(coords.x, coords.w));
-        uv.add(new Vector2f(coords.z, coords.w));
-        uv.add(new Vector2f(coords.z, coords.y));
-        Domino.setUvMaskSelected(uv);
+        shift += 1.0f;
 
-        uv = new ArrayList<>();
-        coords = new Vector4f(
-                (6 - 0) * dominoWidth / imageWidth,
-                (0 + 3) * dominoHeight / imageHeight,
-                (6 - 0 + 1) * dominoWidth / imageWidth,
-                (0 + 1 + 3) * dominoHeight / imageHeight);
-        uv.add(new Vector2f(coords.x, coords.y));
-        uv.add(new Vector2f(coords.x, coords.w));
-        uv.add(new Vector2f(coords.z, coords.w));
-        uv.add(new Vector2f(coords.z, coords.y));
-        Domino.setUvMaskGreen(uv);
+        List<Vector2f> uvSelected = new ArrayList<>();
+        uvSelected.add(new Vector2f(6.0f * ratioW, (1.0f + shift) * rationH));
+        uvSelected.add(new Vector2f(6.0f * ratioW, (0.0f + shift) * rationH));
+        uvSelected.add(new Vector2f(7.0f * ratioW, (0.0f + shift) * rationH));
+        uvSelected.add(new Vector2f(7.0f * ratioW, (1.0f + shift) * rationH));
 
-        uv = new ArrayList<>();
-        coords = new Vector4f(
-                (6 - 0) * dominoWidth / imageWidth,
-                (0 + 4) * dominoHeight / imageHeight,
-                (6 - 0 + 1) * dominoWidth / imageWidth,
-                (0 + 1 + 4) * dominoHeight / imageHeight);
-        uv.add(new Vector2f(coords.x, coords.y));
-        uv.add(new Vector2f(coords.x, coords.w));
-        uv.add(new Vector2f(coords.z, coords.w));
-        uv.add(new Vector2f(coords.z, coords.y));
-        Domino.setUvMaskRed(uv);
+        shift += 1.0f;
 
-        uv = new ArrayList<>();
-        coords = new Vector4f(
-                (6 - 0) * dominoWidth / imageWidth,
-                (0 + 5) * dominoHeight / imageHeight,
-                (6 - 0 + 1) * dominoWidth / imageWidth,
-                (0 + 1 + 5) * dominoHeight / imageHeight);
-        uv.add(new Vector2f(coords.x, coords.y));
-        uv.add(new Vector2f(coords.x, coords.w));
-        uv.add(new Vector2f(coords.z, coords.w));
-        uv.add(new Vector2f(coords.z, coords.y));
-        Domino.setUvMaskNull(uv);
+        List<Vector2f> uvGreen = new ArrayList<>();
+        uvGreen.add(new Vector2f(6.0f * ratioW, (1.0f + shift) * rationH));
+        uvGreen.add(new Vector2f(6.0f * ratioW, (0.0f + shift) * rationH));
+        uvGreen.add(new Vector2f(7.0f * ratioW, (0.0f + shift) * rationH));
+        uvGreen.add(new Vector2f(7.0f * ratioW, (1.0f + shift) * rationH));
+
+        shift += 1.0f;
+
+        List<Vector2f> uvRed = new ArrayList<>();
+        uvRed.add(new Vector2f(6.0f * ratioW, (1.0f + shift) * rationH));
+        uvRed.add(new Vector2f(6.0f * ratioW, (0.0f + shift) * rationH));
+        uvRed.add(new Vector2f(7.0f * ratioW, (0.0f + shift) * rationH));
+        uvRed.add(new Vector2f(7.0f * ratioW, (1.0f + shift) * rationH));
+
+        shift += 1.0f;
+
+        List<Vector2f> uvNull = new ArrayList<>();
+        uvNull.add(new Vector2f(6.0f * ratioW, (1.0f + shift) * rationH));
+        uvNull.add(new Vector2f(6.0f * ratioW, (0.0f + shift) * rationH));
+        uvNull.add(new Vector2f(7.0f * ratioW, (0.0f + shift) * rationH));
+        uvNull.add(new Vector2f(7.0f * ratioW, (1.0f + shift) * rationH));
+
+        Domino.setUvs(uvDown, uvGreen, uvRed, uvSelected, uvNull);
     }
 
     private Domino getDomino(int side1, int side2) {
@@ -245,23 +230,13 @@ public class DominoGame extends Game {
 
         for (int i = 0; i < player1.size(); i++) {
             Domino domino = player1.get(i);
-            domino.setPosition(i * Domino.TILES_PER_SIDE + i, 1);
+            domino.setPosition(i * Domino.TILES_PER_SIDE + i * 2, 1);
         }
 
         for (int i = 0; i < player2.size(); i++) {
             Domino domino = player2.get(i);
-            domino.setPosition(i * Domino.TILES_PER_SIDE + i, 25);
+            domino.setPosition(i * Domino.TILES_PER_SIDE + i * 2, 25);
         }
-    }
-
-    @Override
-    public void update(float delta) {
-        keyboard();
-    }
-
-    @Override
-    public void render() {
-        gameLayer.render();
     }
 
     private void keyboard() {
@@ -281,16 +256,77 @@ public class DominoGame extends Game {
             if (window.isKeyDown(GLFW_KEY_RIGHT)) {
                 lastKeyboard = System.currentTimeMillis();
 
-                currentNumberDomino = (currentNumberDomino + 1) % player1.size();
-                currentDomino.setCurrentDomino(player1.get(currentNumberDomino));
+                if (!currentDomino.isChosen()) {
+                    currentNumberDomino = (currentNumberDomino + 1) % player1.size();
+                    currentDomino.setCurrentDomino(player1.get(currentNumberDomino));
+                } else {
+                    currentDomino.moveRight();
+                }
             }
 
             if (window.isKeyDown(GLFW_KEY_LEFT)) {
                 lastKeyboard = System.currentTimeMillis();
 
-                currentNumberDomino = (currentNumberDomino + 4) % player1.size();
-                currentDomino.setCurrentDomino(player1.get(currentNumberDomino));
+                if (!currentDomino.isChosen()) {
+                    currentNumberDomino = (currentNumberDomino + (player1.size() - 1)) % player1.size();
+                    currentDomino.setCurrentDomino(player1.get(currentNumberDomino));
+                } else {
+                    currentDomino.moveLeft();
+                }
+            }
+
+            if (window.isKeyDown(GLFW_KEY_UP)) {
+                lastKeyboard = System.currentTimeMillis();
+
+                if (currentDomino.isChosen()) {
+                    currentDomino.moveUp();
+                }
+            }
+
+            if (window.isKeyDown(GLFW_KEY_DOWN)) {
+                lastKeyboard = System.currentTimeMillis();
+
+                if (currentDomino.isChosen()) {
+                    currentDomino.moveDown();
+                }
+            }
+
+            if (window.isKeyDown(GLFW_KEY_ENTER)) {
+                lastKeyboard = System.currentTimeMillis();
+
+                if (!currentDomino.isChosen()) {
+                    currentDomino.setChosen();
+                } else {
+                    table.placeDomino(currentDomino.getDomino());
+                    player1.remove(currentDomino.getDomino());
+                    currentDomino.unChoose();
+                    currentNumberDomino = 0;
+                    positionPoolAndPlayers();
+                    currentDomino.setCurrentDomino(player1.get(0));
+                }
+            }
+
+            if (window.isKeyDown(GLFW_KEY_LEFT_CONTROL)) {
+                lastKeyboard = System.currentTimeMillis();
+
+                if (currentDomino.isChosen()) {
+                    currentDomino.rotateClockWise();
+                }
             }
         }
+    }
+
+    @Override
+    public void update(float delta) {
+        if (player1Move) {
+            keyboard();
+        } else {
+            makePlayer2Move();
+        }
+    }
+
+    @Override
+    public void render() {
+        gameLayer.render();
     }
 }

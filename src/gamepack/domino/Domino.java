@@ -16,6 +16,7 @@ public class Domino extends Sprite {
     private static float TILE_WIDTH = 2.0f;
     public static final int TILES_PER_SIDE = 2;
 
+    //    private boolean flippedDown = false;
     private List<Vector2f> uvUp;
     private static List<Vector2f> uvDown;
     private static List<Vector2f> uvMaskGreen;
@@ -28,22 +29,67 @@ public class Domino extends Sprite {
     private final int side2;
 
     public Domino(final int side1, final int side2, Vector3f position, DIRECTION direction, List<Vector2f> uv) {
-        super(position, new Vector2f(TILES_PER_SIDE * TILE_WIDTH * direction.x, TILES_PER_SIDE * TILE_WIDTH * direction.y),
+        super(position, new Vector2f(TILES_PER_SIDE * TILE_WIDTH * 1.0f, TILES_PER_SIDE * TILE_WIDTH * 2.0f),
                 dominoes, Game.spriteRenderer, Game.spriteShader);
 
-        this.direction = direction;
+        this.direction = DIRECTION.UP;
         this.uv = uv;
         uvUp = uv;
         this.side1 = side1;
         this.side2 = side2;
+
+        rotateUv(direction);
+        rotatePositionAndSize(direction);
+
+        this.direction = direction;
+    }
+
+    private void rotatePositionAndSize(DIRECTION direction) {
+        if (!(this.direction.getX() == direction.getX())) {
+            this.move(new Vector3f(
+                    (direction.getX() - this.direction.getX()) * TILE_WIDTH,
+                    (direction.getY() - this.direction.getY()) * TILE_WIDTH,
+                    0.0f));
+
+            Vector2f oldSize = this.getSize();
+
+            this.setSize(new Vector2f(
+                    oldSize.x - (direction.getX() - this.direction.getX()) * 2.0f * TILE_WIDTH,
+                    oldSize.y - (direction.getY() - this.direction.getY()) * 2.0f * TILE_WIDTH));
+        }
+    }
+
+    private void rotateUv(DIRECTION direction) {
+        if (this.getUV() != null) {
+            int c = (direction.getNumber() - this.direction.getNumber() + 4) % 4;
+
+            for (int i = 0; i < c; i++) {
+                rotateUvCoord();
+            }
+        } else {
+            // TODO: get rif of that check
+        }
+    }
+
+    private void rotateUvCoord() {
+        // Permutation
+        List<Vector2f> list = this.getUV();
+
+        Vector2f end = list.remove(list.size() - 1);
+        list.add(0, end);
     }
 
     public DIRECTION getDirection() {
         return direction;
     }
 
-    public static void setUvDown(List<Vector2f> theUvDown) {
-        uvDown = theUvDown;
+    public void setDirection(DIRECTION direction, boolean setNew) {
+        rotatePositionAndSize(direction);
+        rotateUv(direction);
+
+        if (setNew) {
+            this.direction = direction;
+        }
     }
 
     public void flipUp() {
@@ -62,16 +108,8 @@ public class Domino extends Sprite {
         return side2;
     }
 
-    public static void setTileWidth(float newTileWidth) {
-        TILE_WIDTH = newTileWidth;
-    }
-
     public void setPosition(int x, int y) {
         this.setNewPosition(new Vector3f(x * TILE_WIDTH, y * TILE_WIDTH, getPosition().z));
-    }
-
-    public void setDirection(DIRECTION direction) {
-        this.direction = direction;
     }
 
     public void moveUp() {
@@ -88,26 +126,10 @@ public class Domino extends Sprite {
 
     public void moveRight() {
         this.move(new Vector3f(TILE_WIDTH, 0.0f, 0.0f));
-
-        this.setSize(new Vector2f(TILES_PER_SIDE * TILE_WIDTH * direction.x, TILES_PER_SIDE * TILE_WIDTH * direction.y));
     }
 
     public void rotateClockWise() {
-        direction = DIRECTION.getRirectionByNumber((direction.getNumber() + 1) % 4);
-
-        this.setSize(new Vector2f(TILES_PER_SIDE * TILE_WIDTH * direction.x, TILES_PER_SIDE * TILE_WIDTH * direction.y));
-    }
-
-    public void rotateCounterClockWise() {
-        direction = DIRECTION.getRirectionByNumber((direction.getNumber() + 3) % 4);
-    }
-
-    public static void setUvMaskGreen(List<Vector2f> uv) {
-        uvMaskGreen = uv;
-    }
-
-    public static void setUvMaskNull(List<Vector2f> uv) {
-        uvMaskNull = uv;
+        setDirection(DIRECTION.getDirectionByNumber((direction.getNumber() + 1) % 4), true);
     }
 
     public void uvMaskNull() {
@@ -126,20 +148,30 @@ public class Domino extends Sprite {
         uv = uvMaskSelected;
     }
 
-    public static void setUvMaskRed(List<Vector2f> uv) {
-        uvMaskRed = uv;
-    }
+    public static void setUvs(List<Vector2f> uvD, List<Vector2f> uvGreen,
+                              List<Vector2f> uvRed, List<Vector2f> uvSelected, List<Vector2f> uvNull) {
 
-    public static void setUvMaskSelected(List<Vector2f> uv) {
-        uvMaskSelected = uv;
+        uvDown = uvD;
+        uvMaskRed = uvRed;
+        uvMaskGreen = uvGreen;
+        uvMaskSelected = uvSelected;
+        uvMaskNull = uvNull;
     }
 
     public static void setDominoesTexture(Texture texture) {
         dominoes = texture;
     }
 
+    public static void setTileWidth(float newTileWidth) {
+        TILE_WIDTH = newTileWidth;
+    }
+
+    public static float getTileWidth() {
+        return TILE_WIDTH;
+    }
+
     public enum DIRECTION {
-        UP(1.0f, 2.0f, 0), RIGHT(2.0f, 1.0f, 1), DOWN(1.0f, -2.0f, 2), LEFT(-2.0f, -1.0f, 3);
+        UP(0.0f, 0.0f, 0), RIGHT(-1.0f, 1.0f, 1), DOWN(0.0f, 0.0f, 2), LEFT(-1.0f, 1.0f, 3);
 
         private final float x;
         private final float y;
@@ -157,7 +189,7 @@ public class Domino extends Sprite {
             return number;
         }
 
-        static DIRECTION getRirectionByNumber(int number) {
+        static DIRECTION getDirectionByNumber(int number) {
             switch (number) {
                 case 0:
                     return UP;

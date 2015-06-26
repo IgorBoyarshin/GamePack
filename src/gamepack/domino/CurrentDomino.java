@@ -9,19 +9,53 @@ import himmel.math.Vector3f;
 public class CurrentDomino {
     private Domino domino;
     private Domino mask;
+    private boolean chosen = false;
+    private final float currentDominoShift = 0.05f;
+    private final float currentDominoMaskShift = 0.1f;
 
     public CurrentDomino(Domino current) {
-        domino = current;
-        Vector3f pos = current.getPosition();
-        mask = new Domino(0, 0, new Vector3f(pos.x, pos.y, pos.z + 0.1f), current.getDirection(), null);
-        mask.uvMaskSelected();
+        prepareMaskAndDomino(current);
+    }
+
+    private void prepareMaskAndDomino(Domino newDomino) {
+        if (domino == null) { // If first time - prep mask
+            mask = new Domino(0, 0, new Vector3f(0.0f, 0.0f, 0.0f), Domino.DIRECTION.UP, null);
+            mask.uvMaskSelected();
+        } else {
+            domino.move(new Vector3f(0.0f, 0.0f, -currentDominoShift));
+        }
+
+        Vector3f pos = newDomino.getPosition();
+        domino = newDomino;
+        domino.move(new Vector3f(0.0f, 0.0f, currentDominoShift));
+        mask.setDirection(domino.getDirection(), true);
+        mask.setNewPosition(new Vector3f(pos.x, pos.y, pos.z + currentDominoMaskShift));
+    }
+
+    public Domino getDomino() {
+        return domino;
+    }
+
+    public boolean isChosen() {
+        return chosen;
+    }
+
+    private void restoreUvDirection() {
+        mask.setDirection(Domino.DIRECTION.UP, true);
+    }
+
+    public void unChoose() {
+        chosen = false;
+        maskSelected();
+    }
+
+    public void setChosen() {
+        chosen = true;
+        maskGreen();
     }
 
     public void setCurrentDomino(Domino current) {
-        domino = current;
-        Vector3f pos = current.getPosition();
-        mask.setNewPosition(new Vector3f(pos.x, pos.y, pos.z + 0.1f));
-        mask.setDirection(domino.getDirection());
+        prepareMaskAndDomino(current);
     }
 
     public void submitMaskTo(Layer layer) {
@@ -29,19 +63,28 @@ public class CurrentDomino {
     }
 
     public void maskNull() {
+        restoreUvDirection();
         mask.uvMaskNull();
     }
 
     public void maskGreen() {
+        restoreUvDirection();
         mask.uvMaskGreen();
     }
 
     public void maskRed() {
+        restoreUvDirection();
         mask.uvMaskRed();
     }
 
     public void maskSelected() {
+        restoreUvDirection();
         mask.uvMaskSelected();
+    }
+
+    public void rotateClockWise() {
+        domino.rotateClockWise();
+        mask.rotateClockWise();
     }
 
     public void moveUp() {

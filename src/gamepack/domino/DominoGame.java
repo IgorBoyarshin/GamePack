@@ -2,6 +2,9 @@ package gamepack.domino;
 
 import gamepack.Game;
 import gamepack.Menu;
+import gamepack.domino.players.AiPlayer;
+import gamepack.domino.players.HumanPlayer;
+import gamepack.domino.players.Player;
 import himmel.graphics.Sprite;
 import himmel.graphics.Texture;
 import himmel.graphics.Window;
@@ -25,6 +28,7 @@ public class DominoGame extends Game {
     private final float gameLayerFieldZ = -0.5f;
     private Menu menu;
 
+    private Texture tileTexture;
     private final float tileSize = 2.0f;
     private final int fieldSize = 9;
     private final int tilesPerBlock = 4;
@@ -33,19 +37,11 @@ public class DominoGame extends Game {
     private final int DOMINOES_AMOUNT = 28;
     private final int HAND_AMOUNT = 5;
     private List<Domino> allDominoes;
-    private List<Domino> pool;
-    private List<Domino> player1;
-    private List<Domino> player2;
 
-    private CurrentDomino currentDomino;
-    private int currentNumberDomino = 0;
+    private Player player1;
+    private Player player2;
 
     private boolean player1Move = true;
-    private Table table;
-
-
-    private Texture tileTexture;
-//    private Map<Integer, List<Domino>> dominoes;
 
     public DominoGame(float width, float height, Window window) {
         super(width, height, window);
@@ -58,18 +54,12 @@ public class DominoGame extends Game {
         allDominoes = new ArrayList<>();
         menu = new Menu();
 
-//        dominoes = new HashMap<>();
         tileTexture = new Texture(
                 System.getProperty("user.dir") + "//resources//domino//textures//tile4_4.png", Texture.TYPE_RGB);
 
         prepareDominoes();
         prepareField();
         preparePoolAndPlayers();
-
-        currentDomino = new CurrentDomino(player1.get(0));
-        currentDomino.submitMaskTo(gameLayer);
-
-        table = new Table(30);
     }
 
     private void prepareField() {
@@ -91,12 +81,6 @@ public class DominoGame extends Game {
 
     private void restart() {
         preparePoolAndPlayers();
-    }
-
-    private void makePlayer2Move() {
-
-
-        player1Move = true;
     }
 
     private void prepareDominoes() {
@@ -196,9 +180,9 @@ public class DominoGame extends Game {
             numbers.add(i);
         }
 
-        player1 = new ArrayList<>();
-        player2 = new ArrayList<>();
-        pool = new ArrayList<>();
+        List<Domino> player1Dominoes = new ArrayList<>();
+        List<Domino> player2Dominoes = new ArrayList<>();
+        List<Domino> pool = new ArrayList<>();
 
         Random random = new Random();
         random.setSeed(System.currentTimeMillis());
@@ -207,10 +191,10 @@ public class DominoGame extends Game {
             int number = Math.abs(random.nextInt()) % numbers.size();
 
             if (i < HAND_AMOUNT) {
-                player1.add(allDominoes.get(numbers.get(number)));
+                player1Dominoes.add(allDominoes.get(numbers.get(number)));
                 allDominoes.get(numbers.get(number)).flipUp();
             } else if (i < 2 * HAND_AMOUNT) {
-                player2.add(allDominoes.get(numbers.get(number)));
+                player2Dominoes.add(allDominoes.get(numbers.get(number)));
                 allDominoes.get(numbers.get(number)).flipDown();
             } else {
                 pool.add(allDominoes.get(numbers.get(number)));
@@ -220,23 +204,17 @@ public class DominoGame extends Game {
             numbers.remove(number);
         }
 
+        player1 = new HumanPlayer("Player", player1Dominoes, window, gameLayer);
+        player2 = new AiPlayer("AI", player2Dominoes);
+        Player.prepareTable(pool);
+
         positionPoolAndPlayers();
     }
 
     private void positionPoolAndPlayers() {
-        for (Domino domino : pool) {
-            domino.setPosition(20, 20);
-        }
-
-        for (int i = 0; i < player1.size(); i++) {
-            Domino domino = player1.get(i);
-            domino.setPosition(i * Domino.TILES_PER_SIDE + i * 2, 1);
-        }
-
-        for (int i = 0; i < player2.size(); i++) {
-            Domino domino = player2.get(i);
-            domino.setPosition(i * Domino.TILES_PER_SIDE + i * 2, 25);
-        }
+        player1.reposition();
+        player2.reposition();
+        Player.repositionTable();
     }
 
     private void keyboard() {
@@ -252,76 +230,25 @@ public class DominoGame extends Game {
 
                 restart();
             }
-
-            if (window.isKeyDown(GLFW_KEY_RIGHT)) {
-                lastKeyboard = System.currentTimeMillis();
-
-                if (!currentDomino.isChosen()) {
-                    currentNumberDomino = (currentNumberDomino + 1) % player1.size();
-                    currentDomino.setCurrentDomino(player1.get(currentNumberDomino));
-                } else {
-                    currentDomino.moveRight();
-                }
-            }
-
-            if (window.isKeyDown(GLFW_KEY_LEFT)) {
-                lastKeyboard = System.currentTimeMillis();
-
-                if (!currentDomino.isChosen()) {
-                    currentNumberDomino = (currentNumberDomino + (player1.size() - 1)) % player1.size();
-                    currentDomino.setCurrentDomino(player1.get(currentNumberDomino));
-                } else {
-                    currentDomino.moveLeft();
-                }
-            }
-
-            if (window.isKeyDown(GLFW_KEY_UP)) {
-                lastKeyboard = System.currentTimeMillis();
-
-                if (currentDomino.isChosen()) {
-                    currentDomino.moveUp();
-                }
-            }
-
-            if (window.isKeyDown(GLFW_KEY_DOWN)) {
-                lastKeyboard = System.currentTimeMillis();
-
-                if (currentDomino.isChosen()) {
-                    currentDomino.moveDown();
-                }
-            }
-
-            if (window.isKeyDown(GLFW_KEY_ENTER)) {
-                lastKeyboard = System.currentTimeMillis();
-
-                if (!currentDomino.isChosen()) {
-                    currentDomino.setChosen();
-                } else {
-                    table.placeDomino(currentDomino.getDomino());
-                    player1.remove(currentDomino.getDomino());
-                    currentDomino.unChoose();
-                    currentNumberDomino = 0;
-                    positionPoolAndPlayers();
-                    currentDomino.setCurrentDomino(player1.get(0));
-                }
-            }
-
-            if (window.isKeyDown(GLFW_KEY_LEFT_CONTROL)) {
-                lastKeyboard = System.currentTimeMillis();
-
-                if (currentDomino.isChosen()) {
-                    currentDomino.rotateClockWise();
-                }
-            }
         }
     }
 
     @Override
     public void update(float delta) {
+        keyboard();
+
         if (player1Move) {
-            keyboard();
+            player1.makeMove();
+            if (player1.isMoveMade()) {
+                player1Move = false;
+                player1.endMove();
+            }
         } else {
-            makePlayer2Move();
+            player2.makeMove();
+            if (player2.isMoveMade()) {
+                player1Move = true;
+                player2.endMove();
+            }
         }
     }
 

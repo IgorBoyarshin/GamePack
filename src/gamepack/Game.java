@@ -18,8 +18,8 @@ public abstract class Game {
 
     protected boolean alive = true;
 
-    protected final long keyboardMillisDelay = 180;
-    protected long lastKeyboard = 0;
+    public static final long keyboardMillisDelay = 180;
+    public static long lastKeyboard = 0;
 
     public Game(float width, float height, Window window) {
         WIDTH = width;

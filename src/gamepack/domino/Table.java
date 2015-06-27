@@ -1,5 +1,7 @@
 package gamepack.domino;
 
+import java.util.List;
+
 /**
  * Created by Igor on 18-Jun-15.
  */
@@ -9,16 +11,33 @@ public class Table {
     private int tailNumber;
     private int headNumber;
 
+    private List<Domino> pool;
+
     private int amount;
 
     private final int fieldSize;
-
     private boolean field[][];
 
     public Table(int fieldSize) {
         this.fieldSize = fieldSize;
 
         field = new boolean[fieldSize][fieldSize];
+    }
+
+    public List<Domino> getPool() {
+        return pool;
+    }
+
+    public void setPool(List<Domino> pool) {
+        this.pool = pool;
+    }
+
+    public Domino takeDominoFromPool() {
+        if (pool.size() > 0) {
+            return pool.remove(0);
+        }
+
+        return null;
     }
 
     public Vector2i getHeadPos() {

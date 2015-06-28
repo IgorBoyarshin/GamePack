@@ -29,8 +29,8 @@ public class DominoGame extends Game {
     private Menu menu;
 
     private Texture tileTexture;
-    private final float tileSize = 2.0f;
-    private final int fieldSize = 9;
+    private final float tileSize = 1.7f;
+    private final int fieldBlockSize = 9;
     private final int tilesPerBlock = 4;
     private Sprite field[][];
 
@@ -49,7 +49,7 @@ public class DominoGame extends Game {
         gameLayer = new Layer();
         menuLayer = new Layer();
 
-        field = new Sprite[fieldSize][fieldSize];
+        field = new Sprite[fieldBlockSize][fieldBlockSize];
 
         allDominoes = new ArrayList<>();
         menu = new Menu();
@@ -63,8 +63,8 @@ public class DominoGame extends Game {
     }
 
     private void prepareField() {
-        for (int i = 0; i < fieldSize; i++) {
-            for (int j = 0; j < fieldSize; j++) {
+        for (int i = 0; i < fieldBlockSize; i++) {
+            for (int j = 0; j < fieldBlockSize; j++) {
                 final float blockSize = 4 * tileSize;
 
                 field[i][j] = new Sprite(
@@ -86,8 +86,8 @@ public class DominoGame extends Game {
     private void prepareDominoes() {
         Texture dominoesTexture = new Texture(
                 System.getProperty("user.dir") + "//resources//domino//textures//dominoes3.png", Texture.TYPE_RGBA);
-        Domino.setDominoesTexture(dominoesTexture);
 
+        Domino.setDominoesTexture(dominoesTexture);
         Domino.setTileWidth(tileSize);
 
         final float imageWidth = 448.0f;
@@ -109,9 +109,9 @@ public class DominoGame extends Game {
                 uv.add(new Vector2f(coords.z, coords.y));
                 uv.add(new Vector2f(coords.z, coords.w));
 
-                Vector3f position = new Vector3f((6 - i) * 8.0f, HEIGHT - (i - j) * 8.0f, gameLayerDominoesZ);
+//                Vector3f position = new Vector3f((6 - i) * 8.0f, HEIGHT - (i - j) * 8.0f, gameLayerDominoesZ);
 
-                Domino domino = new Domino(i, j, position, Domino.DIRECTION.UP, uv);
+                Domino domino = new Domino(i, j, new Vector2i(i, j), gameLayerDominoesZ, Domino.DIRECTION.UP, uv);
 
                 allDominoes.add(domino);
 
@@ -206,7 +206,7 @@ public class DominoGame extends Game {
 
         player1 = new HumanPlayer("Player", player1Dominoes, window, gameLayer);
         player2 = new AiPlayer("AI", player2Dominoes);
-        Player.prepareTable(pool);
+        Player.prepareTable(pool, fieldBlockSize * tilesPerBlock);
 
         positionPoolAndPlayers();
     }
@@ -214,7 +214,7 @@ public class DominoGame extends Game {
     private void positionPoolAndPlayers() {
         player1.reposition();
         player2.reposition();
-        Player.repositionTable();
+        Player.repositionPool();
     }
 
     private void keyboard() {
@@ -231,6 +231,10 @@ public class DominoGame extends Game {
                 restart();
             }
         }
+    }
+
+    public void destroy() {
+
     }
 
     @Override

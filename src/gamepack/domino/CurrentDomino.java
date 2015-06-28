@@ -19,17 +19,19 @@ public class CurrentDomino {
 
     private void prepareMaskAndDomino(Domino newDomino) {
         if (domino == null) { // If first time - prep mask
-            mask = new Domino(0, 0, new Vector3f(0.0f, 0.0f, 0.0f), Domino.DIRECTION.UP, null);
+            mask = new Domino(0, 0, new Vector2i(0, 0), 0.0f, Domino.DIRECTION.UP, null);
             mask.uvMaskSelected();
         } else {
             domino.move(new Vector3f(0.0f, 0.0f, -currentDominoShift));
         }
 
-        Vector3f pos = newDomino.getPosition();
+//        Vector3f pos = newDomino.getPosition();
         domino = newDomino;
         domino.move(new Vector3f(0.0f, 0.0f, currentDominoShift));
         mask.setDirection(domino.getDirection(), true);
-        mask.setNewPosition(new Vector3f(pos.x, pos.y, pos.z + currentDominoMaskShift));
+        mask.setNewPosition(new Vector3f(0.0f, 0.0f, currentDominoMaskShift));
+//        mask.setNewPosition(new Vector3f(pos.x, pos.y, pos.z + currentDominoMaskShift));
+        mask.setPositionCoord(domino.getPositionCoord().x, domino.getPositionCoord().y);
     }
 
     public Domino getDomino() {
@@ -63,23 +65,31 @@ public class CurrentDomino {
     }
 
     public void maskNull() {
+        Domino.DIRECTION direction = mask.getDirection();
         restoreUvDirection();
         mask.uvMaskNull();
+        mask.setDirection(direction, true);
     }
 
     public void maskGreen() {
+        Domino.DIRECTION direction = mask.getDirection();
         restoreUvDirection();
         mask.uvMaskGreen();
+        mask.setDirection(direction, true);
     }
 
     public void maskRed() {
+        Domino.DIRECTION direction = mask.getDirection();
         restoreUvDirection();
         mask.uvMaskRed();
+        mask.setDirection(direction, true);
     }
 
     public void maskSelected() {
+        Domino.DIRECTION direction = mask.getDirection();
         restoreUvDirection();
         mask.uvMaskSelected();
+        mask.setDirection(direction, true);
     }
 
     public void rotateClockWise() {

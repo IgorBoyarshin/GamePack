@@ -22,14 +22,14 @@ public abstract class Player {
         moveMade = false;
     }
 
-    public static void prepareTable(List<Domino> pool) {
-        table = new Table(30);
+    public static void prepareTable(List<Domino> pool, int fieldSize) {
+        table = new Table(fieldSize);
         table.setPool(pool);
     }
 
-    public static void repositionTable() {
+    public static void repositionPool() {
         for (Domino domino : table.getPool()) {
-            domino.setPosition(20, 20);
+            domino.setPositionCoord(32, 16);
         }
     }
 

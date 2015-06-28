@@ -33,7 +33,8 @@ public class HumanPlayer extends Player {
     public void reposition() {
         for (int i = 0; i < dominoes.size(); i++) {
             Domino domino = dominoes.get(i);
-            domino.setPosition(i * Domino.TILES_PER_SIDE + i * 2, 1);
+            domino.setPositionCoord(i * Domino.TILES_PER_SIDE + i * 2, 1);
+            domino.setDirection(Domino.DIRECTION.UP, true);
         }
 
         currentDomino.setCurrentDomino(dominoes.get(0));
@@ -49,6 +50,14 @@ public class HumanPlayer extends Player {
                     currentDomino.setCurrentDomino(dominoes.get(currentNumberDomino));
                 } else {
                     currentDomino.moveRight();
+                    System.out.println("CUR: " +
+                            currentDomino.getDomino().getPosition().x + ";" + currentDomino.getDomino().getPosition().y);
+
+                    if (Player.table.isPositionValid(currentDomino.getDomino())) {
+                        currentDomino.maskGreen();
+                    } else {
+                        currentDomino.maskRed();
+                    }
                 }
             }
 
@@ -60,6 +69,14 @@ public class HumanPlayer extends Player {
                     currentDomino.setCurrentDomino(dominoes.get(currentNumberDomino));
                 } else {
                     currentDomino.moveLeft();
+                    System.out.println("CUR: " +
+                            currentDomino.getDomino().getPosition().x + ";" + currentDomino.getDomino().getPosition().y);
+
+                    if (Player.table.isPositionValid(currentDomino.getDomino())) {
+                        currentDomino.maskGreen();
+                    } else {
+                        currentDomino.maskRed();
+                    }
                 }
             }
 
@@ -68,6 +85,14 @@ public class HumanPlayer extends Player {
 
                 if (currentDomino.isChosen()) {
                     currentDomino.moveUp();
+                    System.out.println("CUR: " +
+                            currentDomino.getDomino().getPosition().x + ";" + currentDomino.getDomino().getPosition().y);
+
+                    if (Player.table.isPositionValid(currentDomino.getDomino())) {
+                        currentDomino.maskGreen();
+                    } else {
+                        currentDomino.maskRed();
+                    }
                 }
             }
 
@@ -76,6 +101,14 @@ public class HumanPlayer extends Player {
 
                 if (currentDomino.isChosen()) {
                     currentDomino.moveDown();
+                    System.out.println("CUR: " +
+                            currentDomino.getDomino().getPosition().x + ";" + currentDomino.getDomino().getPosition().y);
+
+                    if (Player.table.isPositionValid(currentDomino.getDomino())) {
+                        currentDomino.maskGreen();
+                    } else {
+                        currentDomino.maskRed();
+                    }
                 }
             }
 
@@ -85,14 +118,19 @@ public class HumanPlayer extends Player {
                 if (!currentDomino.isChosen()) {
                     currentDomino.setChosen();
                 } else {
-                    table.placeDomino(currentDomino.getDomino());
-                    dominoes.remove(currentDomino.getDomino());
-                    currentDomino.unChoose();
-                    currentNumberDomino = 0;
-                    reposition();
-                    currentDomino.setCurrentDomino(dominoes.get(0));
+                    if (table.isPositionValid(currentDomino.getDomino())) {
+                        table.placeDomino(currentDomino.getDomino());
+                        dominoes.remove(currentDomino.getDomino());
+                        currentDomino.unChoose();
 
-                    moveMade = true;
+                        if (dominoes.size() > 0) {
+                            currentNumberDomino = 0;
+                            reposition();
+                            currentDomino.setCurrentDomino(dominoes.get(0));
+                        }
+
+                        moveMade = true;
+                    }
                 }
             }
 
@@ -101,6 +139,16 @@ public class HumanPlayer extends Player {
 
                 if (currentDomino.isChosen()) {
                     currentDomino.rotateClockWise();
+                }
+            }
+
+            if (window.isKeyDown(GLFW_KEY_T)) {
+                Game.lastKeyboard = System.currentTimeMillis();
+
+                if (!currentDomino.isChosen()) {
+                    dominoes.add(table.takeDominoFromPool());
+                    dominoes.get(dominoes.size() - 1).flipUp();
+                    reposition();
                 }
             }
         }

@@ -143,6 +143,8 @@ public class Table {
 
                     if (domino.getSide1() == domino.getSide2()) {
                         headPos = getCenterPos(domino);
+
+                        headDirection = Domino.DIRECTION.getDirectionByNumber((domino.getDirection().getNumber() + 1) % 4);
                     } else {
                         if (domino.getSide1() == headNumber) {
                             headNumber = domino.getSide2();
@@ -153,9 +155,9 @@ public class Table {
                             headPos = getHeadPos(domino);
                             markTrueX(getTailPos(domino));
                         }
-                    }
 
-                    headDirection = domino.getDirection();
+                        headDirection = domino.getDirection();
+                    }
 
                 } else {
                     if (amount > 1) {
@@ -164,6 +166,8 @@ public class Table {
 
                     if (domino.getSide1() == domino.getSide2()) {
                         tailPos = getCenterPos(domino);
+
+                        headDirection = Domino.DIRECTION.getDirectionByNumber((domino.getDirection().getNumber() + 1) % 4);
                     } else {
                         if (domino.getSide1() == tailNumber) {
                             tailNumber = domino.getSide2();
@@ -174,9 +178,9 @@ public class Table {
                             tailPos = getHeadPos(domino);
                             markTrueX(getTailPos(domino));
                         }
-                    }
 
-                    tailDirection = domino.getDirection();
+                        tailDirection = domino.getDirection();
+                    }
                 }
             }
 
@@ -320,8 +324,42 @@ public class Table {
         return false;
     }
 
+    public int getSize() {
+        return amount;
+    }
+
     private int distance(int x1, int y1, int x2, int y2) {
         return ((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+    }
+
+    public boolean isPositionValid(Vector2i pos1, Vector2i pos2) {
+        if (field[pos1.x - 1][pos1.y - 1]) {
+            return false;
+        }
+        if (field[pos1.x][pos1.y - 1]) {
+            return false;
+        }
+        if (field[pos1.x - 1][pos1.y]) {
+            return false;
+        }
+        if (field[pos1.x][pos1.y]) {
+            return false;
+        }
+
+        if (field[pos2.x - 1][pos2.y - 1]) {
+            return false;
+        }
+        if (field[pos2.x][pos2.y - 1]) {
+            return false;
+        }
+        if (field[pos2.x - 1][pos2.y]) {
+            return false;
+        }
+        if (field[pos2.x][pos2.y]) {
+            return false;
+        }
+
+        return true;
     }
 
     public boolean isPositionValid(Domino domino) {

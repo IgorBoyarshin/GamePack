@@ -29,7 +29,7 @@ public abstract class Player {
 
     public static void repositionPool() {
         for (Domino domino : table.getPool()) {
-            domino.setPositionCoord(32, 16);
+            domino.setPositionCoord(38, 20);
         }
     }
 

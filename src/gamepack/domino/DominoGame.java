@@ -29,8 +29,8 @@ public class DominoGame extends Game {
     private Menu menu;
 
     private Texture tileTexture;
-    private final float tileSize = 1.7f;
-    private final int fieldBlockSize = 9;
+    private final float tileSize = 1.5f;
+    private final int fieldBlockSize = 11;
     private final int tilesPerBlock = 4;
     private Sprite field[][];
 

@@ -29,7 +29,7 @@ public class DominoGame extends Game {
     private Menu menu;
 
     private Texture tileTexture;
-    private final float tileSize = 1.5f;
+    private final float tileSize = 1.4f;
     private final int fieldBlockSize = 11;
     private final int tilesPerBlock = 4;
     private Sprite field[][];
@@ -41,6 +41,7 @@ public class DominoGame extends Game {
     private Player player1;
     private Player player2;
 
+    private boolean gameEnded = false;
     private boolean player1Move = true;
 
     public DominoGame(float width, float height, Window window) {
@@ -237,21 +238,63 @@ public class DominoGame extends Game {
 
     }
 
+    private void processEndOfGame() {
+        gameEnded = true;
+
+        int scorePlayer1 = player1.getScore();
+        int scorePlayer2 = player2.getScore();
+
+        System.out.println("GAME ENDED");
+        System.out.println("SCORE:");
+        System.out.println(player1.getName() + ": " + scorePlayer1);
+        System.out.println(player2.getName() + ": " + scorePlayer2);
+
+        if (scorePlayer1 > scorePlayer2) {
+            System.out.println(player2.getName() + " WON!");
+        } else if (scorePlayer1 < scorePlayer2) {
+            System.out.println(player1.getName() + " WON!");
+        } else {
+            System.out.println("LET'S CALL IT A DRAW!");
+        }
+    }
+
     @Override
     public void update(float delta) {
         keyboard();
 
-        if (player1Move) {
-            player1.makeMove();
-            if (player1.isMoveMade()) {
-                player1Move = false;
-                player1.endMove();
-            }
-        } else {
-            player2.makeMove();
-            if (player2.isMoveMade()) {
-                player1Move = true;
-                player2.endMove();
+        if (!gameEnded) {
+            if (player1Move) {
+                if (player1.canMakeMove()) {
+                    player1.makeMove();
+                    if (player1.isMoveMade()) {
+                        player1Move = false;
+                        player1.endMove();
+                    }
+                } else {
+                    System.out.println("p1 can't");
+                    if (player2.canMakeMove()) {
+                        player1Move = false;
+                    } else {
+                        // End of game
+                        processEndOfGame();
+                    }
+                }
+            } else {
+                if (player2.canMakeMove()) {
+                    player2.makeMove();
+                    if (player2.isMoveMade()) {
+                        player1Move = true;
+                        player2.endMove();
+                    }
+                } else {
+                    System.out.println("p2 can't");
+                    if (player1.canMakeMove()) {
+                        player1Move = true;
+                    } else {
+                        // End of game
+                        processEndOfGame();
+                    }
+                }
             }
         }
     }

@@ -79,16 +79,22 @@ public class Table {
                 headNumber = side1;
                 tailNumber = side2;
 
-                headDirection = domino.getDirection();
-                tailDirection = headDirection;
+//                headDirection = domino.getDirection();
+//                tailDirection = headDirection;
 
                 if (side1 == side2) {
                     headPos = getCenterPos(domino);
                     tailPos = getCenterPos(domino);
+
+                    headDirection = Domino.DIRECTION.getDirectionByNumber((domino.getDirection().getNumber() + 1) % 4);
                 } else {
                     headPos = getHeadPos(domino);
                     tailPos = getTailPos(domino);
+
+                    headDirection = domino.getDirection();
                 }
+
+                tailDirection = headDirection;
 
 //                switch (domino.getDirection()) {
 //                    case UP: {
@@ -135,7 +141,6 @@ public class Table {
 //                }
 
             } else {
-                System.out.println("isHead: " + isHead(domino));
                 if (isHead(domino)) {
                     if (amount > 1) {
                         markTrueX(headPos);
@@ -204,6 +209,9 @@ public class Table {
             System.out.println("Tail pos: " + tailPos.x + ";" + tailPos.y + " = " + tailNumber);
             System.out.println();
         }
+
+        System.out.println("Pool left: " + pool.size());
+        System.out.println();
     }
 
     private void markTrueX(Vector2i point) {
@@ -324,7 +332,11 @@ public class Table {
         return false;
     }
 
-    public int getSize() {
+    public int getPoolSize() {
+        return pool.size();
+    }
+
+    public int getAmount() {
         return amount;
     }
 

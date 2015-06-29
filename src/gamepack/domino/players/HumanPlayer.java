@@ -50,8 +50,8 @@ public class HumanPlayer extends Player {
                     currentDomino.setCurrentDomino(dominoes.get(currentNumberDomino));
                 } else {
                     currentDomino.moveRight();
-                    System.out.println("CUR: " +
-                            currentDomino.getDomino().getPosition().x + ";" + currentDomino.getDomino().getPosition().y);
+//                    System.out.println("CUR: " +
+//                            currentDomino.getDomino().getPosition().x + ";" + currentDomino.getDomino().getPosition().y);
 
                     if (Player.table.isPositionValid(currentDomino.getDomino())) {
                         currentDomino.maskGreen();
@@ -69,8 +69,8 @@ public class HumanPlayer extends Player {
                     currentDomino.setCurrentDomino(dominoes.get(currentNumberDomino));
                 } else {
                     currentDomino.moveLeft();
-                    System.out.println("CUR: " +
-                            currentDomino.getDomino().getPosition().x + ";" + currentDomino.getDomino().getPosition().y);
+//                    System.out.println("CUR: " +
+//                            currentDomino.getDomino().getPosition().x + ";" + currentDomino.getDomino().getPosition().y);
 
                     if (Player.table.isPositionValid(currentDomino.getDomino())) {
                         currentDomino.maskGreen();
@@ -85,8 +85,8 @@ public class HumanPlayer extends Player {
 
                 if (currentDomino.isChosen()) {
                     currentDomino.moveUp();
-                    System.out.println("CUR: " +
-                            currentDomino.getDomino().getPosition().x + ";" + currentDomino.getDomino().getPosition().y);
+//                    System.out.println("CUR: " +
+//                            currentDomino.getDomino().getPosition().x + ";" + currentDomino.getDomino().getPosition().y);
 
                     if (Player.table.isPositionValid(currentDomino.getDomino())) {
                         currentDomino.maskGreen();
@@ -101,8 +101,8 @@ public class HumanPlayer extends Player {
 
                 if (currentDomino.isChosen()) {
                     currentDomino.moveDown();
-                    System.out.println("CUR: " +
-                            currentDomino.getDomino().getPosition().x + ";" + currentDomino.getDomino().getPosition().y);
+//                    System.out.println("CUR: " +
+//                            currentDomino.getDomino().getPosition().x + ";" + currentDomino.getDomino().getPosition().y);
 
                     if (Player.table.isPositionValid(currentDomino.getDomino())) {
                         currentDomino.maskGreen();
@@ -134,7 +134,7 @@ public class HumanPlayer extends Player {
                 }
             }
 
-            if (window.isKeyDown(GLFW_KEY_LEFT_CONTROL)) {
+            if (window.isKeyDown(GLFW_KEY_LEFT_CONTROL) || window.isKeyDown(GLFW_KEY_RIGHT_CONTROL)) {
                 Game.lastKeyboard = System.currentTimeMillis();
 
                 if (currentDomino.isChosen()) {
@@ -146,9 +146,11 @@ public class HumanPlayer extends Player {
                 Game.lastKeyboard = System.currentTimeMillis();
 
                 if (!currentDomino.isChosen()) {
-                    dominoes.add(table.takeDominoFromPool());
-                    dominoes.get(dominoes.size() - 1).flipUp();
-                    reposition();
+                    if (table.getAmount() > 0) {
+                        dominoes.add(table.takeDominoFromPool());
+                        dominoes.get(dominoes.size() - 1).flipUp();
+                        reposition();
+                    }
                 }
             }
         }

@@ -16,7 +16,7 @@ public class AiPlayer extends Player {
     public void reposition() {
         for (int i = 0; i < dominoes.size(); i++) {
             Domino domino = dominoes.get(i);
-            domino.setPositionCoord(i * Domino.TILES_PER_SIDE + i * 2, 35);
+            domino.setPositionCoord(i * Domino.TILES_PER_SIDE + i * 2, 38);
             domino.setDirection(Domino.DIRECTION.UP, true);
             domino.flipUp();
         }
@@ -25,13 +25,28 @@ public class AiPlayer extends Player {
     public void makeMove() {
         int counter = 0;
 
-        while (hasSide(dominoes.get(counter)) == -1) {
-            counter++;
-            if (counter == dominoes.size()) {
+        if (dominoes.size() == 0) {
+            if (table.getPoolSize() > 0) {
                 dominoes.add(table.takeDominoFromPool());
+            } else {
+                moveMade = true;
+                return;
             }
         }
-        //TODO: Process the case when the pool ends
+
+        while (hasSide(dominoes.get(counter)) == -1) {
+            counter++;
+
+            if (counter == dominoes.size()) {
+                Domino newDomino = table.takeDominoFromPool();
+                if (newDomino != null) {
+                    dominoes.add(newDomino);
+                } else {
+                    moveMade = true;
+                    return;
+                }
+            }
+        }
 
         putOnTable(dominoes.remove(counter));
 
@@ -55,29 +70,29 @@ public class AiPlayer extends Player {
             } else {
                 putDomino(domino, table.getTailPos(), table.getTailDirection(), table.getTailNumber());
             }
+        } else {
+            System.out.println("NUUUUL");
         }
 
         placeDomino(domino);
 
         System.out.println("AI:");
         System.out.println("Placing domino " + domino.getSide1() + "*" + domino.getSide2());
-        System.out.println("At " + domino.getPositionCoord().x + ";" + domino.getPositionCoord().y);
+//        System.out.println("At " + domino.getPositionCoord().x + ";" + domino.getPositionCoord().y);
         System.out.println();
     }
 
     private void putDomino(Domino domino, Vector2i point, Domino.DIRECTION direction, int number) {
-        if (table.getSize() == 1) {
+        if (table.getAmount() == 1) {
             switch (direction) {
                 case UP:
                 case DOWN: {
                     if (domino.getSide1() == number) {
                         domino.rotateClockWise();
                         domino.rotateClockWise();
-                        domino.rotateClockWise();
-                        domino.setPositionCoord(point.x + 1, point.y - 1);
+                        domino.setPositionCoord(point.x - 1, point.y + 1);
                     } else {
-                        domino.rotateClockWise();
-                        domino.setPositionCoord(point.x + 1, point.y - 1);
+                        domino.setPositionCoord(point.x - 1, point.y + 1);
                     }
 
                     break;
@@ -87,9 +102,11 @@ public class AiPlayer extends Player {
                     if (domino.getSide1() == number) {
                         domino.rotateClockWise();
                         domino.rotateClockWise();
-                        domino.setPositionCoord(point.x - 1, point.y + 1);
+                        domino.rotateClockWise();
+                        domino.setPositionCoord(point.x + 1, point.y - 1);
                     } else {
-                        domino.setPositionCoord(point.x - 1, point.y + 1);
+                        domino.rotateClockWise();
+                        domino.setPositionCoord(point.x + 1, point.y - 1);
                     }
 
                     break;
@@ -190,7 +207,6 @@ public class AiPlayer extends Player {
             }
         }
     }
-
 
     private void rotateDomino(Domino domino, int direction) {
         domino.setDirection(Domino.DIRECTION.getDirectionByNumber(direction), true);

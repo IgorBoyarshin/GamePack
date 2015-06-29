@@ -33,6 +33,48 @@ public abstract class Player {
         }
     }
 
+    public boolean canMakeMove() {
+        if (table.getPoolSize() > 0) {
+            return true;
+        }
+
+        for (Domino domino : dominoes) {
+            if (canBePlaced(domino)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    protected boolean canBePlaced(Domino domino) {
+        int headNumber = table.getHeadNumber();
+        int tailNumber = table.getTailNumber();
+        int side1 = domino.getSide1();
+        int side2 = domino.getSide2();
+
+        if (side1 == headNumber || side1 == tailNumber || side2 == headNumber || side2 == tailNumber) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public int getScore() {
+        int score = 0;
+
+        for (Domino domino : dominoes) {
+            score += domino.getSide1();
+            score += domino.getSide2();
+        }
+
+        return score;
+    }
+
+    public int getAmount() {
+        return dominoes.size();
+    }
+
     protected static void placeDomino(Domino domino) {
         table.placeDomino(domino);
     }

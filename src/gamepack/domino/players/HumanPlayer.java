@@ -3,8 +3,11 @@ package gamepack.domino.players;
 import gamepack.Game;
 import gamepack.domino.CurrentDomino;
 import gamepack.domino.Domino;
+import gamepack.domino.Vector2i;
 import himmel.graphics.Window;
 import himmel.graphics.layers.Layer;
+import himmel.math.Vector2f;
+import himmel.math.Vector3f;
 
 import java.util.List;
 
@@ -30,106 +33,117 @@ public class HumanPlayer extends Player {
     }
 
     // TODO: rewrite to be arbitrary. Mb make private
-    public void reposition() {
+    public void reposition(Vector2i start) {
         for (int i = 0; i < dominoes.size(); i++) {
             Domino domino = dominoes.get(i);
-            domino.setPositionCoord(i * Domino.TILES_PER_SIDE + i * 2, 1);
+            domino.setPositionCoord(start.x + i * Domino.TILES_PER_SIDE + i * 2, start.y);
             domino.setDirection(Domino.DIRECTION.UP, true);
         }
 
         currentDomino.setCurrentDomino(dominoes.get(0));
+
+        repositionStart = start;
     }
 
     public void makeMove() {
         if (System.currentTimeMillis() - Game.lastKeyboard > Game.keyboardMillisDelay) {
-            if (window.isKeyDown(GLFW_KEY_RIGHT)) {
-                Game.lastKeyboard = System.currentTimeMillis();
+            if (dominoes.size() > 0) {
+                if (window.isKeyDown(GLFW_KEY_RIGHT)) {
+                    Game.lastKeyboard = System.currentTimeMillis();
 
-                if (!currentDomino.isChosen()) {
-                    currentNumberDomino = (currentNumberDomino + 1) % dominoes.size();
-                    currentDomino.setCurrentDomino(dominoes.get(currentNumberDomino));
-                } else {
-                    currentDomino.moveRight();
+                    if (!currentDomino.isChosen()) {
+                        currentNumberDomino = (currentNumberDomino + 1) % dominoes.size();
+                        currentDomino.setCurrentDomino(dominoes.get(currentNumberDomino));
+                    } else {
+                        currentDomino.moveRight();
 //                    System.out.println("CUR: " +
 //                            currentDomino.getDomino().getPosition().x + ";" + currentDomino.getDomino().getPosition().y);
 
-                    if (Player.table.isPositionValid(currentDomino.getDomino())) {
-                        currentDomino.maskGreen();
+                        if (Player.table.isPositionValid(currentDomino.getDomino())) {
+                            currentDomino.maskGreen();
+                        } else {
+                            currentDomino.maskRed();
+                        }
+                    }
+                }
+
+                if (window.isKeyDown(GLFW_KEY_LEFT)) {
+                    Game.lastKeyboard = System.currentTimeMillis();
+
+                    if (!currentDomino.isChosen()) {
+                        currentNumberDomino = (currentNumberDomino + (dominoes.size() - 1)) % dominoes.size();
+                        currentDomino.setCurrentDomino(dominoes.get(currentNumberDomino));
                     } else {
-                        currentDomino.maskRed();
+                        currentDomino.moveLeft();
+//                    System.out.println("CUR: " +
+//                            currentDomino.getDomino().getPosition().x + ";" + currentDomino.getDomino().getPosition().y);
+
+                        if (Player.table.isPositionValid(currentDomino.getDomino())) {
+                            currentDomino.maskGreen();
+                        } else {
+                            currentDomino.maskRed();
+                        }
+                    }
+                }
+
+
+                if (window.isKeyDown(GLFW_KEY_UP)) {
+                    Game.lastKeyboard = System.currentTimeMillis();
+
+                    if (currentDomino.isChosen()) {
+                        currentDomino.moveUp();
+//                    System.out.println("CUR: " +
+//                            currentDomino.getDomino().getPosition().x + ";" + currentDomino.getDomino().getPosition().y);
+
+                        if (Player.table.isPositionValid(currentDomino.getDomino())) {
+                            currentDomino.maskGreen();
+                        } else {
+                            currentDomino.maskRed();
+                        }
+                    }
+                }
+
+                if (window.isKeyDown(GLFW_KEY_DOWN)) {
+                    Game.lastKeyboard = System.currentTimeMillis();
+
+                    if (currentDomino.isChosen()) {
+                        currentDomino.moveDown();
+//                    System.out.println("CUR: " +
+//                            currentDomino.getDomino().getPosition().x + ";" + currentDomino.getDomino().getPosition().y);
+
+                        if (Player.table.isPositionValid(currentDomino.getDomino())) {
+                            currentDomino.maskGreen();
+                        } else {
+                            currentDomino.maskRed();
+                        }
                     }
                 }
             }
 
-            if (window.isKeyDown(GLFW_KEY_LEFT)) {
-                Game.lastKeyboard = System.currentTimeMillis();
-
-                if (!currentDomino.isChosen()) {
-                    currentNumberDomino = (currentNumberDomino + (dominoes.size() - 1)) % dominoes.size();
-                    currentDomino.setCurrentDomino(dominoes.get(currentNumberDomino));
-                } else {
-                    currentDomino.moveLeft();
-//                    System.out.println("CUR: " +
-//                            currentDomino.getDomino().getPosition().x + ";" + currentDomino.getDomino().getPosition().y);
-
-                    if (Player.table.isPositionValid(currentDomino.getDomino())) {
-                        currentDomino.maskGreen();
-                    } else {
-                        currentDomino.maskRed();
-                    }
-                }
-            }
-
-            if (window.isKeyDown(GLFW_KEY_UP)) {
-                Game.lastKeyboard = System.currentTimeMillis();
-
-                if (currentDomino.isChosen()) {
-                    currentDomino.moveUp();
-//                    System.out.println("CUR: " +
-//                            currentDomino.getDomino().getPosition().x + ";" + currentDomino.getDomino().getPosition().y);
-
-                    if (Player.table.isPositionValid(currentDomino.getDomino())) {
-                        currentDomino.maskGreen();
-                    } else {
-                        currentDomino.maskRed();
-                    }
-                }
-            }
-
-            if (window.isKeyDown(GLFW_KEY_DOWN)) {
-                Game.lastKeyboard = System.currentTimeMillis();
-
-                if (currentDomino.isChosen()) {
-                    currentDomino.moveDown();
-//                    System.out.println("CUR: " +
-//                            currentDomino.getDomino().getPosition().x + ";" + currentDomino.getDomino().getPosition().y);
-
-                    if (Player.table.isPositionValid(currentDomino.getDomino())) {
-                        currentDomino.maskGreen();
-                    } else {
-                        currentDomino.maskRed();
-                    }
-                }
-            }
 
             if (window.isKeyDown(GLFW_KEY_ENTER)) {
                 Game.lastKeyboard = System.currentTimeMillis();
 
-                if (!currentDomino.isChosen()) {
-                    currentDomino.setChosen();
-                } else {
-                    if (table.isPositionValid(currentDomino.getDomino())) {
-                        table.placeDomino(currentDomino.getDomino());
-                        dominoes.remove(currentDomino.getDomino());
-                        currentDomino.unChoose();
+                if (dominoes.size() > 0) {
+                    if (!currentDomino.isChosen()) {
+                        currentDomino.setChosen();
+                    } else {
+                        if (table.isPositionValid(currentDomino.getDomino())) {
+                            table.placeDomino(currentDomino.getDomino());
+                            dominoes.remove(currentDomino.getDomino());
+                            currentDomino.unChoose();
 
-                        if (dominoes.size() > 0) {
-                            currentNumberDomino = 0;
-                            reposition();
-                            currentDomino.setCurrentDomino(dominoes.get(0));
+                            if (dominoes.size() > 0) {
+                                currentNumberDomino = 0;
+                                reposition(repositionStart);
+                                currentDomino.setCurrentDomino(dominoes.get(0));
+                            } else {
+                                currentDomino.maskNull();
+//                                currentDomino.setCurrentDomino(null);
+                            }
+
+                            moveMade = true;
                         }
-
-                        moveMade = true;
                     }
                 }
             }
@@ -149,7 +163,14 @@ public class HumanPlayer extends Player {
                     if (table.getAmount() > 0) {
                         dominoes.add(table.takeDominoFromPool());
                         dominoes.get(dominoes.size() - 1).flipUp();
-                        reposition();
+                        reposition(repositionStart);
+
+                        if (dominoes.size() == 1) {
+                            currentDomino.setCurrentDomino(dominoes.get(0));
+                            currentDomino.maskSelected();
+                            currentNumberDomino = 0;
+                            reposition(repositionStart);
+                        }
                     }
                 }
             }

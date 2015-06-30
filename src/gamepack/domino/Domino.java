@@ -47,17 +47,17 @@ public class Domino extends Sprite {
         this.direction = direction;
     }
 
-    private Vector2f convertToGlobalPosition2f(Vector2i pos) {
-        return new Vector2f(pos.x * TILE_WIDTH, pos.y * TILE_WIDTH);
-    }
+//    private Vector2f convertToGlobalPosition2f(Vector2i pos) {
+//        return new Vector2f(pos.x * TILE_WIDTH, pos.y * TILE_WIDTH);
+//    }
 
     private Vector3f convertToGlobalPosition3f(Vector2i pos) {
         return new Vector3f(pos.x * TILE_WIDTH, pos.y * TILE_WIDTH, getPosition().z);
     }
 
-    private Vector3f convertToGlobalPosition3f(Vector2i pos, float zValue) {
-        return new Vector3f(pos.x * TILE_WIDTH, pos.y * TILE_WIDTH, zValue);
-    }
+//    private Vector3f convertToGlobalPosition3f(Vector2i pos, float zValue) {
+//        return new Vector3f(pos.x * TILE_WIDTH, pos.y * TILE_WIDTH, zValue);
+//    }
 
     public void setPositionCoord(int x, int y) {
 //        positionCoord = new Vector2i(x, y);
@@ -80,23 +80,11 @@ public class Domino extends Sprite {
 
     private void rotatePositionAndSize(DIRECTION direction) {
         if (!(this.direction.getX() == direction.getX())) {
-//            this.move(new Vector3f(
-//                    (direction.getX() - this.direction.getX()) * TILE_WIDTH,
-//                    (direction.getY() - this.direction.getY()) * TILE_WIDTH,
-//                    0.0f));
             move(direction.getX() - this.direction.getX(),
                     direction.getY() - this.direction.getY());
 
-//            int count = this.getDirection().getNumber() - direction.getNumber() + 4;
-//            if (count % 2 != 0) {
-//
-//            }
             Vector2f oldSize = this.getSize();
             this.setSize(new Vector2f(oldSize.y, oldSize.x));
-
-//            this.setSize(new Vector2f(
-//                    oldSize.x - (direction.getX() - this.direction.getX()) * 2.0f * TILE_WIDTH,
-//                    oldSize.y - (direction.getY() - this.direction.getY()) * 2.0f * TILE_WIDTH));
         }
     }
 

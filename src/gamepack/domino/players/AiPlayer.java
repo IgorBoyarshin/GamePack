@@ -2,6 +2,7 @@ package gamepack.domino.players;
 
 import gamepack.domino.Domino;
 import gamepack.domino.Vector2i;
+import himmel.math.Vector2f;
 
 import java.util.List;
 
@@ -13,13 +14,15 @@ public class AiPlayer extends Player {
         super(name, dominoes);
     }
 
-    public void reposition() {
+    public void reposition(Vector2i start) {
         for (int i = 0; i < dominoes.size(); i++) {
             Domino domino = dominoes.get(i);
-            domino.setPositionCoord(i * Domino.TILES_PER_SIDE + i * 2, 38);
+            domino.setPositionCoord(start.x + i * Domino.TILES_PER_SIDE + i * 2, start.y);
             domino.setDirection(Domino.DIRECTION.UP, true);
             domino.flipUp();
         }
+
+        repositionStart = start;
     }
 
     public void makeMove() {
@@ -50,7 +53,7 @@ public class AiPlayer extends Player {
 
         putOnTable(dominoes.remove(counter));
 
-        reposition();
+        reposition(repositionStart);
 
         moveMade = true;
     }

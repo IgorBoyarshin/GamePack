@@ -48,6 +48,12 @@ public class Table {
         return null;
     }
 
+    public void repositionPool(Vector2i vector) {
+        for (Domino domino : pool) {
+            domino.setPositionCoord(vector.x, vector.y);
+        }
+    }
+
     public Domino.DIRECTION getHeadDirection() {
         return headDirection;
     }

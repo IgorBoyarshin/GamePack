@@ -29,8 +29,10 @@ public class DominoGame extends Game {
     private Menu menu;
 
     private Texture tileTexture;
-    private final float tileSize = 1.4f;
-    private final int fieldBlockSize = 11;
+    private final float maxTileSize = 3.0f;
+    private final float minTileSize = 1.0f;
+    private float tileSize = 1.4f;
+    private final int fieldBlockSize = 14;
     private final int tilesPerBlock = 4;
     private Sprite field[][];
 
@@ -61,6 +63,17 @@ public class DominoGame extends Game {
         prepareDominoes();
         prepareField();
         preparePoolAndPlayers();
+    }
+
+    private void recalculateField(float tileSize) {
+        for (int i = 0; i < fieldBlockSize; i++) {
+            for (int j = 0; j < fieldBlockSize; j++) {
+                final float blockSize = 4 * tileSize;
+
+                field[i][j].setNewPosition(new Vector3f(i * blockSize, j * blockSize, gameLayerFieldZ));
+                field[i][j].setSize(new Vector2f(blockSize, blockSize));
+            }
+        }
     }
 
     private void prepareField() {
@@ -165,6 +178,43 @@ public class DominoGame extends Game {
         Domino.setUvs(uvDown, uvGreen, uvRed, uvSelected, uvNull);
     }
 
+    private void setNewTileSize(float newTileSize) {
+        if (newTileSize >= maxTileSize || newTileSize < minTileSize) {
+            return;
+        }
+
+        recalculateField(newTileSize);
+
+        for (Domino domino : allDominoes) {
+            Vector3f oldPosition = domino.getPosition();
+            domino.setNewPosition(new Vector3f(
+                    oldPosition.x / Domino.getTileWidth() * newTileSize,
+                    oldPosition.y / Domino.getTileWidth() * newTileSize,
+                    oldPosition.z / Domino.getTileWidth() * newTileSize));
+
+            Vector2f oldSize = domino.getSize();
+            domino.setSize(new Vector2f(
+                    oldSize.x / Domino.getTileWidth() * newTileSize,
+                    oldSize.y / Domino.getTileWidth() * newTileSize));
+        }
+
+        Vector3f pos = CurrentDomino.getMaskPosition();
+        pos.x = pos.x / Domino.getTileWidth() * newTileSize;
+        pos.y = pos.y / Domino.getTileWidth() * newTileSize;
+        pos.z = pos.z / Domino.getTileWidth() * newTileSize;
+        Vector2f size = CurrentDomino.getMaskSize();
+        size.x = size.x / Domino.getTileWidth() * newTileSize;
+        size.y = size.y / Domino.getTileWidth() * newTileSize;
+
+        CurrentDomino.recalculateMaskParameters(pos, size);
+
+        Domino.setTileWidth(newTileSize);
+
+        positionPoolAndPlayers(newTileSize);
+
+        tileSize = newTileSize;
+    }
+
     private Domino getDomino(int side1, int side2) {
         for (Domino domino : allDominoes) {
             if (domino.getSide1() == side1 && domino.getSide2() == side2) {
@@ -209,13 +259,21 @@ public class DominoGame extends Game {
         player2 = new AiPlayer("AI", player2Dominoes);
         Player.prepareTable(pool, fieldBlockSize * tilesPerBlock);
 
-        positionPoolAndPlayers();
+        positionPoolAndPlayers(tileSize);
     }
 
-    private void positionPoolAndPlayers() {
-        player1.reposition();
-        player2.reposition();
-        Player.repositionPool();
+    private void positionPoolAndPlayers(float newTileSize) {
+        Vector2i newPlayer1Start = new Vector2i(1, 1);
+        Vector2i newPlayer2Start = new Vector2i(1, 0);
+        Vector2i newPoolPosition = new Vector2i(0, 0);
+
+        newPlayer2Start.y = (int) ((HEIGHT - newTileSize * 5.0f) / newTileSize);
+        newPoolPosition.x = (int) ((WIDTH - newTileSize * 3.0f) / newTileSize);
+        newPoolPosition.y = (int) ((HEIGHT - 4 * newTileSize) / 2.0f / newTileSize);
+
+        player1.reposition(newPlayer1Start);
+        player2.reposition(newPlayer2Start);
+        Player.repositionTablePool(newPoolPosition);
     }
 
     private void keyboard() {
@@ -235,25 +293,37 @@ public class DominoGame extends Game {
             if (window.isKeyDown(GLFW_KEY_W)) {
                 lastKeyboard = System.currentTimeMillis();
 
-                Player.shiftTable(new Vector2i(0, 1));
+                Player.shiftTable(new Vector2i(0, -1));
             }
 
             if (window.isKeyDown(GLFW_KEY_A)) {
                 lastKeyboard = System.currentTimeMillis();
 
-                Player.shiftTable(new Vector2i(-1, 0));
+                Player.shiftTable(new Vector2i(1, 0));
             }
 
             if (window.isKeyDown(GLFW_KEY_S)) {
                 lastKeyboard = System.currentTimeMillis();
 
-                Player.shiftTable(new Vector2i(0, -1));
+                Player.shiftTable(new Vector2i(0, 1));
             }
 
             if (window.isKeyDown(GLFW_KEY_D)) {
                 lastKeyboard = System.currentTimeMillis();
 
-                Player.shiftTable(new Vector2i(1, 0));
+                Player.shiftTable(new Vector2i(-1, 0));
+            }
+
+            if (window.isKeyDown(GLFW_KEY_EQUAL)) {
+                lastKeyboard = System.currentTimeMillis();
+
+                setNewTileSize(tileSize + 0.1f);
+            }
+
+            if (window.isKeyDown(GLFW_KEY_MINUS)) {
+                lastKeyboard = System.currentTimeMillis();
+
+                setNewTileSize(tileSize - 0.1f);
             }
         }
     }

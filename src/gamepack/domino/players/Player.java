@@ -3,6 +3,8 @@ package gamepack.domino.players;
 import gamepack.domino.Domino;
 import gamepack.domino.Table;
 import gamepack.domino.Vector2i;
+import himmel.math.Vector2f;
+import himmel.math.Vector3f;
 
 import java.util.List;
 
@@ -13,6 +15,7 @@ public abstract class Player {
     protected static Table table;
     protected List<Domino> dominoes;
     protected String name;
+    protected Vector2i repositionStart;
 
     protected boolean moveMade;
 
@@ -20,7 +23,13 @@ public abstract class Player {
         this.dominoes = dominoes;
         this.name = name;
 
+        repositionStart = new Vector2i(0,0);
+
         moveMade = false;
+    }
+
+    public static void repositionTablePool(Vector2i vector) {
+        table.repositionPool(vector);
     }
 
     public static void shiftTable(Vector2i vector) {
@@ -32,11 +41,11 @@ public abstract class Player {
         table.setPool(pool);
     }
 
-    public static void repositionPool() {
-        for (Domino domino : table.getPool()) {
-            domino.setPositionCoord(38, 20);
-        }
-    }
+//    public static void repositionPool() {
+//        for (Domino domino : table.getPool()) {
+//            domino.setPositionCoord(38, 20);
+//        }
+//    }
 
     public boolean canMakeMove() {
         if (table.getPoolSize() > 0) {
@@ -84,7 +93,7 @@ public abstract class Player {
         table.placeDomino(domino);
     }
 
-    public abstract void reposition();
+    public abstract void reposition(Vector2i start);
 
     public String getName() {
         return name;

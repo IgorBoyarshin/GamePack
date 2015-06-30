@@ -231,6 +231,30 @@ public class DominoGame extends Game {
 
                 restart();
             }
+
+            if (window.isKeyDown(GLFW_KEY_W)) {
+                lastKeyboard = System.currentTimeMillis();
+
+                Player.shiftTable(new Vector2i(0, 1));
+            }
+
+            if (window.isKeyDown(GLFW_KEY_A)) {
+                lastKeyboard = System.currentTimeMillis();
+
+                Player.shiftTable(new Vector2i(-1, 0));
+            }
+
+            if (window.isKeyDown(GLFW_KEY_S)) {
+                lastKeyboard = System.currentTimeMillis();
+
+                Player.shiftTable(new Vector2i(0, -1));
+            }
+
+            if (window.isKeyDown(GLFW_KEY_D)) {
+                lastKeyboard = System.currentTimeMillis();
+
+                Player.shiftTable(new Vector2i(1, 0));
+            }
         }
     }
 
@@ -271,7 +295,6 @@ public class DominoGame extends Game {
                         player1.endMove();
                     }
                 } else {
-                    System.out.println("p1 can't");
                     if (player2.canMakeMove()) {
                         player1Move = false;
                     } else {
@@ -287,7 +310,6 @@ public class DominoGame extends Game {
                         player2.endMove();
                     }
                 } else {
-                    System.out.println("p2 can't");
                     if (player1.canMakeMove()) {
                         player1Move = true;
                     } else {

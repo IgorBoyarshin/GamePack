@@ -2,6 +2,7 @@ package gamepack.domino.players;
 
 import gamepack.domino.Domino;
 import gamepack.domino.Table;
+import gamepack.domino.Vector2i;
 
 import java.util.List;
 
@@ -20,6 +21,10 @@ public abstract class Player {
         this.name = name;
 
         moveMade = false;
+    }
+
+    public static void shiftTable(Vector2i vector) {
+        table.shift(vector);
     }
 
     public static void prepareTable(List<Domino> pool, int fieldSize) {

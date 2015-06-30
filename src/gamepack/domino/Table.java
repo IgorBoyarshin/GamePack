@@ -1,5 +1,6 @@
 package gamepack.domino;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -12,18 +13,23 @@ public class Table {
     private int headNumber;
     private Domino.DIRECTION headDirection;
     private Domino.DIRECTION tailDirection;
+    private List<Domino> dominoes;
 
     private List<Domino> pool;
 
     private int amount;
 
+    private final int fieldMargin = 20;
+    private Vector2i currentShift = new Vector2i(fieldMargin, fieldMargin);
     private final int fieldSize;
     private boolean field[][];
 
     public Table(int fieldSize) {
         this.fieldSize = fieldSize;
 
-        field = new boolean[fieldSize][fieldSize];
+        dominoes = new ArrayList<>();
+
+        field = new boolean[fieldSize + 2 * fieldMargin][fieldSize + 2 * fieldMargin];
     }
 
     public List<Domino> getPool() {
@@ -51,11 +57,11 @@ public class Table {
     }
 
     public Vector2i getHeadPos() {
-        return headPos;
+        return new Vector2i(headPos.x - currentShift.x, headPos.y - currentShift.y);
     }
 
     public Vector2i getTailPos() {
-        return tailPos;
+        return new Vector2i(tailPos.x - currentShift.x, tailPos.y - currentShift.y);
     }
 
     public int getTailNumber() {
@@ -204,14 +210,48 @@ public class Table {
 
             amount++;
 
-            System.out.println("Current table status:");
-            System.out.println("Head pos: " + headPos.x + ";" + headPos.y + " = " + headNumber);
-            System.out.println("Tail pos: " + tailPos.x + ";" + tailPos.y + " = " + tailNumber);
+            dominoes.add(domino);
+
+//            System.out.println("Current table status:");
+//            System.out.println("Head pos: " + headPos.x + ";" + headPos.y + " = " + headNumber);
+//            System.out.println("Tail pos: " + tailPos.x + ";" + tailPos.y + " = " + tailNumber);
+//            System.out.println();
+
+            System.out.println("Pool left: " + pool.size());
             System.out.println();
         }
+    }
 
-        System.out.println("Pool left: " + pool.size());
-        System.out.println();
+    public void shift(Vector2i vector) {
+        currentShift.x += vector.x;
+        currentShift.y += vector.y;
+
+        if (currentShift.x < 0) {
+            vector.x = currentShift.x - vector.x;
+            currentShift.x = 0;
+        }
+        if (currentShift.y < 0) {
+            vector.y = currentShift.y - vector.y;
+            currentShift.y = 0;
+        }
+        if (currentShift.x >= 2 * fieldMargin) {
+            vector.x = 2 * fieldMargin - (currentShift.x - vector.x) - 1;
+            currentShift.x = 2 * fieldMargin - 1;
+        }
+        if (currentShift.y >= 2 * fieldMargin) {
+            vector.y = 2 * fieldMargin - (currentShift.y - vector.y) - 1;
+            currentShift.y = 2 * fieldMargin - 1;
+        }
+
+//        System.out.println("CuR: " + currentShift.x + ";" + currentShift.y);
+
+        shiftDominoes(vector);
+    }
+
+    private void shiftDominoes(Vector2i vector) {
+        for (Domino domino : dominoes) {
+            domino.move(-vector.x, -vector.y);
+        }
     }
 
     private void markTrueX(Vector2i point) {
@@ -232,8 +272,8 @@ public class Table {
 //        int posX = (int) (domino.getPosition().x / Domino.getTileWidth());
 //        int posY = (int) (domino.getPosition().y / Domino.getTileWidth());
 
-        int posX = domino.getPositionCoord().x;
-        int posY = domino.getPositionCoord().y;
+        int posX = domino.getPositionCoord().x + currentShift.x;
+        int posY = domino.getPositionCoord().y + currentShift.y;
 
         switch (domino.getDirection()) {
             case UP:
@@ -253,8 +293,8 @@ public class Table {
 //        int posX = (int) (domino.getPosition().x / Domino.getTileWidth());
 //        int posY = (int) (domino.getPosition().y / Domino.getTileWidth());
 
-        int posX = domino.getPositionCoord().x;
-        int posY = domino.getPositionCoord().y;
+        int posX = domino.getPositionCoord().x + currentShift.x;
+        int posY = domino.getPositionCoord().y + currentShift.y;
 
         switch (domino.getDirection()) {
             case UP:
@@ -274,8 +314,8 @@ public class Table {
 //        int posX = (int) (domino.getPosition().x / Domino.getTileWidth());
 //        int posY = (int) (domino.getPosition().y / Domino.getTileWidth());
 
-        int posX = domino.getPositionCoord().x;
-        int posY = domino.getPositionCoord().y;
+        int posX = domino.getPositionCoord().x + currentShift.x;
+        int posY = domino.getPositionCoord().y + currentShift.y;
 
         switch (domino.getDirection()) {
             case UP:
@@ -295,8 +335,8 @@ public class Table {
 //        int posX = (int) (domino.getPosition().x / Domino.getTileWidth());
 //        int posY = (int) (domino.getPosition().y / Domino.getTileWidth());
 
-        int posX = domino.getPositionCoord().x;
-        int posY = domino.getPositionCoord().y;
+        int posX = domino.getPositionCoord().x + currentShift.x;
+        int posY = domino.getPositionCoord().y + currentShift.y;
 
         int centerX = 0;
         int centerY = 0;
@@ -345,29 +385,32 @@ public class Table {
     }
 
     public boolean isPositionValid(Vector2i pos1, Vector2i pos2) {
-        if (field[pos1.x - 1][pos1.y - 1]) {
+        Vector2i p1 = new Vector2i(pos1.x + currentShift.x, pos1.y + currentShift.y);
+        Vector2i p2 = new Vector2i(pos2.x + currentShift.y, pos2.y + currentShift.y);
+
+        if (field[p1.x - 1][p1.y - 1]) {
             return false;
         }
-        if (field[pos1.x][pos1.y - 1]) {
+        if (field[p1.x][p1.y - 1]) {
             return false;
         }
-        if (field[pos1.x - 1][pos1.y]) {
+        if (field[p1.x - 1][p1.y]) {
             return false;
         }
-        if (field[pos1.x][pos1.y]) {
+        if (field[p1.x][p1.y]) {
             return false;
         }
 
-        if (field[pos2.x - 1][pos2.y - 1]) {
+        if (field[p2.x - 1][p2.y - 1]) {
             return false;
         }
-        if (field[pos2.x][pos2.y - 1]) {
+        if (field[p2.x][p2.y - 1]) {
             return false;
         }
-        if (field[pos2.x - 1][pos2.y]) {
+        if (field[p2.x - 1][p2.y]) {
             return false;
         }
-        if (field[pos2.x][pos2.y]) {
+        if (field[p2.x][p2.y]) {
             return false;
         }
 

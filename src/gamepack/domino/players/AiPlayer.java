@@ -70,16 +70,14 @@ public class AiPlayer extends Player {
             } else {
                 putDomino(domino, table.getTailPos(), table.getTailDirection(), table.getTailNumber());
             }
-        } else {
-            System.out.println("NUUUUL");
         }
 
         placeDomino(domino);
 
-        System.out.println("AI:");
-        System.out.println("Placing domino " + domino.getSide1() + "*" + domino.getSide2());
+//        System.out.println("AI:");
+//        System.out.println("Placing domino " + domino.getSide1() + "*" + domino.getSide2());
 //        System.out.println("At " + domino.getPositionCoord().x + ";" + domino.getPositionCoord().y);
-        System.out.println();
+//        System.out.println();
     }
 
     private void putDomino(Domino domino, Vector2i point, Domino.DIRECTION direction, int number) {

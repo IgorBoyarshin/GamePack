@@ -379,13 +379,16 @@ public class DominoGame extends Game {
     private void processEndOfGame() {
         gameEnded = true;
 
+        player1.flipDominoesUp();
+        player2.flipDominoesUp();
+
         int scorePlayer1 = player1.getScore();
         int scorePlayer2 = player2.getScore();
 
-        System.out.println("GAME ENDED");
+        System.out.println("GAME ENDED!");
         System.out.println("SCORE:");
-        System.out.println(player1.getName() + ": " + scorePlayer1);
-        System.out.println(player2.getName() + ": " + scorePlayer2);
+        System.out.println(" --- " + player1.getName() + ": " + scorePlayer1);
+        System.out.println(" --- " + player2.getName() + ": " + scorePlayer2);
 
         if (scorePlayer1 > scorePlayer2) {
             System.out.println(player2.getName() + " WON!");

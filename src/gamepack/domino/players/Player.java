@@ -32,6 +32,12 @@ public abstract class Player {
         table.repositionPool(start, finish);
     }
 
+    public void flipDominoesUp() {
+        for (Domino domino : dominoes) {
+            domino.flipUp();
+        }
+    }
+
     public static void shiftTable(Vector2i vector) {
         table.shift(vector);
     }

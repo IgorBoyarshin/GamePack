@@ -24,6 +24,9 @@ public class Table {
     private final int fieldSize;
     private boolean field[][];
 
+    private Vector2i poolStart;
+    private Vector2i poolFinish;
+
     public Table(int fieldSize) {
         this.fieldSize = fieldSize;
 
@@ -42,15 +45,38 @@ public class Table {
 
     public Domino takeDominoFromPool() {
         if (pool.size() > 0) {
-            return pool.remove(0);
+            Domino d = pool.remove(0);
+            repositionPool();
+            return d;
         }
 
         return null;
     }
 
-    public void repositionPool(Vector2i vector) {
+    private void repositionPool() {
+        repositionPool(poolStart, poolFinish);
+    }
+
+    public void repositionPool(Vector2i start, Vector2i finish) {
+        poolStart = start;
+        poolFinish = finish;
+
+        int counter = 0;
+
+        int rows = (start.y - finish.y) / 5;
+        int columns = (finish.x - start.x) / 3;
+        while (rows * (columns - 3) > dominoes.size()) {
+            columns--;
+            start.x += 3;
+        }
+
         for (Domino domino : pool) {
-            domino.setPositionCoord(vector.x, vector.y);
+            int x = (counter - counter % rows) / rows;
+            int y = counter % rows;
+
+            domino.setPositionCoord(start.x + x * 3, start.y - 4 - y * 5);
+
+            counter++;
         }
     }
 

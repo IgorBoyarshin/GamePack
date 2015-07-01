@@ -19,7 +19,7 @@ public class AiPlayer extends Player {
             Domino domino = dominoes.get(i);
             domino.setPositionCoord(start.x + i * Domino.TILES_PER_SIDE + i * 2, start.y);
             domino.setDirection(Domino.DIRECTION.UP, true);
-            domino.flipUp();
+//            domino.flipUp();
         }
 
         repositionStart = start;

@@ -25,6 +25,7 @@ public class DominoGame extends Game {
     private Layer gameLayer;
     private final float menuLayerZ = 0.5f;
     private final float gameLayerDominoesZ = 0.0f;
+    private final float gameLayerDeskZ = -0.3f;
     private final float gameLayerFieldZ = -0.5f;
     private Menu menu;
 
@@ -39,6 +40,10 @@ public class DominoGame extends Game {
     private final int DOMINOES_AMOUNT = 28;
     private final int HAND_AMOUNT = 5;
     private List<Domino> allDominoes;
+
+    private Sprite desk1;
+    private Sprite desk2;
+    private Sprite deskPool;
 
     private Player player1;
     private Player player2;
@@ -63,6 +68,37 @@ public class DominoGame extends Game {
         prepareDominoes();
         prepareField();
         preparePoolAndPlayers();
+        prepareDesks();
+    }
+
+    private void prepareDesks() {
+        Texture desk = new Texture(
+                System.getProperty("user.dir") + "//resources//domino//textures//desk.png", Texture.TYPE_RGB);
+
+        desk1 = new Sprite(new Vector3f(0.0f, 1.0f, gameLayerDeskZ), new Vector2f(WIDTH, 6.0f),
+                desk, Game.spriteRenderer, Game.spriteShader);
+
+        desk2 = new Sprite(new Vector3f(0.0f, HEIGHT - 7.0f, gameLayerDeskZ), new Vector2f(WIDTH, 6.0f),
+                desk, Game.spriteRenderer, Game.spriteShader);
+
+        deskPool = new Sprite(new Vector3f(WIDTH * 0.2f, HEIGHT * 0.2f, gameLayerDeskZ), new Vector2f(WIDTH * 0.5f, WIDTH * 0.5f),
+                desk, Game.spriteRenderer, Game.spriteShader);
+
+        gameLayer.add(desk1);
+        gameLayer.add(desk2);
+//        gameLayer.add(deskPool);
+
+        positionDesks(tileSize);
+    }
+
+    private void positionDesks(float newTileSize) {
+        int desk2Y = (int) ((HEIGHT - newTileSize * 5.0f) / newTileSize);
+
+        desk1.setNewPosition(new Vector3f(0.0f, 0.5f * newTileSize, desk1.getPosition().z));
+        desk2.setNewPosition(new Vector3f(0.0f, desk2Y * newTileSize - 0.5f * newTileSize, desk1.getPosition().z));
+
+        desk1.setSize(new Vector2f(WIDTH, 5 * newTileSize));
+        desk2.setSize(new Vector2f(WIDTH, 5 * newTileSize));
     }
 
     private void recalculateField(float tileSize) {
@@ -211,6 +247,7 @@ public class DominoGame extends Game {
         Domino.setTileWidth(newTileSize);
 
         positionPoolAndPlayers(newTileSize);
+        positionDesks(newTileSize);
 
         tileSize = newTileSize;
     }
@@ -255,7 +292,7 @@ public class DominoGame extends Game {
             numbers.remove(number);
         }
 
-        player1 = new HumanPlayer("Player", player1Dominoes, window, gameLayer);
+        player1 = new HumanPlayer("James", player1Dominoes, window, gameLayer);
         player2 = new AiPlayer("AI", player2Dominoes);
         Player.prepareTable(pool, fieldBlockSize * tilesPerBlock);
 
@@ -265,15 +302,22 @@ public class DominoGame extends Game {
     private void positionPoolAndPlayers(float newTileSize) {
         Vector2i newPlayer1Start = new Vector2i(1, 1);
         Vector2i newPlayer2Start = new Vector2i(1, 0);
-        Vector2i newPoolPosition = new Vector2i(0, 0);
+        Vector2i newPoolStart = new Vector2i(0, 0);
+        Vector2i newPoolFinish = new Vector2i(0, 0);
 
         newPlayer2Start.y = (int) ((HEIGHT - newTileSize * 5.0f) / newTileSize);
-        newPoolPosition.x = (int) ((WIDTH - newTileSize * 3.0f) / newTileSize);
-        newPoolPosition.y = (int) ((HEIGHT - 4 * newTileSize) / 2.0f / newTileSize);
+
+//        newPoolPosition.x = (int) ((WIDTH - newTileSize * 3.0f) / newTileSize);
+        newPoolStart.x = (int) ((WIDTH * (5.0f / 8.0f)) / newTileSize);
+        newPoolStart.y = (int) ((HEIGHT - 6.0f * newTileSize) / newTileSize);
+        newPoolFinish.x = (int) ((WIDTH - 1.0f * newTileSize) / newTileSize);
+        newPoolFinish.y = (int) ((6.0f * newTileSize) / newTileSize);
+
+//        int rows = (int) ((HEIGHT - 14.0f * newTileSize) / newTileSize);
 
         player1.reposition(newPlayer1Start);
         player2.reposition(newPlayer2Start);
-        Player.repositionTablePool(newPoolPosition);
+        Player.repositionTablePool(newPoolStart, newPoolFinish);
     }
 
     private void keyboard() {

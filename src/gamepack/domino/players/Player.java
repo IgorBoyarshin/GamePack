@@ -28,8 +28,8 @@ public abstract class Player {
         moveMade = false;
     }
 
-    public static void repositionTablePool(Vector2i vector) {
-        table.repositionPool(vector);
+    public static void repositionTablePool(Vector2i start, Vector2i finish) {
+        table.repositionPool(start, finish);
     }
 
     public static void shiftTable(Vector2i vector) {

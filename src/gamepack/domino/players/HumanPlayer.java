@@ -158,9 +158,10 @@ public class HumanPlayer extends Player {
 
             if (window.isKeyDown(GLFW_KEY_T)) {
                 Game.lastKeyboard = System.currentTimeMillis();
+                System.out.println(currentDomino.isChosen());
 
                 if (!currentDomino.isChosen()) {
-                    if (table.getAmount() > 0) {
+                    if (table.getPoolSize() > 0) {
                         dominoes.add(table.takeDominoFromPool());
                         dominoes.get(dominoes.size() - 1).flipUp();
                         reposition(repositionStart);

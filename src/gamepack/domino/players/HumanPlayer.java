@@ -56,6 +56,9 @@ public class HumanPlayer extends Player {
                         currentDomino.setCurrentDomino(dominoes.get(currentNumberDomino));
                     } else {
                         currentDomino.moveRight();
+                        if (window.isKeyDown(GLFW_KEY_LEFT_SHIFT)) {
+                            currentDomino.moveRight();
+                        }
 //                    System.out.println("CUR: " +
 //                            currentDomino.getDomino().getPosition().x + ";" + currentDomino.getDomino().getPosition().y);
 
@@ -75,6 +78,9 @@ public class HumanPlayer extends Player {
                         currentDomino.setCurrentDomino(dominoes.get(currentNumberDomino));
                     } else {
                         currentDomino.moveLeft();
+                        if (window.isKeyDown(GLFW_KEY_LEFT_SHIFT)) {
+                            currentDomino.moveLeft();
+                        }
 //                    System.out.println("CUR: " +
 //                            currentDomino.getDomino().getPosition().x + ";" + currentDomino.getDomino().getPosition().y);
 
@@ -92,6 +98,9 @@ public class HumanPlayer extends Player {
 
                     if (currentDomino.isChosen()) {
                         currentDomino.moveUp();
+                        if (window.isKeyDown(GLFW_KEY_LEFT_SHIFT)) {
+                            currentDomino.moveUp();
+                        }
 //                    System.out.println("CUR: " +
 //                            currentDomino.getDomino().getPosition().x + ";" + currentDomino.getDomino().getPosition().y);
 
@@ -108,6 +117,9 @@ public class HumanPlayer extends Player {
 
                     if (currentDomino.isChosen()) {
                         currentDomino.moveDown();
+                        if (window.isKeyDown(GLFW_KEY_LEFT_SHIFT)) {
+                            currentDomino.moveDown();
+                        }
 //                    System.out.println("CUR: " +
 //                            currentDomino.getDomino().getPosition().x + ";" + currentDomino.getDomino().getPosition().y);
 
@@ -154,6 +166,13 @@ public class HumanPlayer extends Player {
                 if (currentDomino.isChosen()) {
                     currentDomino.rotateClockWise();
                 }
+            }
+
+            if (window.isKeyDown(GLFW_KEY_BACKSPACE)) {
+                Game.lastKeyboard = System.currentTimeMillis();
+
+                currentDomino.unChoose();
+                reposition(repositionStart);
             }
 
             if (window.isKeyDown(GLFW_KEY_T)) {

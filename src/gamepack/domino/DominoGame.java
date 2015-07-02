@@ -8,7 +8,9 @@ import gamepack.domino.players.Player;
 import himmel.graphics.Sprite;
 import himmel.graphics.Texture;
 import himmel.graphics.Window;
+import himmel.graphics.fonts.Text;
 import himmel.graphics.layers.Layer;
+import himmel.math.Matrix4f;
 import himmel.math.Vector2f;
 import himmel.math.Vector3f;
 import himmel.math.Vector4f;
@@ -23,6 +25,8 @@ import java.util.*;
 public class DominoGame extends Game {
     private Layer menuLayer;
     private Layer gameLayer;
+    private Layer victoryLayer;
+    private final float victoryLayerZ = 0.3f;
     private final float menuLayerZ = 0.5f;
     private final float gameLayerDominoesZ = 0.0f;
     private final float gameLayerDeskZ = -0.3f;
@@ -48,6 +52,11 @@ public class DominoGame extends Game {
     private Player player1;
     private Player player2;
 
+    private Text victoryText;
+    private Text victoryText2;
+    private Text victoryText3;
+    private Text victoryText4;
+
     private boolean gameEnded = false;
     private boolean player1Move = true;
 
@@ -56,11 +65,31 @@ public class DominoGame extends Game {
 
         gameLayer = new Layer();
         menuLayer = new Layer();
+        victoryLayer = new Layer();
 
         field = new Sprite[fieldBlockSize][fieldBlockSize];
 
         allDominoes = new ArrayList<>();
         menu = new Menu();
+
+        victoryText = new Text("IGOR IS THE BEST", 20, new Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+        victoryText2 = new Text("IGOR IS THE BEST", 18, new Vector4f(1.0f, 0.0f, 0.0f, 0.9f));
+        victoryText3 = new Text("IGOR IS THE BEST", 18, new Vector4f(1.0f, 0.0f, 0.0f, 0.9f));
+        victoryText4 = new Text("IGOR IS THE BEST", 25, new Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+
+        victoryLayer.add(victoryText);
+        victoryLayer.add(victoryText2);
+        victoryLayer.add(victoryText3);
+        victoryLayer.add(victoryText4);
+
+        Sprite victoryBoard = new Sprite(new Vector3f(15.0f, 15.0f, victoryLayerZ), new Vector2f(30.0f, 30.0f),
+                new Vector4f(1.0f, 1.0f, 1.0f, 0.5f),
+                Game.spriteRenderer, Game.spriteShader);
+        Sprite victoryBoardBorder = new Sprite(new Vector3f(14.0f, 14.0f, victoryLayerZ - 0.05f), new Vector2f(32.0f, 32.0f),
+                new Vector4f(0.0f, 0.0f, 0.0f, 0.8f),
+                Game.spriteRenderer, Game.spriteShader);
+//        victoryLayer.add(victoryBoard);
+        victoryLayer.add(victoryBoardBorder);
 
         tileTexture = new Texture(
                 System.getProperty("user.dir") + "//resources//domino//textures//tile4_4.png", Texture.TYPE_RGB);
@@ -292,9 +321,9 @@ public class DominoGame extends Game {
             numbers.remove(number);
         }
 
-        player1 = new HumanPlayer("James", player1Dominoes, window, gameLayer);
+        player1 = new HumanPlayer("JAMES", player1Dominoes, window, gameLayer);
         player2 = new AiPlayer("AI", player2Dominoes);
-        Player.prepareTable(pool, fieldBlockSize * tilesPerBlock);
+        Player.prepareTable(pool, fieldBlockSize * tilesPerBlock, gameLayerFieldZ);
 
         positionPoolAndPlayers(tileSize);
     }
@@ -385,18 +414,39 @@ public class DominoGame extends Game {
         int scorePlayer1 = player1.getScore();
         int scorePlayer2 = player2.getScore();
 
-        System.out.println("GAME ENDED!");
-        System.out.println("SCORE:");
-        System.out.println(" --- " + player1.getName() + ": " + scorePlayer1);
-        System.out.println(" --- " + player2.getName() + ": " + scorePlayer2);
+        victoryText.setText("THE END");
+        victoryText2.setText(player1.getName() + ": " + scorePlayer1);
+        victoryText3.setText(player2.getName() + ": " + scorePlayer2);
 
         if (scorePlayer1 > scorePlayer2) {
-            System.out.println(player2.getName() + " WON!");
+            victoryText4.setText(player2.getName() + " WON");
         } else if (scorePlayer1 < scorePlayer2) {
-            System.out.println(player1.getName() + " WON!");
+            victoryText4.setText(player1.getName() + " WON");
         } else {
-            System.out.println("LET'S CALL IT A DRAW!");
+            victoryText4.setText("CALL IT A DRAW");
         }
+
+        victoryText.transform(Matrix4f.scaling(new Vector3f(1.2f, 1.0f, 1.0f))
+                .translate(new Vector3f(24f, 42.0f, victoryLayerZ + 0.05f)));
+        victoryText2.transform(Matrix4f.scaling(new Vector3f(1.2f, 1.0f, 1.0f))
+                .translate(new Vector3f(15.0f, 38.0f, victoryLayerZ + 0.05f)));
+        victoryText3.transform(Matrix4f.scaling(new Vector3f(1.2f, 1.0f, 1.0f))
+                .translate(new Vector3f(15.0f, 34.0f, victoryLayerZ + 0.05f)));
+        victoryText4.transform(Matrix4f.scaling(new Vector3f(1.2f, 1.0f, 1.0f))
+                .translate(new Vector3f(15.0f, 26.0f, victoryLayerZ + 0.05f)));
+
+//        System.out.println("GAME ENDED!");
+//        System.out.println("SCORE:");
+//        System.out.println(" --- " + player1.getName() + ": " + scorePlayer1);
+//        System.out.println(" --- " + player2.getName() + ": " + scorePlayer2);
+
+//        if (scorePlayer1 > scorePlayer2) {
+//            System.out.println(player2.getName() + " WON!");
+//        } else if (scorePlayer1 < scorePlayer2) {
+//            System.out.println(player1.getName() + " WON!");
+//        } else {
+//            System.out.println("LET'S CALL IT A DRAW!");
+//        }
     }
 
     @Override
@@ -441,5 +491,11 @@ public class DominoGame extends Game {
     @Override
     public void render() {
         gameLayer.render();
+        if (gameEnded) {
+            victoryLayer.render();
+        }
+        if (false) {
+            menuLayer.render();
+        }
     }
 }

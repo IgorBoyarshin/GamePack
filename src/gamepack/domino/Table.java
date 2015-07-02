@@ -1,5 +1,7 @@
 package gamepack.domino;
 
+import himmel.math.Vector3f;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,8 +29,11 @@ public class Table {
     private Vector2i poolStart;
     private Vector2i poolFinish;
 
-    public Table(int fieldSize) {
+    private final float fieldZ;
+
+    public Table(int fieldSize, float fieldZ) {
         this.fieldSize = fieldSize;
+        this.fieldZ = fieldZ;
 
         dominoes = new ArrayList<>();
 
@@ -65,7 +70,7 @@ public class Table {
 
         int rows = (start.y - finish.y) / 5;
         int columns = (finish.x - start.x) / 3;
-        while (rows * (columns - 3) > dominoes.size()) {
+        while (rows * (columns - 1) >= pool.size()) {
             columns--;
             start.x += 3;
         }
@@ -242,6 +247,7 @@ public class Table {
 
             amount++;
 
+            domino.move(new Vector3f(0.0f, 0.0f, fieldZ + 0.05f));
             dominoes.add(domino);
 
 //            System.out.println("Current table status:");
@@ -249,8 +255,8 @@ public class Table {
 //            System.out.println("Tail pos: " + tailPos.x + ";" + tailPos.y + " = " + tailNumber);
 //            System.out.println();
 
-            System.out.println("Pool left: " + pool.size());
-            System.out.println();
+//            System.out.println("Pool left: " + pool.size());
+//            System.out.println();
         }
     }
 

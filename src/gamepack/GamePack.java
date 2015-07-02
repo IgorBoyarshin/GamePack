@@ -19,11 +19,8 @@ TOP_PRIORITY:
 TODO: Himmel: fix textures amount bigger than 16
 
 LOW_PRIORITY:
-TODO: Change Himmel: enable choosing whether to vsync or not
 TODO: Himmel: set proper jar path
 TODO: Himmel: fix font size
-TODO: Himmel: enable choosing whether to print info or not
-
  */
 
 /**

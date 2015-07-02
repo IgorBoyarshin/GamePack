@@ -42,8 +42,8 @@ public abstract class Player {
         table.shift(vector);
     }
 
-    public static void prepareTable(List<Domino> pool, int fieldSize) {
-        table = new Table(fieldSize);
+    public static void prepareTable(List<Domino> pool, int fieldSize, float fieldZ) {
+        table = new Table(fieldSize, fieldZ);
         table.setPool(pool);
     }
 

@@ -158,7 +158,6 @@ public class HumanPlayer extends Player {
 
             if (window.isKeyDown(GLFW_KEY_T)) {
                 Game.lastKeyboard = System.currentTimeMillis();
-                System.out.println(currentDomino.isChosen());
 
                 if (!currentDomino.isChosen()) {
                     if (table.getPoolSize() > 0) {

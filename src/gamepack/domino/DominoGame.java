@@ -527,20 +527,25 @@ public class DominoGame extends Game {
         Player.repositionTablePool(newPoolStart, newPoolFinish);
     }
 
-
     private void keyboard() {
         if (System.currentTimeMillis() - lastKeyboard > keyboardMillisDelay) {
-            if (window.isKeyDown(GLFW_KEY_ESCAPE)) {
+            if (window.isKeyDown(GLFW_KEY_Q)) {
                 lastKeyboard = System.currentTimeMillis();
 
                 alive = false;
             }
 
-            if (window.isKeyDown(GLFW_KEY_R)) {
+            if (window.isKeyDown(GLFW_KEY_ESCAPE)) {
                 lastKeyboard = System.currentTimeMillis();
 
-                restart(player1, player2);
+                menuOpen = true;
             }
+
+//            if (window.isKeyDown(GLFW_KEY_R)) {
+//                lastKeyboard = System.currentTimeMillis();
+//
+//                restart(player1, player2);
+//            }
 
             if (window.isKeyDown(GLFW_KEY_W)) {
                 lastKeyboard = System.currentTimeMillis();
@@ -630,37 +635,78 @@ public class DominoGame extends Game {
 
     @Override
     public void update(float delta) {
-        keyboard();
+        if (menuOpen) {
+            if (System.currentTimeMillis() - Game.lastKeyboard > Game.keyboardMillisDelay) {
+                if (window.isKeyDown(GLFW_KEY_ESCAPE)) {
+                    Game.lastKeyboard = System.currentTimeMillis();
 
-        if (!gameEnded) {
-            if (player1Move) {
-                if (player1.canMakeMove()) {
-                    player1.makeMove();
-                    if (player1.isMoveMade()) {
-                        player1Move = false;
-                        player1.endMove();
+                    menuOpen = false;
+                }
+
+                if (window.isKeyDown(GLFW_KEY_UP)) {
+                    Game.lastKeyboard = System.currentTimeMillis();
+
+                    menu.moveUp();
+                }
+
+                if (window.isKeyDown(GLFW_KEY_DOWN)) {
+                    Game.lastKeyboard = System.currentTimeMillis();
+
+                    menu.moveDown();
+                }
+
+                if (window.isKeyDown(GLFW_KEY_ENTER)) {
+                    Game.lastKeyboard = System.currentTimeMillis();
+
+                    switch (menu.getCurrentButtonName()) {
+                        case "Restart":
+//                        restart(player1, player2);
+                            break;
+                        case "ModePvp":
+                            restart(new HumanPlayer("JAMES", window, gameLayer), new AiPlayer("BOB"));
+                            break;
+                        case "ModePva":
+                            restart(new HumanPlayer("RICHARD", window, gameLayer), new AiPlayer("ARNOLD"));
+                            break;
+                        case "Exit":
+                            alive = false;
+                            break;
+                    }
+                }
+            }
+        } else {
+            keyboard();
+
+            if (!gameEnded) {
+                if (player1Move) {
+                    if (player1.canMakeMove()) {
+                        player1.makeMove();
+                        if (player1.isMoveMade()) {
+                            player1Move = false;
+                            player1.endMove();
+                        }
+                    } else {
+                        if (player2.canMakeMove()) {
+                            player1Move = false;
+                        } else {
+                            // End of game
+                            processEndOfGame();
+                        }
                     }
                 } else {
                     if (player2.canMakeMove()) {
-                        player1Move = false;
+                        player2.makeMove();
+                        if (player2.isMoveMade()) {
+                            player1Move = true;
+                            player2.endMove();
+                        }
                     } else {
-                        // End of game
-                        processEndOfGame();
-                    }
-                }
-            } else {
-                if (player2.canMakeMove()) {
-                    player2.makeMove();
-                    if (player2.isMoveMade()) {
-                        player1Move = true;
-                        player2.endMove();
-                    }
-                } else {
-                    if (player1.canMakeMove()) {
-                        player1Move = true;
-                    } else {
-                        // End of game
-                        processEndOfGame();
+                        if (player1.canMakeMove()) {
+                            player1Move = true;
+                        } else {
+                            // End of game
+                            processEndOfGame();
+                        }
                     }
                 }
             }

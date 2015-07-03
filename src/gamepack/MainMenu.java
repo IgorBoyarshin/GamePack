@@ -1,6 +1,7 @@
 package gamepack;
 
 import gamepack.domino.DominoGame;
+import himmel.graphics.Sprite;
 import himmel.graphics.Texture;
 import himmel.graphics.Window;
 import himmel.graphics.layers.Layer;
@@ -46,8 +47,6 @@ public class MainMenu extends Game {
 
         mainLayer = new Layer();
         bgLayer = new Layer();
-        Button.setShader(Game.spriteShader);
-        Button.setRenderer(Game.spriteRenderer);
 
         menu.addButton(new Button(
                 "Domino",
@@ -55,21 +54,33 @@ public class MainMenu extends Game {
                 new Vector2f(BUTTON_WIDTH, BUTTON_HEIGHT),
                 new Texture("resources//main//textures//buttonDominoActive.png", Texture.TYPE_RGB),
                 new Texture("resources//main//textures//buttonDominoIdle.png", Texture.TYPE_RGB),
-                false));
+                Sprite.getDefaultUv(),
+                Sprite.getDefaultUv(),
+                false,
+                Game.spriteRenderer,
+                Game.spriteShader));
         menu.addButton(new Button(
                 "About",
                 new Vector3f((WIDTH - BUTTON_WIDTH) / 2.0f, HEIGHT - 2.0f * (BUTTON_HEIGHT + 5.0f), MENU_Z),
                 new Vector2f(BUTTON_WIDTH, BUTTON_HEIGHT),
                 new Texture("resources//main//textures//buttonAboutActive.png", Texture.TYPE_RGB),
                 new Texture("resources//main//textures//buttonAboutIdle.png", Texture.TYPE_RGB),
-                false));
+                Sprite.getDefaultUv(),
+                Sprite.getDefaultUv(),
+                false,
+                Game.spriteRenderer,
+                Game.spriteShader));
         menu.addButton(new Button(
                 "Exit",
                 new Vector3f((WIDTH - BUTTON_WIDTH) / 2.0f, HEIGHT - 3.0f * (BUTTON_HEIGHT + 5.0f), MENU_Z),
                 new Vector2f(BUTTON_WIDTH, BUTTON_HEIGHT),
                 new Texture("resources//main//textures//buttonExitActive.png", Texture.TYPE_RGB),
                 new Texture("resources//main//textures//buttonExitIdle.png", Texture.TYPE_RGB),
-                false));
+                Sprite.getDefaultUv(),
+                Sprite.getDefaultUv(),
+                false,
+                Game.spriteRenderer,
+                Game.spriteShader));
 
         menu.setCurrent("Domino");
         menu.submitAll(mainLayer);

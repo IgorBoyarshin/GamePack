@@ -28,6 +28,14 @@ public abstract class Player {
         moveMade = false;
     }
 
+    public Player(String name) {
+        this.name = name;
+
+        repositionStart = new Vector2i(0,0);
+
+        moveMade = false;
+    }
+
     public static void repositionTablePool(Vector2i start, Vector2i finish) {
         table.repositionPool(start, finish);
     }
@@ -46,12 +54,6 @@ public abstract class Player {
         table = new Table(fieldSize, fieldZ);
         table.setPool(pool);
     }
-
-//    public static void repositionPool() {
-//        for (Domino domino : table.getPool()) {
-//            domino.setPositionCoord(38, 20);
-//        }
-//    }
 
     public boolean canMakeMove() {
         if (table.getPoolSize() > 0) {
@@ -89,6 +91,11 @@ public abstract class Player {
         }
 
         return score;
+    }
+
+    public void setDominoes(List<Domino> dominoes) {
+        this.dominoes = dominoes;
+        reposition(repositionStart);
     }
 
     public int getAmount() {

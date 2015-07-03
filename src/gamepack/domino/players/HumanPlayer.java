@@ -21,31 +21,56 @@ import static org.lwjgl.glfw.GLFW.GLFW_KEY_LEFT_CONTROL;
 public class HumanPlayer extends Player {
     private Window window;
 
-    private CurrentDomino currentDomino;
+    private static CurrentDomino currentDomino;
     private int currentNumberDomino = 0;
+
+    private static boolean firstLaunch = true;
+
+    public HumanPlayer(String name, Window window, Layer gameLayer) {
+        super(name);
+        this.window = window;
+
+        if (firstLaunch) {
+            firstLaunch = false;
+
+            currentDomino = new CurrentDomino(null);
+            currentDomino.submitMaskTo(gameLayer);
+        }
+    }
 
     public HumanPlayer(String name, List<Domino> dominoes, Window window, Layer gameLayer) {
         super(name, dominoes);
         this.window = window;
 
-        currentDomino = new CurrentDomino(dominoes.get(0));
-        currentDomino.submitMaskTo(gameLayer);
+        if (firstLaunch) {
+            firstLaunch = false;
+
+            currentDomino = new CurrentDomino(dominoes.get(0));
+            currentDomino.submitMaskTo(gameLayer);
+        }
     }
 
-    // TODO: rewrite to be arbitrary. Mb make private
     public void reposition(Vector2i start) {
-        for (int i = 0; i < dominoes.size(); i++) {
-            Domino domino = dominoes.get(i);
-            domino.setPositionCoord(start.x + i * Domino.TILES_PER_SIDE + i * 2, start.y);
-            domino.setDirection(Domino.DIRECTION.UP, true);
-        }
+        if (dominoes.size() > 0) {
+            for (int i = 0; i < dominoes.size(); i++) {
+                Domino domino = dominoes.get(i);
+                domino.setPositionCoord(start.x + i * Domino.TILES_PER_SIDE + i * 2, start.y);
+                domino.setDirection(Domino.DIRECTION.UP, true);
+            }
 
-        currentDomino.setCurrentDomino(dominoes.get(0));
+            currentDomino.setCurrentDomino(dominoes.get(0));
+        }
 
         repositionStart = start;
     }
 
     public void makeMove() {
+        if (dominoes.size() > 0) {
+            if (currentDomino.getDomino() != dominoes.get(currentNumberDomino)) {
+                currentDomino.setCurrentDomino(dominoes.get(currentNumberDomino));
+            }
+        }
+
         if (System.currentTimeMillis() - Game.lastKeyboard > Game.keyboardMillisDelay) {
             if (dominoes.size() > 0) {
                 if (window.isKeyDown(GLFW_KEY_RIGHT)) {
@@ -138,7 +163,13 @@ public class HumanPlayer extends Player {
 
                 if (dominoes.size() > 0) {
                     if (!currentDomino.isChosen()) {
-                        currentDomino.setChosen();
+                        if (table.getAmount() == 0) {
+                            if (currentDomino.getDomino().getSide1() == currentDomino.getDomino().getSide2()) {
+                                currentDomino.setChosen();
+                            }
+                        } else {
+                            currentDomino.setChosen();
+                        }
                     } else {
                         if (table.isPositionValid(currentDomino.getDomino())) {
                             table.placeDomino(currentDomino.getDomino());

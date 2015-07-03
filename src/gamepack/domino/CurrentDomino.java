@@ -9,35 +9,45 @@ import himmel.math.Vector3f;
  */
 public class CurrentDomino {
     private Domino domino;
-    private static Domino mask;
+    private static Domino mask = new Domino(0, 0, new Vector2i(0, 0), 0.0f, Domino.DIRECTION.UP, null);
     private boolean chosen = false;
-    private final float currentDominoShift = 0.05f;
-    private final float currentDominoMaskShift = 0.1f;
+    private final float currentDominoShift = 0.25f;
+    private final float currentDominoMaskShift = 0.5f;
 
     public CurrentDomino(Domino current) {
-        prepareMaskAndDomino(current);
+//        prepareMaskAndDomino(current);
+        setCurrentDomino(current);
     }
 
+    // TODO: REWRITE!
     private void prepareMaskAndDomino(Domino newDomino) {
+
+
+
         if (newDomino == null) {
             domino = null;
             return;
         }
 
         if (domino == null) { // If first time - prep mask
-            mask = new Domino(0, 0, new Vector2i(0, 0), 0.0f, Domino.DIRECTION.UP, null);
+//            mask = new Domino(0, 0, new Vector2i(0, 0), 0.0f, Domino.DIRECTION.UP, null);
             mask.uvMaskSelected();
         } else {
-            domino.move(new Vector3f(0.0f, 0.0f, -currentDominoShift));
+            if (!domino.equals(newDomino)) {
+                domino.move(new Vector3f(0.0f, 0.0f, -currentDominoShift));
+            }
         }
 
+        if (true) {
+//        if (domino != newDomino) {
 //        Vector3f pos = newDomino.getPosition();
-        domino = newDomino;
-        domino.move(new Vector3f(0.0f, 0.0f, currentDominoShift));
-        mask.setDirection(domino.getDirection(), true);
-        mask.setNewPosition(new Vector3f(0.0f, 0.0f, currentDominoMaskShift));
+            domino = newDomino;
+            domino.move(new Vector3f(0.0f, 0.0f, currentDominoShift));
+            mask.setDirection(domino.getDirection(), true);
+            mask.setNewPosition(new Vector3f(0.0f, 0.0f, currentDominoMaskShift));
 //        mask.setNewPosition(new Vector3f(pos.x, pos.y, pos.z + currentDominoMaskShift));
-        mask.setPositionCoord(domino.getPositionCoord().x, domino.getPositionCoord().y);
+            mask.setPositionCoord(domino.getPositionCoord().x, domino.getPositionCoord().y);
+        }
     }
 
     public static void recalculateMaskParameters(Vector3f position, Vector2f newSize) {
@@ -76,7 +86,30 @@ public class CurrentDomino {
     }
 
     public void setCurrentDomino(Domino current) {
-        prepareMaskAndDomino(current);
+        if (current == null) {
+            maskNull();
+
+            if(domino != null) {
+                domino.move(new Vector3f(0.0f, 0.0f, -currentDominoShift));
+            }
+        } else {
+            // TODO:
+            if (true) {
+//            if (!current.equals(domino)) {
+                maskSelected();
+
+                if(domino != null) {
+                    domino.move(new Vector3f(0.0f, 0.0f, -currentDominoShift));
+                }
+
+                domino = current;
+
+                domino.move(new Vector3f(0.0f, 0.0f, currentDominoShift));
+                mask.setDirection(domino.getDirection(), true);
+                mask.setNewPosition(new Vector3f(0.0f, 0.0f, currentDominoMaskShift));
+                mask.setPositionCoord(domino.getPositionCoord().x, domino.getPositionCoord().y);
+            }
+        }
     }
 
     public void submitMaskTo(Layer layer) {

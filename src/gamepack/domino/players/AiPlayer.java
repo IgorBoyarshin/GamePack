@@ -10,6 +10,10 @@ import java.util.List;
  * Created by Igor on 27-Jun-15.
  */
 public class AiPlayer extends Player {
+    public AiPlayer(String name) {
+        super(name);
+    }
+
     public AiPlayer(String name, List<Domino> dominoes) {
         super(name, dominoes);
     }

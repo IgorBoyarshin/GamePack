@@ -11,23 +11,31 @@ import himmel.math.Vector2f;
 import himmel.math.Vector3f;
 import himmel.math.Vector4f;
 
+import java.util.List;
+
 /**
  * Created by Igor on 14-Jun-15.
  */
 public class Button {
-    private Sprite background;
-    private Texture active;
-    private Texture idle;
+    private Sprite button;
+    private Texture textureActive;
+    private Texture textureIdle; // May be the same
+    private List<Vector2f> uvActive;
+    private List<Vector2f> uvIdle;
     private String name;
 
-    private static Renderer renderer;
-    private static Shader shader;
-
-    public Button(String name, Vector3f position, Vector2f size, Texture active, Texture idle, boolean isActive) {
+    public Button(String name, Vector3f position, Vector2f size,
+                  Texture textureActive, Texture textureIdle,
+                  List<Vector2f> uvActive, List<Vector2f> uvIdle, boolean isActive,
+                  Renderer renderer, Shader shader) {
         this.name = name;
-        this.active = active;
-        this.idle = idle;
-        background = new Sprite(position, size, isActive ? active : idle, renderer, shader);
+        this.uvActive = uvActive;
+        this.uvIdle = uvIdle;
+        this.textureActive = textureActive;
+        this.textureIdle = textureIdle;
+
+        button = new Sprite(position, size, isActive ? textureActive : textureIdle, renderer, shader);
+        button.setUv(isActive ? uvActive : uvIdle);
     }
 
     public String getName() {
@@ -35,30 +43,24 @@ public class Button {
     }
 
     public void setPosition(Vector3f position) {
-        background.setNewPosition(position);
+        button.setNewPosition(position);
     }
 
     public void setSize(Vector2f size) {
-        background.setSize(size);
-    }
-
-    public static void setRenderer(Renderer theRenderer) {
-        renderer = theRenderer;
-    }
-
-    public static void setShader(Shader theShader) {
-        shader = theShader;
+        button.setSize(size);
     }
 
     public void submitTo(Layer layer) {
-        layer.add(background);
+        layer.add(button);
     }
 
     public void setActive() {
-        background.setTexture(active);
+        button.setTexture(textureActive);
+        button.setUv(uvActive);
     }
 
     public void setIdle() {
-        background.setTexture(idle);
+        button.setTexture(textureIdle);
+        button.setUv(uvIdle);
     }
 }

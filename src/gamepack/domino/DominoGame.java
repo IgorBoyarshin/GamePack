@@ -1,5 +1,6 @@
 package gamepack.domino;
 
+import gamepack.Button;
 import gamepack.Game;
 import gamepack.Menu;
 import gamepack.domino.players.AiPlayer;
@@ -26,14 +27,15 @@ public class DominoGame extends Game {
     private Layer menuLayer;
     private Layer gameLayer;
     private Layer victoryLayer;
+
     private final float victoryLayerZ = 0.3f;
     private final float menuLayerZ = 0.5f;
     private final float gameLayerDominoesZ = 0.0f;
     private final float gameLayerDeskZ = -0.3f;
     private final float gameLayerFieldZ = -0.5f;
+
     private Menu menu;
 
-    private Texture tileTexture;
     private final float maxTileSize = 3.0f;
     private final float minTileSize = 1.0f;
     private float tileSize = 1.4f;
@@ -45,9 +47,14 @@ public class DominoGame extends Game {
     private final int HAND_AMOUNT = 5;
     private List<Domino> allDominoes;
 
+    private Texture dominoTexture;
+    private Texture stuffTexture;
+    private Vector2f dominoTextureSize;
+    private Vector2f stuffTextureSize;
+
     private Sprite desk1;
     private Sprite desk2;
-    private Sprite deskPool;
+//    private Sprite deskPool;
 
     private Player player1;
     private Player player2;
@@ -57,6 +64,7 @@ public class DominoGame extends Game {
     private Text victoryText3;
     private Text victoryText4;
 
+    private boolean menuOpen = false;
     private boolean gameEnded = false;
     private boolean player1Move = true;
 
@@ -72,101 +80,113 @@ public class DominoGame extends Game {
         allDominoes = new ArrayList<>();
         menu = new Menu();
 
-        victoryText = new Text("IGOR IS THE BEST", 20, new Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
-        victoryText2 = new Text("IGOR IS THE BEST", 18, new Vector4f(1.0f, 0.0f, 0.0f, 0.9f));
-        victoryText3 = new Text("IGOR IS THE BEST", 18, new Vector4f(1.0f, 0.0f, 0.0f, 0.9f));
-        victoryText4 = new Text("IGOR IS THE BEST", 25, new Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+        setup();
+
+        restart(new HumanPlayer("RICHARD", window, gameLayer), new AiPlayer("ARNOLD"));
+    }
+
+    private void restart(Player player1, Player player2) {
+        fillPoolAndPlayers(player1, player2);
+        this.player1 = player1;
+        this.player2 = player2;
+    }
+
+    private void setup() {
+        prepareTextures();
+        prepareVictoryBoard();
+        prepareMenu();
+        prepareField();
+        prepareDesks();
+        prepareDominoes();
+    }
+
+    private void prepareTextures() {
+        stuffTexture = new Texture(
+                System.getProperty("user.dir") + "//resources//domino//textures//stuff.png", Texture.TYPE_RGB);
+        dominoTexture = new Texture(
+                System.getProperty("user.dir") + "//resources//domino//textures//dominoes.png", Texture.TYPE_RGBA);
+
+        dominoTextureSize = new Vector2f(448.0f, 896.0f);
+        stuffTextureSize = new Vector2f(600.0f, 224.0f);
+    }
+
+    private void prepareVictoryBoard() {
+        Sprite victoryBoard = new Sprite(new Vector3f(14.0f, 14.0f, victoryLayerZ - 0.05f), new Vector2f(32.0f, 32.0f),
+                new Vector4f(0.0f, 0.0f, 0.0f, 0.8f),
+                Game.spriteRenderer, Game.spriteShader);
+        victoryLayer.add(victoryBoard);
+
+        victoryText = new Text("", 20, new Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+        victoryText2 = new Text("", 18, new Vector4f(1.0f, 0.0f, 0.0f, 0.9f));
+        victoryText3 = new Text("", 18, new Vector4f(1.0f, 0.0f, 0.0f, 0.9f));
+        victoryText4 = new Text("", 25, new Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
 
         victoryLayer.add(victoryText);
         victoryLayer.add(victoryText2);
         victoryLayer.add(victoryText3);
         victoryLayer.add(victoryText4);
-
-        Sprite victoryBoard = new Sprite(new Vector3f(15.0f, 15.0f, victoryLayerZ), new Vector2f(30.0f, 30.0f),
-                new Vector4f(1.0f, 1.0f, 1.0f, 0.5f),
-                Game.spriteRenderer, Game.spriteShader);
-        Sprite victoryBoardBorder = new Sprite(new Vector3f(14.0f, 14.0f, victoryLayerZ - 0.05f), new Vector2f(32.0f, 32.0f),
-                new Vector4f(0.0f, 0.0f, 0.0f, 0.8f),
-                Game.spriteRenderer, Game.spriteShader);
-//        victoryLayer.add(victoryBoard);
-        victoryLayer.add(victoryBoardBorder);
-
-        tileTexture = new Texture(
-                System.getProperty("user.dir") + "//resources//domino//textures//tile4_4.png", Texture.TYPE_RGB);
-
-        prepareDominoes();
-        prepareField();
-        preparePoolAndPlayers();
-        prepareDesks();
-    }
-
-    private void prepareDesks() {
-        Texture desk = new Texture(
-                System.getProperty("user.dir") + "//resources//domino//textures//desk.png", Texture.TYPE_RGB);
-
-        desk1 = new Sprite(new Vector3f(0.0f, 1.0f, gameLayerDeskZ), new Vector2f(WIDTH, 6.0f),
-                desk, Game.spriteRenderer, Game.spriteShader);
-
-        desk2 = new Sprite(new Vector3f(0.0f, HEIGHT - 7.0f, gameLayerDeskZ), new Vector2f(WIDTH, 6.0f),
-                desk, Game.spriteRenderer, Game.spriteShader);
-
-        deskPool = new Sprite(new Vector3f(WIDTH * 0.2f, HEIGHT * 0.2f, gameLayerDeskZ), new Vector2f(WIDTH * 0.5f, WIDTH * 0.5f),
-                desk, Game.spriteRenderer, Game.spriteShader);
-
-        gameLayer.add(desk1);
-        gameLayer.add(desk2);
-//        gameLayer.add(deskPool);
-
-        positionDesks(tileSize);
-    }
-
-    private void positionDesks(float newTileSize) {
-        int desk2Y = (int) ((HEIGHT - newTileSize * 5.0f) / newTileSize);
-
-        desk1.setNewPosition(new Vector3f(0.0f, 0.5f * newTileSize, desk1.getPosition().z));
-        desk2.setNewPosition(new Vector3f(0.0f, desk2Y * newTileSize - 0.5f * newTileSize, desk1.getPosition().z));
-
-        desk1.setSize(new Vector2f(WIDTH, 5 * newTileSize));
-        desk2.setSize(new Vector2f(WIDTH, 5 * newTileSize));
-    }
-
-    private void recalculateField(float tileSize) {
-        for (int i = 0; i < fieldBlockSize; i++) {
-            for (int j = 0; j < fieldBlockSize; j++) {
-                final float blockSize = 4 * tileSize;
-
-                field[i][j].setNewPosition(new Vector3f(i * blockSize, j * blockSize, gameLayerFieldZ));
-                field[i][j].setSize(new Vector2f(blockSize, blockSize));
-            }
-        }
     }
 
     private void prepareField() {
         for (int i = 0; i < fieldBlockSize; i++) {
             for (int j = 0; j < fieldBlockSize; j++) {
-                final float blockSize = 4 * tileSize;
-
                 field[i][j] = new Sprite(
-                        new Vector3f(i * blockSize, j * blockSize, gameLayerFieldZ),
-                        new Vector2f(blockSize, blockSize),
-                        tileTexture,
+                        new Vector3f(), new Vector2f(),
+                        stuffTexture,
                         Game.spriteRenderer,
                         Game.spriteShader);
+
+                List<Vector2f> uv = new ArrayList<>();
+                Vector4f coords = new Vector4f(
+                        512.0f / stuffTextureSize.x,
+                        0.0f / stuffTextureSize.y,
+                        (512.0f + 64.0f) / stuffTextureSize.x,
+                        64.0f / stuffTextureSize.y);
+
+                uv.add(new Vector2f(coords.x, coords.w));
+                uv.add(new Vector2f(coords.x, coords.y));
+                uv.add(new Vector2f(coords.z, coords.y));
+                uv.add(new Vector2f(coords.z, coords.w));
+
+                field[i][j].setUv(uv);
 
                 gameLayer.add(field[i][j]);
             }
         }
+
+        positionField(tileSize);
     }
 
-    private void restart() {
-        preparePoolAndPlayers();
+    private void prepareDesks() {
+        desk1 = new Sprite(new Vector3f(), new Vector2f(),
+                stuffTexture, Game.spriteRenderer, Game.spriteShader);
+
+        desk2 = new Sprite(new Vector3f(), new Vector2f(),
+                stuffTexture, Game.spriteRenderer, Game.spriteShader);
+
+        List<Vector2f> uv = new ArrayList<>();
+        Vector4f coords = new Vector4f(
+                0.0f / stuffTextureSize.x,
+                0.0f / stuffTextureSize.y,
+                512.0f / stuffTextureSize.x,
+                64.0f / stuffTextureSize.y);
+
+        uv.add(new Vector2f(coords.x, coords.w));
+        uv.add(new Vector2f(coords.x, coords.y));
+        uv.add(new Vector2f(coords.z, coords.y));
+        uv.add(new Vector2f(coords.z, coords.w));
+
+        desk1.setUv(uv);
+        desk2.setUv(uv);
+
+        positionDesks(tileSize);
+
+        gameLayer.add(desk1);
+        gameLayer.add(desk2);
     }
 
     private void prepareDominoes() {
-        Texture dominoesTexture = new Texture(
-                System.getProperty("user.dir") + "//resources//domino//textures//dominoes3.png", Texture.TYPE_RGBA);
-
-        Domino.setDominoesTexture(dominoesTexture);
+        Domino.setDominoesTexture(dominoTexture);
         Domino.setTileWidth(tileSize);
 
         final float imageWidth = 448.0f;
@@ -243,55 +263,7 @@ public class DominoGame extends Game {
         Domino.setUvs(uvDown, uvGreen, uvRed, uvSelected, uvNull);
     }
 
-    private void setNewTileSize(float newTileSize) {
-        if (newTileSize >= maxTileSize || newTileSize < minTileSize) {
-            return;
-        }
-
-        recalculateField(newTileSize);
-
-        for (Domino domino : allDominoes) {
-            Vector3f oldPosition = domino.getPosition();
-            domino.setNewPosition(new Vector3f(
-                    oldPosition.x / Domino.getTileWidth() * newTileSize,
-                    oldPosition.y / Domino.getTileWidth() * newTileSize,
-                    oldPosition.z / Domino.getTileWidth() * newTileSize));
-
-            Vector2f oldSize = domino.getSize();
-            domino.setSize(new Vector2f(
-                    oldSize.x / Domino.getTileWidth() * newTileSize,
-                    oldSize.y / Domino.getTileWidth() * newTileSize));
-        }
-
-        Vector3f pos = CurrentDomino.getMaskPosition();
-        pos.x = pos.x / Domino.getTileWidth() * newTileSize;
-        pos.y = pos.y / Domino.getTileWidth() * newTileSize;
-        pos.z = pos.z / Domino.getTileWidth() * newTileSize;
-        Vector2f size = CurrentDomino.getMaskSize();
-        size.x = size.x / Domino.getTileWidth() * newTileSize;
-        size.y = size.y / Domino.getTileWidth() * newTileSize;
-
-        CurrentDomino.recalculateMaskParameters(pos, size);
-
-        Domino.setTileWidth(newTileSize);
-
-        positionPoolAndPlayers(newTileSize);
-        positionDesks(newTileSize);
-
-        tileSize = newTileSize;
-    }
-
-    private Domino getDomino(int side1, int side2) {
-        for (Domino domino : allDominoes) {
-            if (domino.getSide1() == side1 && domino.getSide2() == side2) {
-                return domino;
-            }
-        }
-
-        return null;
-    }
-
-    private void preparePoolAndPlayers() {
+    private void fillPoolAndPlayers(Player player1, Player player2) {
         List<Integer> numbers = new ArrayList<>();
         for (int i = 0; i < DOMINOES_AMOUNT; i++) {
             numbers.add(i);
@@ -321,14 +293,223 @@ public class DominoGame extends Game {
             numbers.remove(number);
         }
 
-        player1 = new HumanPlayer("JAMES", player1Dominoes, window, gameLayer);
-        player2 = new AiPlayer("AI", player2Dominoes);
+        player1.setDominoes(player1Dominoes);
+        player2.setDominoes(player2Dominoes);
         Player.prepareTable(pool, fieldBlockSize * tilesPerBlock, gameLayerFieldZ);
 
-        positionPoolAndPlayers(tileSize);
+        positionPoolAndPlayers(player1, player2, tileSize);
     }
 
-    private void positionPoolAndPlayers(float newTileSize) {
+    private void prepareMenu() {
+        final Vector2f menuStart = new Vector2f(WIDTH / 6.0f, HEIGHT / 6.0f);
+        final Vector2f menuSize = new Vector2f(WIDTH * 4.0f / 6.0f, HEIGHT * 4.0f / 6.0f);
+        final float buttonMarginX = WIDTH / 6.0f / 2.0f;
+        final float buttonMarginY = HEIGHT / 6.0f / 2.0f;
+        final float buttonZ = menuLayerZ + 0.05f;
+        final Vector2f buttonUvStart = new Vector2f(0.0f / stuffTextureSize.x, 64.0f / stuffTextureSize.y);
+        final Vector2f buttonUvSize = new Vector2f(300.0f / stuffTextureSize.x, 40.0f / stuffTextureSize.y);
+        final float buttonSizeY = (menuSize.x - 2 * buttonMarginX)
+                / (buttonUvSize.x * stuffTextureSize.x) * (buttonUvSize.y * stuffTextureSize.y);
+
+        List<Vector2f> buttonRestartUvActive = new ArrayList<>();
+        List<Vector2f> buttonModePvpUvActive = new ArrayList<>();
+        List<Vector2f> buttonModePvaUvActive = new ArrayList<>();
+        List<Vector2f> buttonExitUvActive = new ArrayList<>();
+        List<Vector2f> buttonRestartUvIdle = new ArrayList<>();
+        List<Vector2f> buttonModePvpUvIdle = new ArrayList<>();
+        List<Vector2f> buttonModePvaUvIdle = new ArrayList<>();
+        List<Vector2f> buttonExitUvIdle = new ArrayList<>();
+
+        buttonRestartUvIdle.add(
+                new Vector2f(buttonUvStart.x + 0 * (buttonUvSize.x), buttonUvStart.y + 0 * (buttonUvSize.y) + buttonUvSize.y));
+        buttonRestartUvIdle.add(
+                new Vector2f(buttonUvStart.x + 0 * (buttonUvSize.x), buttonUvStart.y + 0 * (buttonUvSize.y)));
+        buttonRestartUvIdle.add(
+                new Vector2f(buttonUvStart.x + 0 * (buttonUvSize.x) + buttonUvSize.x, buttonUvStart.y + 0 * (buttonUvSize.y)));
+        buttonRestartUvIdle.add(
+                new Vector2f(buttonUvStart.x + 0 * (buttonUvSize.x) + buttonUvSize.x, buttonUvStart.y + 0 * (buttonUvSize.y) + buttonUvSize.y));
+
+        buttonRestartUvActive.add(
+                new Vector2f(buttonUvStart.x + 1 * (buttonUvSize.x), buttonUvStart.y + 0 * (buttonUvSize.y) + buttonUvSize.y));
+        buttonRestartUvActive.add(
+                new Vector2f(buttonUvStart.x + 1 * (buttonUvSize.x), buttonUvStart.y + 0 * (buttonUvSize.y)));
+        buttonRestartUvActive.add(
+                new Vector2f(buttonUvStart.x + 1 * (buttonUvSize.x) + buttonUvSize.x, buttonUvStart.y + 0 * (buttonUvSize.y)));
+        buttonRestartUvActive.add(
+                new Vector2f(buttonUvStart.x + 1 * (buttonUvSize.x) + buttonUvSize.x, buttonUvStart.y + 0 * (buttonUvSize.y) + buttonUvSize.y));
+
+        buttonModePvpUvIdle.add(
+                new Vector2f(buttonUvStart.x + 0 * (buttonUvSize.x), buttonUvStart.y + 1 * (buttonUvSize.y) + buttonUvSize.y));
+        buttonModePvpUvIdle.add(
+                new Vector2f(buttonUvStart.x + 0 * (buttonUvSize.x), buttonUvStart.y + 1 * (buttonUvSize.y)));
+        buttonModePvpUvIdle.add(
+                new Vector2f(buttonUvStart.x + 0 * (buttonUvSize.x) + buttonUvSize.x, buttonUvStart.y + 1 * (buttonUvSize.y)));
+        buttonModePvpUvIdle.add(
+                new Vector2f(buttonUvStart.x + 0 * (buttonUvSize.x) + buttonUvSize.x, buttonUvStart.y + 1 * (buttonUvSize.y) + buttonUvSize.y));
+
+        buttonModePvpUvActive.add(
+                new Vector2f(buttonUvStart.x + 1 * (buttonUvSize.x), buttonUvStart.y + 1 * (buttonUvSize.y) + buttonUvSize.y));
+        buttonModePvpUvActive.add(
+                new Vector2f(buttonUvStart.x + 1 * (buttonUvSize.x), buttonUvStart.y + 1 * (buttonUvSize.y)));
+        buttonModePvpUvActive.add(
+                new Vector2f(buttonUvStart.x + 1 * (buttonUvSize.x) + buttonUvSize.x, buttonUvStart.y + 1 * (buttonUvSize.y)));
+        buttonModePvpUvActive.add(
+                new Vector2f(buttonUvStart.x + 1 * (buttonUvSize.x) + buttonUvSize.x, buttonUvStart.y + 1 * (buttonUvSize.y) + buttonUvSize.y));
+
+        buttonModePvaUvIdle.add(
+                new Vector2f(buttonUvStart.x + 0 * (buttonUvSize.x), buttonUvStart.y + 2 * (buttonUvSize.y) + buttonUvSize.y));
+        buttonModePvaUvIdle.add(
+                new Vector2f(buttonUvStart.x + 0 * (buttonUvSize.x), buttonUvStart.y + 2 * (buttonUvSize.y)));
+        buttonModePvaUvIdle.add(
+                new Vector2f(buttonUvStart.x + 0 * (buttonUvSize.x) + buttonUvSize.x, buttonUvStart.y + 2 * (buttonUvSize.y)));
+        buttonModePvaUvIdle.add(
+                new Vector2f(buttonUvStart.x + 0 * (buttonUvSize.x) + buttonUvSize.x, buttonUvStart.y + 2 * (buttonUvSize.y) + buttonUvSize.y));
+
+        buttonModePvaUvActive.add(
+                new Vector2f(buttonUvStart.x + 1 * (buttonUvSize.x), buttonUvStart.y + 2 * (buttonUvSize.y) + buttonUvSize.y));
+        buttonModePvaUvActive.add(
+                new Vector2f(buttonUvStart.x + 1 * (buttonUvSize.x), buttonUvStart.y + 2 * (buttonUvSize.y)));
+        buttonModePvaUvActive.add(
+                new Vector2f(buttonUvStart.x + 1 * (buttonUvSize.x) + buttonUvSize.x, buttonUvStart.y + 2 * (buttonUvSize.y)));
+        buttonModePvaUvActive.add(
+                new Vector2f(buttonUvStart.x + 1 * (buttonUvSize.x) + buttonUvSize.x, buttonUvStart.y + 2 * (buttonUvSize.y) + buttonUvSize.y));
+
+        buttonExitUvIdle.add(
+                new Vector2f(buttonUvStart.x + 0 * (buttonUvSize.x), buttonUvStart.y + 3 * (buttonUvSize.y) + buttonUvSize.y));
+        buttonExitUvIdle.add(
+                new Vector2f(buttonUvStart.x + 0 * (buttonUvSize.x), buttonUvStart.y + 3 * (buttonUvSize.y)));
+        buttonExitUvIdle.add(
+                new Vector2f(buttonUvStart.x + 0 * (buttonUvSize.x) + buttonUvSize.x, buttonUvStart.y + 3 * (buttonUvSize.y)));
+        buttonExitUvIdle.add(
+                new Vector2f(buttonUvStart.x + 0 * (buttonUvSize.x) + buttonUvSize.x, buttonUvStart.y + 3 * (buttonUvSize.y) + buttonUvSize.y));
+
+        buttonExitUvActive.add(
+                new Vector2f(buttonUvStart.x + 1 * (buttonUvSize.x), buttonUvStart.y + 3 * (buttonUvSize.y) + buttonUvSize.y));
+        buttonExitUvActive.add(
+                new Vector2f(buttonUvStart.x + 1 * (buttonUvSize.x), buttonUvStart.y + 3 * (buttonUvSize.y)));
+        buttonExitUvActive.add(
+                new Vector2f(buttonUvStart.x + 1 * (buttonUvSize.x) + buttonUvSize.x, buttonUvStart.y + 3 * (buttonUvSize.y)));
+        buttonExitUvActive.add(
+                new Vector2f(buttonUvStart.x + 1 * (buttonUvSize.x) + buttonUvSize.x, buttonUvStart.y + 3 * (buttonUvSize.y) + buttonUvSize.y));
+
+        Sprite menuBackground = new Sprite(
+                new Vector3f(menuStart.x, menuStart.y, menuLayerZ),
+                new Vector2f(menuSize.x, menuSize.y),
+                new Vector4f(0.25f, 0.1f, 0.0f, 0.95f),
+                Game.spriteRenderer,
+                Game.spriteShader);
+
+        menu.addButton(new Button(
+                "Restart",
+                new Vector3f(menuStart.x + buttonMarginX, menuStart.y + 4 * buttonMarginY + 3 * buttonSizeY, buttonZ),
+                new Vector2f(menuSize.x - 2 * buttonMarginX, buttonSizeY),
+                stuffTexture,
+                stuffTexture,
+                buttonRestartUvActive,
+                buttonRestartUvIdle,
+                false,
+                Game.spriteRenderer,
+                Game.spriteShader));
+        menu.addButton(new Button(
+                "ModePvp",
+                new Vector3f(menuStart.x + buttonMarginX, menuStart.y + 3 * buttonMarginY + 2 * buttonSizeY, buttonZ),
+                new Vector2f(menuSize.x - 2 * buttonMarginX, buttonSizeY),
+                stuffTexture,
+                stuffTexture,
+                buttonModePvpUvActive,
+                buttonModePvpUvIdle,
+                false,
+                Game.spriteRenderer,
+                Game.spriteShader));
+        menu.addButton(new Button(
+                "ModePva",
+                new Vector3f(menuStart.x + buttonMarginX, menuStart.y + 2 * buttonMarginY + 1 * buttonSizeY, buttonZ),
+                new Vector2f(menuSize.x - 2 * buttonMarginX, buttonSizeY),
+                stuffTexture,
+                stuffTexture,
+                buttonModePvaUvActive,
+                buttonModePvaUvIdle,
+                false,
+                Game.spriteRenderer,
+                Game.spriteShader));
+        menu.addButton(new Button(
+                "Exit",
+                new Vector3f(menuStart.x + buttonMarginX, menuStart.y + 1 * buttonMarginY + 0 * buttonSizeY, buttonZ),
+                new Vector2f(menuSize.x - 2 * buttonMarginX, buttonSizeY),
+                stuffTexture,
+                stuffTexture,
+                buttonExitUvActive,
+                buttonExitUvIdle,
+                false,
+                Game.spriteRenderer,
+                Game.spriteShader));
+
+        menu.setCurrent("Restart");
+
+        menuLayer.add(menuBackground);
+        menu.submitAll(menuLayer);
+    }
+
+
+    private void positionDesks(float newTileSize) {
+        int desk2Y = (int) ((HEIGHT - newTileSize * 5.0f) / newTileSize);
+
+        desk1.setNewPosition(new Vector3f(0.0f, 0.5f * newTileSize, gameLayerDeskZ));
+        desk2.setNewPosition(new Vector3f(0.0f, desk2Y * newTileSize - 0.5f * newTileSize, gameLayerDeskZ));
+
+        desk1.setSize(new Vector2f(WIDTH, 5 * newTileSize));
+        desk2.setSize(new Vector2f(WIDTH, 5 * newTileSize));
+    }
+
+    private void positionField(float newTileSize) {
+        for (int i = 0; i < fieldBlockSize; i++) {
+            for (int j = 0; j < fieldBlockSize; j++) {
+                final float blockSize = 4 * newTileSize;
+
+                field[i][j].setNewPosition(new Vector3f(i * blockSize, j * blockSize, gameLayerFieldZ));
+                field[i][j].setSize(new Vector2f(blockSize, blockSize));
+            }
+        }
+    }
+
+    private void setNewTileSize(float newTileSize) {
+        if (newTileSize >= maxTileSize || newTileSize < minTileSize) {
+            return;
+        }
+
+        for (Domino domino : allDominoes) {
+            Vector3f oldPosition = domino.getPosition();
+            domino.setNewPosition(new Vector3f(
+                    oldPosition.x / Domino.getTileWidth() * newTileSize,
+                    oldPosition.y / Domino.getTileWidth() * newTileSize,
+                    oldPosition.z / Domino.getTileWidth() * newTileSize));
+
+            Vector2f oldSize = domino.getSize();
+            domino.setSize(new Vector2f(
+                    oldSize.x / Domino.getTileWidth() * newTileSize,
+                    oldSize.y / Domino.getTileWidth() * newTileSize));
+        }
+
+        Vector3f pos = CurrentDomino.getMaskPosition();
+        pos.x = pos.x / Domino.getTileWidth() * newTileSize;
+        pos.y = pos.y / Domino.getTileWidth() * newTileSize;
+        pos.z = pos.z / Domino.getTileWidth() * newTileSize;
+        Vector2f size = CurrentDomino.getMaskSize();
+        size.x = size.x / Domino.getTileWidth() * newTileSize;
+        size.y = size.y / Domino.getTileWidth() * newTileSize;
+
+        CurrentDomino.recalculateMaskParameters(pos, size);
+
+        Domino.setTileWidth(newTileSize);
+
+        positionField(newTileSize);
+        positionPoolAndPlayers(player1, player2, newTileSize);
+        positionDesks(newTileSize);
+
+        tileSize = newTileSize;
+    }
+
+    private void positionPoolAndPlayers(Player player1, Player player2, float newTileSize) {
         Vector2i newPlayer1Start = new Vector2i(1, 1);
         Vector2i newPlayer2Start = new Vector2i(1, 0);
         Vector2i newPoolStart = new Vector2i(0, 0);
@@ -336,18 +517,16 @@ public class DominoGame extends Game {
 
         newPlayer2Start.y = (int) ((HEIGHT - newTileSize * 5.0f) / newTileSize);
 
-//        newPoolPosition.x = (int) ((WIDTH - newTileSize * 3.0f) / newTileSize);
         newPoolStart.x = (int) ((WIDTH * (5.0f / 8.0f)) / newTileSize);
         newPoolStart.y = (int) ((HEIGHT - 6.0f * newTileSize) / newTileSize);
         newPoolFinish.x = (int) ((WIDTH - 1.0f * newTileSize) / newTileSize);
         newPoolFinish.y = (int) ((6.0f * newTileSize) / newTileSize);
 
-//        int rows = (int) ((HEIGHT - 14.0f * newTileSize) / newTileSize);
-
         player1.reposition(newPlayer1Start);
         player2.reposition(newPlayer2Start);
         Player.repositionTablePool(newPoolStart, newPoolFinish);
     }
+
 
     private void keyboard() {
         if (System.currentTimeMillis() - lastKeyboard > keyboardMillisDelay) {
@@ -360,7 +539,7 @@ public class DominoGame extends Game {
             if (window.isKeyDown(GLFW_KEY_R)) {
                 lastKeyboard = System.currentTimeMillis();
 
-                restart();
+                restart(player1, player2);
             }
 
             if (window.isKeyDown(GLFW_KEY_W)) {
@@ -491,10 +670,12 @@ public class DominoGame extends Game {
     @Override
     public void render() {
         gameLayer.render();
+
         if (gameEnded) {
             victoryLayer.render();
         }
-        if (false) {
+
+        if (menuOpen) {
             menuLayer.render();
         }
     }

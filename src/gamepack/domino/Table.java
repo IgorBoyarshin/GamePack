@@ -139,50 +139,6 @@ public class Table {
 
                 tailDirection = headDirection;
 
-//                switch (domino.getDirection()) {
-//                    case UP: {
-//                        if (side1 == side2) {
-//                            headPos = new Vector2i(posX + 1, posY + 2);
-//                            tailPos = new Vector2i(posX + 1, posY + 2);
-//                        } else {
-//                            headPos = new Vector2i(posX + 1, posY + 3);
-//                            tailPos = new Vector2i(posX + 1, posY + 1);
-//                        }
-//                        break;
-//                    }
-//                    case RIGHT: {
-//                        if (side1 == side2) {
-//                            headPos = new Vector2i(posX + 2, posY + 1);
-//                            tailPos = new Vector2i(posX + 2, posY + 1);
-//
-//                        } else {
-//                            headPos = new Vector2i(posX + 3, posY + 1);
-//                            tailPos = new Vector2i(posX + 1, posY + 1);
-//                        }
-//                        break;
-//                    }
-//                    case DOWN: {
-//                        if (side1 == side2) {
-//                            headPos = new Vector2i(posX + 1, posY + 2);
-//                            tailPos = new Vector2i(posX + 1, posY + 2);
-//                        } else {
-//                            headPos = new Vector2i(posX + 1, posY + 1);
-//                            tailPos = new Vector2i(posX + 1, posY + 3);
-//                        }
-//                        break;
-//                    }
-//                    case LEFT: {
-//                        if (side1 == side2) {
-//                            headPos = new Vector2i(posX + 2, posY + 1);
-//                            tailPos = new Vector2i(posX + 2, posY + 1);
-//                        } else {
-//                            headPos = new Vector2i(posX + 1, posY + 1);
-//                            tailPos = new Vector2i(posX + 3, posY + 1);
-//                        }
-//                        break;
-//                    }
-//                }
-
             } else {
                 if (isHead(domino)) {
                     if (amount > 1) {
@@ -215,7 +171,7 @@ public class Table {
                     if (domino.getSide1() == domino.getSide2()) {
                         tailPos = getCenterPos(domino);
 
-                        headDirection = Domino.DIRECTION.getDirectionByNumber((domino.getDirection().getNumber() + 1) % 4);
+                        tailDirection = Domino.DIRECTION.getDirectionByNumber((domino.getDirection().getNumber() + 1) % 4);
                     } else {
                         if (domino.getSide1() == tailNumber) {
                             tailNumber = domino.getSide2();

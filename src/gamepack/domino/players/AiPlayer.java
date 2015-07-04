@@ -35,6 +35,7 @@ public class AiPlayer extends Player {
         if (dominoes.size() == 0) {
             if (table.getPoolSize() > 0) {
                 dominoes.add(table.takeDominoFromPool());
+                reposition(repositionStart);
             } else {
                 moveMade = true;
                 return;

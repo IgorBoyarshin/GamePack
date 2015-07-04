@@ -11,8 +11,8 @@ public class CurrentDomino {
     private Domino domino;
     private static Domino mask = new Domino(0, 0, new Vector2i(0, 0), 0.0f, Domino.DIRECTION.UP, null);
     private boolean chosen = false;
-    private final float currentDominoShift = 0.25f;
-    private final float currentDominoMaskShift = 0.5f;
+    private final float currentDominoShift = 0.025f;
+    private final float currentDominoMaskShift = 0.05f;
 
     public CurrentDomino(Domino current) {
 //        prepareMaskAndDomino(current);

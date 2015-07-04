@@ -86,9 +86,13 @@ public class DominoGame extends Game {
     }
 
     private void restart(Player player1, Player player2) {
-        fillPoolAndPlayers(player1, player2);
+        resetDominoesDirectionAndZ();
+        fillAndPositionPoolAndPlayers(player1, player2);
         this.player1 = player1;
         this.player2 = player2;
+
+        gameEnded = false;
+        player1Move = true;
     }
 
     private void setup() {
@@ -263,7 +267,7 @@ public class DominoGame extends Game {
         Domino.setUvs(uvDown, uvGreen, uvRed, uvSelected, uvNull);
     }
 
-    private void fillPoolAndPlayers(Player player1, Player player2) {
+    private void fillAndPositionPoolAndPlayers(Player player1, Player player2) {
         List<Integer> numbers = new ArrayList<>();
         for (int i = 0; i < DOMINOES_AMOUNT; i++) {
             numbers.add(i);
@@ -450,6 +454,13 @@ public class DominoGame extends Game {
         menu.submitAll(menuLayer);
     }
 
+
+    private void resetDominoesDirectionAndZ() {
+        for (Domino domino : allDominoes) {
+            domino.setDirection(Domino.DIRECTION.UP, true);
+            domino.setNewPosition(new Vector3f(0.0f, 0.0f, gameLayerDominoesZ));
+        }
+    }
 
     private void positionDesks(float newTileSize) {
         int desk2Y = (int) ((HEIGHT - newTileSize * 5.0f) / newTileSize);
@@ -660,13 +671,17 @@ public class DominoGame extends Game {
 
                     switch (menu.getCurrentButtonName()) {
                         case "Restart":
-//                        restart(player1, player2);
+                            restart(player1, player2);
+                            menuOpen = false;
                             break;
                         case "ModePvp":
-                            restart(new HumanPlayer("JAMES", window, gameLayer), new AiPlayer("BOB"));
+//                            restart(new AiPlayer("JAMES"), new AiPlayer("BOB"));
+//                            restart(new HumanPlayer("JAMES", window, gameLayer), new HumanPlayer("BOB", window, gameLayer));
+//                            menuOpen = false;
                             break;
                         case "ModePva":
                             restart(new HumanPlayer("RICHARD", window, gameLayer), new AiPlayer("ARNOLD"));
+                            menuOpen = false;
                             break;
                         case "Exit":
                             alive = false;

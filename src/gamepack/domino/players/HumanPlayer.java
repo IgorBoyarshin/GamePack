@@ -81,7 +81,7 @@ public class HumanPlayer extends Player {
                         currentDomino.setCurrentDomino(dominoes.get(currentNumberDomino));
                     } else {
                         currentDomino.moveRight();
-                        if (window.isKeyDown(GLFW_KEY_LEFT_SHIFT)) {
+                        if (window.isKeyDown(GLFW_KEY_LEFT_SHIFT) || window.isKeyDown(GLFW_KEY_RIGHT_SHIFT)) {
                             currentDomino.moveRight();
                         }
 //                    System.out.println("CUR: " +
@@ -103,7 +103,7 @@ public class HumanPlayer extends Player {
                         currentDomino.setCurrentDomino(dominoes.get(currentNumberDomino));
                     } else {
                         currentDomino.moveLeft();
-                        if (window.isKeyDown(GLFW_KEY_LEFT_SHIFT)) {
+                        if (window.isKeyDown(GLFW_KEY_LEFT_SHIFT) || window.isKeyDown(GLFW_KEY_RIGHT_SHIFT)) {
                             currentDomino.moveLeft();
                         }
 //                    System.out.println("CUR: " +
@@ -123,7 +123,7 @@ public class HumanPlayer extends Player {
 
                     if (currentDomino.isChosen()) {
                         currentDomino.moveUp();
-                        if (window.isKeyDown(GLFW_KEY_LEFT_SHIFT)) {
+                        if (window.isKeyDown(GLFW_KEY_LEFT_SHIFT) || window.isKeyDown(GLFW_KEY_RIGHT_SHIFT)) {
                             currentDomino.moveUp();
                         }
 //                    System.out.println("CUR: " +
@@ -142,7 +142,7 @@ public class HumanPlayer extends Player {
 
                     if (currentDomino.isChosen()) {
                         currentDomino.moveDown();
-                        if (window.isKeyDown(GLFW_KEY_LEFT_SHIFT)) {
+                        if (window.isKeyDown(GLFW_KEY_LEFT_SHIFT) || window.isKeyDown(GLFW_KEY_RIGHT_SHIFT)) {
                             currentDomino.moveDown();
                         }
 //                    System.out.println("CUR: " +

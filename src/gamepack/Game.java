@@ -18,7 +18,8 @@ public abstract class Game {
 
     protected boolean alive = true;
 
-    public static final long keyboardMillisDelay = 130;
+    public static final long keyboardMillisDelay = 140;
+    public static final long keyboardMillisDelayLong = 240;
 //    public static final long keyboardMillisDelay = 180;
     public static long lastKeyboard = 0;
 

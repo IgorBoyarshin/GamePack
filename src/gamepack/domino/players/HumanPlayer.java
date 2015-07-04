@@ -157,35 +157,36 @@ public class HumanPlayer extends Player {
                 }
             }
 
+            if (System.currentTimeMillis() - Game.lastKeyboard > Game.keyboardMillisDelayLong) {
+                if (window.isKeyDown(GLFW_KEY_ENTER)) {
+                    Game.lastKeyboard = System.currentTimeMillis();
 
-            if (window.isKeyDown(GLFW_KEY_ENTER)) {
-                Game.lastKeyboard = System.currentTimeMillis();
-
-                if (dominoes.size() > 0) {
-                    if (!currentDomino.isChosen()) {
-                        if (table.getAmount() == 0) {
-                            if (currentDomino.getDomino().getSide1() == currentDomino.getDomino().getSide2()) {
+                    if (dominoes.size() > 0) {
+                        if (!currentDomino.isChosen()) {
+                            if (table.getAmount() == 0) {
+                                if (currentDomino.getDomino().getSide1() == currentDomino.getDomino().getSide2()) {
+                                    currentDomino.setChosen();
+                                }
+                            } else {
                                 currentDomino.setChosen();
                             }
                         } else {
-                            currentDomino.setChosen();
-                        }
-                    } else {
-                        if (table.isPositionValid(currentDomino.getDomino())) {
-                            table.placeDomino(currentDomino.getDomino());
-                            dominoes.remove(currentDomino.getDomino());
-                            currentDomino.unChoose();
+                            if (table.isPositionValid(currentDomino.getDomino())) {
+                                table.placeDomino(currentDomino.getDomino());
+                                dominoes.remove(currentDomino.getDomino());
+                                currentDomino.unChoose();
 
-                            if (dominoes.size() > 0) {
-                                currentNumberDomino = 0;
-                                reposition(repositionStart);
-                                currentDomino.setCurrentDomino(dominoes.get(0));
-                            } else {
-                                currentDomino.maskNull();
+                                if (dominoes.size() > 0) {
+                                    currentNumberDomino = 0;
+                                    reposition(repositionStart);
+                                    currentDomino.setCurrentDomino(dominoes.get(0));
+                                } else {
+                                    currentDomino.maskNull();
 //                                currentDomino.setCurrentDomino(null);
-                            }
+                                }
 
-                            moveMade = true;
+                                moveMade = true;
+                            }
                         }
                     }
                 }

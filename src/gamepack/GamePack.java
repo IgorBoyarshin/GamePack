@@ -17,6 +17,7 @@ import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
 
 TOP_PRIORITY:
 TODO: Himmel: fix textures amount bigger than 16
+TODO: Himmel: Text setting the text right in the constructor fails
 
 LOW_PRIORITY:
 TODO: Himmel: set proper jar path
@@ -41,7 +42,7 @@ public class GamePack {
     private Game mainMenu;
 
     public GamePack() {
-        window = new Window("GamePack", WIDTH, HEIGHT);
+        window = new Window("GamePack", WIDTH, HEIGHT, Window.ANTI_ALIASING_4X, true, false);
 
         textShader = new Shader(System.getProperty("user.dir") + "//resources//main//shaders//font.vert",
                 System.getProperty("user.dir") + "//resources//main//shaders//font.frag");

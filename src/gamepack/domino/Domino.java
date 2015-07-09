@@ -112,6 +112,16 @@ public class Domino extends Sprite {
         return direction;
     }
 
+    public void setDirectionUvAndSize(DIRECTION direction) {
+        if (!(this.direction.getX() == direction.getX())) {
+            Vector2f oldSize = this.getSize();
+            this.setSize(new Vector2f(oldSize.y, oldSize.x));
+        }
+
+        rotateUv(direction);
+        this.direction = direction;
+    }
+
     public void setDirection(DIRECTION direction, boolean setNew) {
         rotatePositionAndSize(direction);
         rotateUv(direction);

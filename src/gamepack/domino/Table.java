@@ -13,8 +13,8 @@ public class Table {
     private Vector2i headPos;
     private int tailNumber;
     private int headNumber;
-    private Domino.DIRECTION headDirection;
-    private Domino.DIRECTION tailDirection;
+    //    private Domino.DIRECTION headDirection;
+//    private Domino.DIRECTION tailDirection;
     private List<Domino> dominoes;
 
     private List<Domino> pool;
@@ -40,13 +40,7 @@ public class Table {
         field = new boolean[fieldSize + 2 * fieldMargin][fieldSize + 2 * fieldMargin];
     }
 
-    public List<Domino> getPool() {
-        return pool;
-    }
-
-    public void setPool(List<Domino> pool) {
-        this.pool = pool;
-    }
+    // ---+++---
 
     public Domino takeDominoFromPool() {
         if (pool.size() > 0) {
@@ -85,32 +79,10 @@ public class Table {
         }
     }
 
-    public Domino.DIRECTION getHeadDirection() {
-        return headDirection;
-    }
-
-    public Domino.DIRECTION getTailDirection() {
-        return tailDirection;
-    }
-
-    public Vector2i getHeadPos() {
-        return new Vector2i(headPos.x - currentShift.x, headPos.y - currentShift.y);
-    }
-
-    public Vector2i getTailPos() {
-        return new Vector2i(tailPos.x - currentShift.x, tailPos.y - currentShift.y);
-    }
-
-    public int getTailNumber() {
-        return tailNumber;
-    }
-
-    public int getHeadNumber() {
-        return headNumber;
-    }
+    // ---+++---
 
     public void placeDomino(Domino domino) {
-        if (true) {
+        if (true) { // position validness check goes here. It is redundant usually so it is omitted here
             int side1 = domino.getSide1();
             int side2 = domino.getSide2();
 
@@ -129,15 +101,18 @@ public class Table {
                     headPos = getCenterPos(domino);
                     tailPos = getCenterPos(domino);
 
-                    headDirection = Domino.DIRECTION.getDirectionByNumber((domino.getDirection().getNumber() + 1) % 4);
+                    // DIRECTION REMOVED
+//                    headDirection = Domino.DIRECTION.getDirectionByNumber((domino.getDirection().getNumber() + 1) % 4);
                 } else {
                     headPos = getHeadPos(domino);
                     tailPos = getTailPos(domino);
 
-                    headDirection = domino.getDirection();
+                    // DIRECTION REMOVED
+//                    headDirection = domino.getDirection();
                 }
 
-                tailDirection = headDirection;
+                // DIRECTION REMOVED
+//                tailDirection = headDirection;
 
             } else {
                 if (isHead(domino)) {
@@ -148,7 +123,8 @@ public class Table {
                     if (domino.getSide1() == domino.getSide2()) {
                         headPos = getCenterPos(domino);
 
-                        headDirection = Domino.DIRECTION.getDirectionByNumber((domino.getDirection().getNumber() + 1) % 4);
+                        // DIRECTION REMOVED
+//                        headDirection = Domino.DIRECTION.getDirectionByNumber((domino.getDirection().getNumber() + 1) % 4);
                     } else {
                         if (domino.getSide1() == headNumber) {
                             headNumber = domino.getSide2();
@@ -160,7 +136,8 @@ public class Table {
                             markTrueX(getTailPos(domino));
                         }
 
-                        headDirection = domino.getDirection();
+                        // DIRECTION REMOVED
+//                        headDirection = domino.getDirection();
                     }
 
                 } else {
@@ -171,7 +148,8 @@ public class Table {
                     if (domino.getSide1() == domino.getSide2()) {
                         tailPos = getCenterPos(domino);
 
-                        tailDirection = Domino.DIRECTION.getDirectionByNumber((domino.getDirection().getNumber() + 1) % 4);
+                        // DIRECTION REMOVED
+//                        tailDirection = Domino.DIRECTION.getDirectionByNumber((domino.getDirection().getNumber() + 1) % 4);
                     } else {
                         if (domino.getSide1() == tailNumber) {
                             tailNumber = domino.getSide2();
@@ -183,7 +161,8 @@ public class Table {
                             markTrueX(getTailPos(domino));
                         }
 
-                        tailDirection = domino.getDirection();
+                        // DIRECTION REMOVED
+//                        tailDirection = domino.getDirection();
                     }
                 }
             }
@@ -191,19 +170,12 @@ public class Table {
             Vector2i pos1 = getHeadPos(domino);
             Vector2i pos2 = getTailPos(domino);
 
-            field[pos1.x - 1][pos1.y - 1] = true;
-            field[pos1.x - 1][pos1.y] = true;
-            field[pos1.x][pos1.y - 1] = true;
-            field[pos1.x][pos1.y] = true;
-
-            field[pos2.x - 1][pos2.y - 1] = true;
-            field[pos2.x - 1][pos2.y] = true;
-            field[pos2.x][pos2.y - 1] = true;
-            field[pos2.x][pos2.y] = true;
+            markTrue(pos1);
+            markTrue(pos2);
 
             amount++;
 
-            domino.move(new Vector3f(0.0f, 0.0f, fieldZ + 0.05f));
+            domino.setNewPosition(new Vector3f(domino.getPosition().x, domino.getPosition().y, fieldZ + 0.05f));
             dominoes.add(domino);
 
 //            System.out.println("Current table status:");
@@ -215,6 +187,8 @@ public class Table {
 //            System.out.println();
         }
     }
+
+    // ---+++---
 
     public void shift(Vector2i vector) {
         currentShift.x += vector.x;
@@ -261,6 +235,15 @@ public class Table {
             }
         }
     }
+
+    private void markTrue(Vector2i point) {
+        field[point.x - 1][point.y - 1] = true;
+        field[point.x - 1][point.y] = true;
+        field[point.x][point.y - 1] = true;
+        field[point.x][point.y] = true;
+    }
+
+    // ---+++---
 
     private Vector2i getCenterPos(Domino domino) {
 //        int posX = (int) (domino.getPosition().x / Domino.getTileWidth());
@@ -366,21 +349,11 @@ public class Table {
         return false;
     }
 
-    public int getPoolSize() {
-        return pool.size();
-    }
-
-    public int getAmount() {
-        return amount;
-    }
-
-    private int distance(int x1, int y1, int x2, int y2) {
-        return ((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
-    }
+    // ---+++---
 
     public boolean isPositionValid(Vector2i pos1, Vector2i pos2) {
         Vector2i p1 = new Vector2i(pos1.x + currentShift.x, pos1.y + currentShift.y);
-        Vector2i p2 = new Vector2i(pos2.x + currentShift.y, pos2.y + currentShift.y);
+        Vector2i p2 = new Vector2i(pos2.x + currentShift.x, pos2.y + currentShift.y);
 
         if (field[p1.x - 1][p1.y - 1]) {
             return false;
@@ -441,6 +414,115 @@ public class Table {
             return false;
         }
 
+//        if (amount > 0) {
+//            if (pos1.x >= pos2.x && pos1.y >= pos2.y) {
+//                return isTrueNearby(new Vector2i(pos2.x - 2, pos2.y - 2), new Vector2i(pos1.x + 1, pos1.y + 1));
+//            } else {
+//                return isTrueNearby(new Vector2i(pos1.x - 2, pos1.y - 2), new Vector2i(pos2.x + 1, pos2.y + 1));
+//            }
+
+//            if (pos1.x == pos2.x) {
+//                if (pos1.y > pos2.y) {
+//                    return isTrueNearby(new Vector2i(pos2.x - 2, pos2.y - 2), new Vector2i(pos1.x + 1, pos1.y + 1));
+//                } else {
+//                    return isTrueNearby(new Vector2i(pos1.x - 2, pos1.y - 2), new Vector2i(pos2.x + 1, pos2.y + 1));
+//                }
+//            } else {
+//                if (pos1.x > pos2.y) {
+//                    return isTrueNearby(new Vector2i(pos2.x - 2, pos2.y - 2), new Vector2i(pos1.x + 1, pos1.y + 1));
+//                } else {
+//                    return isTrueNearby(new Vector2i(pos1.x - 2, pos1.y - 2), new Vector2i(pos2.x + 1, pos2.y + 1));
+//                }
+//            }
+//        }
+
         return true;
+    }
+
+    private boolean isTrueNearby(Vector2i start, Vector2i finish) {
+        boolean found = false;
+
+        for (int i = start.x; i <= finish.x; i++) {
+            if (field[i][start.y]) {
+                found = true;
+                break;
+            }
+        }
+        for (int i = start.x; i <= finish.x; i++) {
+            if (field[i][finish.y]) {
+                found = true;
+                break;
+            }
+        }
+        for (int i = start.y; i <= finish.y; i++) {
+            if (field[start.x][i]) {
+                found = true;
+                break;
+            }
+        }
+        for (int i = start.y; i <= finish.y; i++) {
+            if (field[finish.x][i]) {
+                found = true;
+                break;
+            }
+        }
+
+        return found;
+    }
+
+    // ---+++---
+
+    // ---+++---
+
+    // ---+++---
+
+    // ---+++---
+
+    // ---+++---
+
+    // ---+++---
+
+//    public Domino.DIRECTION getHeadDirection() {
+//        return headDirection;
+//    }
+
+//    public Domino.DIRECTION getTailDirection() {
+//        return tailDirection;
+//    }
+
+    public List<Domino> getPool() {
+        return pool;
+    }
+
+    public void setPool(List<Domino> pool) {
+        this.pool = pool;
+    }
+
+    public int getPoolSize() {
+        return pool.size();
+    }
+
+    public int getAmount() {
+        return amount;
+    }
+
+    private int distance(int x1, int y1, int x2, int y2) {
+        return ((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+    }
+
+    public Vector2i getHeadPos() {
+        return new Vector2i(headPos.x - currentShift.x, headPos.y - currentShift.y);
+    }
+
+    public Vector2i getTailPos() {
+        return new Vector2i(tailPos.x - currentShift.x, tailPos.y - currentShift.y);
+    }
+
+    public int getTailNumber() {
+        return tailNumber;
+    }
+
+    public int getHeadNumber() {
+        return headNumber;
     }
 }

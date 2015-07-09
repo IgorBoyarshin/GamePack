@@ -506,6 +506,7 @@ public class DominoGame extends Game {
         pos.x = pos.x / Domino.getTileWidth() * newTileSize;
         pos.y = pos.y / Domino.getTileWidth() * newTileSize;
         pos.z = pos.z / Domino.getTileWidth() * newTileSize;
+
         Vector2f size = CurrentDomino.getMaskSize();
         size.x = size.x / Domino.getTileWidth() * newTileSize;
         size.y = size.y / Domino.getTileWidth() * newTileSize;

@@ -2,9 +2,11 @@ package gamepack.domino.players;
 
 import gamepack.domino.Domino;
 import gamepack.domino.Vector2i;
-import himmel.math.Vector2f;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+import java.util.stream.Collectors;
 
 /**
  * Created by Igor on 27-Jun-15.
@@ -30,6 +32,12 @@ public class AiPlayer extends Player {
     }
 
     public void makeMove() {
+//        keyboard();
+//        if (true) {
+//            moveMade = true;
+//            return;
+//        }
+
         int counter = 0;
 
         if (dominoes.size() == 0) {
@@ -49,6 +57,7 @@ public class AiPlayer extends Player {
                 Domino newDomino = table.takeDominoFromPool();
                 if (newDomino != null) {
                     dominoes.add(newDomino);
+                    // Should do repositioning here(after each take), but it is gonna be done anyway later at the end
                 } else {
                     moveMade = true;
                     return;
@@ -56,168 +65,75 @@ public class AiPlayer extends Player {
             }
         }
 
-        putOnTable(dominoes.remove(counter));
+        makeMoveWith(dominoes.remove(counter));
 
         reposition(repositionStart);
 
         moveMade = true;
     }
 
-    private void putOnTable(Domino domino) {
+    private void makeMoveWith(Domino domino) {
         domino.flipUp();
 
-        if (hasSide(domino) == 1) {
-            if (domino.getSide1() == domino.getSide2()) {
-                putDouble(domino, table.getHeadPos(), table.getHeadDirection());
+        Random r = new Random();
+        r.setSeed(System.currentTimeMillis());
+
+        boolean isTableHead = hasSide(domino) == 1;
+
+        Vector2i centerPosition = isTableHead ?
+                new Vector2i(table.getHeadPos().x, table.getHeadPos().y) :
+                new Vector2i(table.getTailPos().x, table.getTailPos().y);
+
+        List<Position> possiblePositions = (domino.getSide1() == domino.getSide2() ?
+                getPositionsListForDouble(centerPosition) : getPositionsList(centerPosition))
+                .stream()
+                .filter(position -> table.isPositionValid(position.p1, position.p2))
+                .collect(Collectors.toList());
+//        System.out.println("Before lambda: " + getPositionsList(centerPosition).size() + " instances");
+        System.out.println("Lambda returnned " + possiblePositions.size() + " instances");
+
+        positionRotateAndPutOnTable(domino, possiblePositions.get(Math.abs(r.nextInt()) % possiblePositions.size()),
+                isTableHead ? table.getHeadNumber() : table.getTailNumber());
+    }
+
+    private void positionRotateAndPutOnTable(Domino domino, Position position, int side) {
+        Vector2i pos = ((position.p1.x <= position.p2.x) && (position.p1.y <= position.p2.y)) ? position.p1 : position.p2;
+        domino.setPositionCoord(pos.x - 1, pos.y - 1);
+        domino.setDirectionUvAndSize(determineDirection(position.p1, position.p2, domino.getSide1() == side));
+
+        table.placeDomino(domino);
+    }
+
+    private Domino.DIRECTION determineDirection(Vector2i head, Vector2i tail, boolean headToHead) {
+        Domino.DIRECTION direction;
+
+        if (head.x == tail.x) {
+            if (head.y > tail.y) {
+                direction = Domino.DIRECTION.UP;
             } else {
-                putDomino(domino, table.getHeadPos(), table.getHeadDirection(), table.getHeadNumber());
+                direction = Domino.DIRECTION.DOWN;
             }
-        } else if (hasSide(domino) == 2) {
-            if (domino.getSide1() == domino.getSide2()) {
-                putDouble(domino, table.getTailPos(), table.getTailDirection());
+        } else {
+            if (head.x > tail.x) {
+                direction = Domino.DIRECTION.RIGHT;
             } else {
-                putDomino(domino, table.getTailPos(), table.getTailDirection(), table.getTailNumber());
+                direction = Domino.DIRECTION.LEFT;
             }
         }
 
-        placeDomino(domino);
-
-//        System.out.println("AI:");
-//        System.out.println("Placing domino " + domino.getSide1() + "*" + domino.getSide2());
-//        System.out.println("At " + domino.getPositionCoord().x + ";" + domino.getPositionCoord().y);
-//        System.out.println();
-    }
-
-    private void putDomino(Domino domino, Vector2i point, Domino.DIRECTION direction, int number) {
-        if (table.getAmount() == 1) {
-            switch (direction) {
-                case UP:
-                case DOWN: {
-                    if (domino.getSide1() == number) {
-                        domino.rotateClockWise();
-                        domino.rotateClockWise();
-                        domino.setPositionCoord(point.x - 1, point.y + 1);
-                    } else {
-                        domino.setPositionCoord(point.x - 1, point.y + 1);
-                    }
-
-                    break;
-                }
-                case RIGHT:
-                case LEFT: {
-                    if (domino.getSide1() == number) {
-                        domino.rotateClockWise();
-                        domino.rotateClockWise();
-                        domino.rotateClockWise();
-                        domino.setPositionCoord(point.x + 1, point.y - 1);
-                    } else {
-                        domino.rotateClockWise();
-                        domino.setPositionCoord(point.x + 1, point.y - 1);
-                    }
-
-                    break;
-                }
-            }
-
-            return;
+        if (!headToHead) {
+            direction = Domino.DIRECTION.getDirectionByNumber((direction.getNumber() + 2) % 4);
         }
 
-        switch (direction) {
-            case UP:
-            case DOWN: {
-                Vector2i pos1 = new Vector2i(point.x, point.y - 2);
-                Vector2i pos2 = new Vector2i(point.x, point.y - 4);
-
-                if (domino.getSide1() == number) {
-                    if (table.isPositionValid(pos1, pos2)) {
-                        domino.setPositionCoord(point.x - 1, point.y - 5);
-                    } else {
-                        domino.rotateClockWise();
-                        domino.rotateClockWise();
-                        domino.setPositionCoord(point.x - 1, point.y + 1);
-                    }
-                } else {
-                    if (table.isPositionValid(pos1, pos2)) {
-                        domino.rotateClockWise();
-                        domino.rotateClockWise();
-                        domino.setPositionCoord(point.x - 1, point.y - 5);
-                    } else {
-                        domino.setPositionCoord(point.x - 1, point.y + 1);
-                    }
-                }
-
-                break;
-            }
-
-            case RIGHT:
-            case LEFT: {
-                Vector2i pos1 = new Vector2i(point.x - 2, point.y);
-                Vector2i pos2 = new Vector2i(point.x - 4, point.y);
-
-                if (domino.getSide1() == number) {
-                    if (table.isPositionValid(pos1, pos2)) {
-                        domino.rotateClockWise();
-                        domino.setPositionCoord(point.x - 5, point.y - 1);
-                    } else {
-                        domino.rotateClockWise();
-                        domino.rotateClockWise();
-                        domino.rotateClockWise();
-                        domino.setPositionCoord(point.x + 1, point.y - 1);
-                    }
-                } else {
-                    if (table.isPositionValid(pos1, pos2)) {
-                        domino.rotateClockWise();
-                        domino.rotateClockWise();
-                        domino.rotateClockWise();
-                        domino.setPositionCoord(point.x - 5, point.y - 1);
-                    } else {
-                        domino.rotateClockWise();
-                        domino.setPositionCoord(point.x + 1, point.y - 1);
-                    }
-                }
-
-                break;
-            }
-        }
+        return direction;
     }
 
-    private void putDouble(Domino domino, Vector2i point, Domino.DIRECTION direction) {
-        switch (direction) {
-            case UP:
-            case DOWN: {
-                domino.rotateClockWise();
-
-                Vector2i pos11 = new Vector2i(point.x - 1, point.y + 2);
-                Vector2i pos12 = new Vector2i(point.x + 1, point.y + 2);
-
-                if (table.isPositionValid(pos11, pos12)) {
-                    domino.setPositionCoord(point.x - 2, point.y + 1);
-                } else {
-                    domino.setPositionCoord(point.x - 2, point.y - 3);
-                }
-
-                break;
-            }
-            case RIGHT:
-            case LEFT: {
-                Vector2i pos11 = new Vector2i(point.x - 2, point.y - 1);
-                Vector2i pos12 = new Vector2i(point.x - 2, point.y + 1);
-
-                if (table.isPositionValid(pos11, pos12)) {
-                    domino.setPositionCoord(point.x - 3, point.y - 2);
-                } else {
-                    domino.setPositionCoord(point.x + 1, point.y - 2);
-                }
-
-                break;
-            }
-        }
-    }
-
-    private void rotateDomino(Domino domino, int direction) {
-        domino.setDirection(Domino.DIRECTION.getDirectionByNumber(direction), true);
-    }
-
+    /**
+     * @param domino
+     * @return -1 if there is not side
+     * @return1 if matches the table head
+     * @return2 if matches the table tail
+     */
     private int hasSide(Domino domino) {
         int head = table.getHeadNumber();
         int tail = table.getTailNumber();
@@ -231,5 +147,37 @@ public class AiPlayer extends Player {
         }
 
         return -1;
+    }
+
+    private List<Position> getPositionsList(Vector2i center) {
+        List<Position> positions = new ArrayList<>();
+
+        positions.add(new Position(new Vector2i(center.x + 2, center.y), new Vector2i(center.x + 4, center.y)));
+        positions.add(new Position(new Vector2i(center.x - 2, center.y), new Vector2i(center.x - 4, center.y)));
+        positions.add(new Position(new Vector2i(center.x, center.y + 2), new Vector2i(center.x, center.y + 4)));
+        positions.add(new Position(new Vector2i(center.x, center.y - 2), new Vector2i(center.x, center.y - 4)));
+
+        return positions;
+    }
+
+    private List<Position> getPositionsListForDouble(Vector2i center) {
+        List<Position> positions = new ArrayList<>();
+
+        positions.add(new Position(new Vector2i(center.x + 2, center.y + 1), new Vector2i(center.x + 2, center.y - 1)));
+        positions.add(new Position(new Vector2i(center.x - 2, center.y + 1), new Vector2i(center.x - 2, center.y - 1)));
+        positions.add(new Position(new Vector2i(center.x - 1, center.y + 2), new Vector2i(center.x + 1, center.y + 2)));
+        positions.add(new Position(new Vector2i(center.x - 1, center.y - 2), new Vector2i(center.x + 1, center.y - 2)));
+
+        return positions;
+    }
+
+    private class Position {
+        public Vector2i p1;
+        public Vector2i p2;
+
+        public Position(Vector2i p1, Vector2i p2) {
+            this.p1 = p1;
+            this.p2 = p2;
+        }
     }
 }

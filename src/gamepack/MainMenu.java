@@ -88,7 +88,7 @@ public class MainMenu extends Game {
         backgroundAnimation = new BackgroundAnimation(WIDTH, HEIGHT, bgLayer, BG_Z);
 
         // TODO: Only here for production time. Remove later
-        game = new DominoGame(WIDTH, HEIGHT, window);
+//        game = new DominoGame(WIDTH, HEIGHT, window);
     }
 
     private void keyboard() {
@@ -123,9 +123,9 @@ public class MainMenu extends Game {
         }
 
         // TODO: For development purposes only. Remove
-        if (window.isKeyDown(GLFW_KEY_ESCAPE)) {
-            alive = false;
-        }
+//        if (window.isKeyDown(GLFW_KEY_ESCAPE)) {
+//            alive = false;
+//        }
     }
 
     @Override

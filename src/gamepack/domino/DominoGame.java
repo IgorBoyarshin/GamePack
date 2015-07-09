@@ -36,7 +36,7 @@ public class DominoGame extends Game {
 
     private Menu menu;
 
-    private final float maxTileSize = 3.0f;
+    private final float maxTileSize = 2.0f;
     private final float minTileSize = 1.0f;
     private float tileSize = 1.4f;
     private final int fieldBlockSize = 14;
@@ -454,6 +454,7 @@ public class DominoGame extends Game {
         menu.submitAll(menuLayer);
     }
 
+    // ---+++---
 
     private void resetDominoesDirectionAndZ() {
         for (Domino domino : allDominoes) {
@@ -493,7 +494,7 @@ public class DominoGame extends Game {
             domino.setNewPosition(new Vector3f(
                     oldPosition.x / Domino.getTileWidth() * newTileSize,
                     oldPosition.y / Domino.getTileWidth() * newTileSize,
-                    oldPosition.z / Domino.getTileWidth() * newTileSize));
+                    oldPosition.z));
 
             Vector2f oldSize = domino.getSize();
             domino.setSize(new Vector2f(
@@ -540,11 +541,11 @@ public class DominoGame extends Game {
 
     private void keyboard() {
         if (System.currentTimeMillis() - lastKeyboard > keyboardMillisDelay) {
-            if (window.isKeyDown(GLFW_KEY_Q)) {
-                lastKeyboard = System.currentTimeMillis();
-
-                alive = false;
-            }
+//            if (window.isKeyDown(GLFW_KEY_Q)) {
+//                lastKeyboard = System.currentTimeMillis();
+//
+//                alive = false;
+//            }
 
             if (window.isKeyDown(GLFW_KEY_ESCAPE)) {
                 lastKeyboard = System.currentTimeMillis();

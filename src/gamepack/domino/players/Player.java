@@ -90,6 +90,12 @@ public abstract class Player {
             score += domino.getSide2();
         }
 
+        if (dominoes.size() == 1) {
+            if (dominoes.get(0).getSide1() == 0 && dominoes.get(0).getSide2() == 0) {
+                return 10;
+            }
+        }
+
         return score;
     }
 

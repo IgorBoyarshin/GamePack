@@ -26,8 +26,9 @@ public class AiPlayer extends Player {
 
     private boolean startedThinking = false;
     private long thinkingStart;
-    private static final long thinkingDurationLong = 20;
+    private static final long thinkingDurationLong = 2000;
     private static final long thinkingDurationSmall = 150;
+    private static final long thinkingDurationVerySmall = 20;
     private static long thinkingDuration = thinkingDurationSmall;
 
     public void reposition(Vector2i start) {
@@ -287,6 +288,10 @@ public class AiPlayer extends Player {
 
     public static void setThinkingDurationSmall() {
         thinkingDuration = thinkingDurationSmall;
+    }
+
+    public static void setThinkingDurationVerySmall() {
+        thinkingDuration = thinkingDurationVerySmall;
     }
 
     public static void setThinkingDurationLong() {

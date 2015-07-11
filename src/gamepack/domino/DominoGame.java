@@ -36,9 +36,9 @@ public class DominoGame extends Game {
 
     private Menu menu;
 
-    private final float maxTileSize = 2.1f;
-    private final float minTileSize = 0.6f;
-    private float tileSize = 1.4f;
+    private final float maxTileSize = 2.0f;
+    private final float minTileSize = 0.8f;
+    private float tileSize = 1.2f;
     private final int fieldBlockSize = 20;
     private final int tilesPerBlock = 4;
     private Sprite field[][];
@@ -724,7 +724,7 @@ public class DominoGame extends Game {
                             break;
                         case "ModeAva":
                             restart(new AiPlayer("IGOR"), new AiPlayer("JARVIS"));
-                            AiPlayer.setThinkingDurationLong();
+                            AiPlayer.setThinkingDurationSmall();
                             AiPlayer.showAiDominoes = true;
                             menu.setCurrent(0);
                             menuOpen = false;

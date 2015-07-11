@@ -13,12 +13,14 @@ import java.util.stream.Collectors;
  */
 public class AiPlayer extends Player {
     public AiPlayer(String name) {
-        super(name);
+        super(TYPE.AI, name);
     }
 
     public AiPlayer(String name, List<Domino> dominoes) {
-        super(name, dominoes);
+        super(TYPE.AI, name, dominoes);
     }
+
+    public static boolean showAiDominoes = false;
 
     public void reposition(Vector2i start) {
         for (int i = 0; i < dominoes.size(); i++) {
@@ -32,12 +34,6 @@ public class AiPlayer extends Player {
     }
 
     public void makeMove() {
-//        keyboard();
-//        if (true) {
-//            moveMade = true;
-//            return;
-//        }
-
         int counter = 0;
 
         if (dominoes.size() == 0) {
@@ -60,6 +56,7 @@ public class AiPlayer extends Player {
                     // Should do repositioning here(after each take), but it is gonna be done anyway later at the end
                 } else {
                     moveMade = true;
+                    reposition(repositionStart); // The case when we took from pool but didn't move domino to the AI
                     return;
                 }
             }
@@ -90,7 +87,7 @@ public class AiPlayer extends Player {
                 .filter(position -> table.isPositionValid(position.p1, position.p2))
                 .collect(Collectors.toList());
 //        System.out.println("Before lambda: " + getPositionsList(centerPosition).size() + " instances");
-        System.out.println("Lambda returnned " + possiblePositions.size() + " instances");
+//        System.out.println("Lambda returnned " + possiblePositions.size() + " instances");
 
         positionRotateAndPutOnTable(domino, possiblePositions.get(Math.abs(r.nextInt()) % possiblePositions.size()),
                 isTableHead ? table.getHeadNumber() : table.getTailNumber());

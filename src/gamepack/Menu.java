@@ -17,6 +17,8 @@ public class Menu {
     }
 
     public void setCurrent(String name) {
+        buttons.get(currentButton).setIdle();
+
         for (int i = 0; i < buttons.size(); i++) {
             Button button = buttons.get(i);
 
@@ -28,6 +30,12 @@ public class Menu {
         }
     }
 
+    public void setCurrent(int currentButton) {
+        buttons.get(this.currentButton).setIdle();
+        buttons.get(currentButton).setActive();
+        this.currentButton = currentButton;
+    }
+
     public String getCurrentButtonName() {
         return buttons.get(currentButton).getName();
     }
@@ -36,11 +44,6 @@ public class Menu {
         for (Button button : buttons) {
             button.submitTo(layer);
         }
-    }
-
-    public void setCurrent(int currentButton) {
-        buttons.get(currentButton).setActive();
-        this.currentButton = currentButton;
     }
 
     public void moveUp() {

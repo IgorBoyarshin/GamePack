@@ -12,6 +12,12 @@ import java.util.List;
  * Created by Igor on 24-Jun-15.
  */
 public abstract class Player {
+
+    public enum TYPE {
+        HUMAN, AI;
+    }
+
+    protected final TYPE type;
     protected static Table table;
     protected List<Domino> dominoes;
     protected String name;
@@ -19,7 +25,8 @@ public abstract class Player {
 
     protected boolean moveMade;
 
-    public Player(String name, List<Domino> dominoes) {
+    public Player(TYPE type, String name, List<Domino> dominoes) {
+        this.type = type;
         this.dominoes = dominoes;
         this.name = name;
 
@@ -28,7 +35,8 @@ public abstract class Player {
         moveMade = false;
     }
 
-    public Player(String name) {
+    public Player(TYPE type, String name) {
+        this.type = type;
         this.name = name;
 
         repositionStart = new Vector2i(0,0);
@@ -38,6 +46,12 @@ public abstract class Player {
 
     public static void repositionTablePool(Vector2i start, Vector2i finish) {
         table.repositionPool(start, finish);
+    }
+
+    public void flipDominoesDown() {
+        for (Domino domino : dominoes) {
+            domino.flipDown();
+        }
     }
 
     public void flipDominoesUp() {
@@ -126,5 +140,9 @@ public abstract class Player {
 
     public boolean isMoveMade() {
         return moveMade;
+    }
+
+    public TYPE getType() {
+        return type;
     }
 }

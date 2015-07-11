@@ -27,7 +27,7 @@ public class HumanPlayer extends Player {
     private static boolean firstLaunch = true;
 
     public HumanPlayer(String name, Window window, Layer gameLayer) {
-        super(name);
+        super(TYPE.HUMAN, name);
         this.window = window;
 
         if (firstLaunch) {
@@ -39,7 +39,7 @@ public class HumanPlayer extends Player {
     }
 
     public HumanPlayer(String name, List<Domino> dominoes, Window window, Layer gameLayer) {
-        super(name, dominoes);
+        super(TYPE.HUMAN, name, dominoes);
         this.window = window;
 
         if (firstLaunch) {
@@ -65,6 +65,8 @@ public class HumanPlayer extends Player {
     }
 
     public void makeMove() {
+//        flipDominoesUp();
+
         if (dominoes.size() > 0) {
             if (currentDomino.getDomino() != dominoes.get(currentNumberDomino)) {
                 currentDomino.setCurrentDomino(dominoes.get(currentNumberDomino));
@@ -186,6 +188,7 @@ public class HumanPlayer extends Player {
                                 }
 
                                 moveMade = true;
+//                                flipDominoesDown();
                             }
                         }
                     }

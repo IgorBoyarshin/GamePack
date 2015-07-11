@@ -36,7 +36,7 @@ public class DominoGame extends Game {
 
     private Menu menu;
 
-    private final float maxTileSize = 2.0f;
+    private final float maxTileSize = 2.1f;
     private final float minTileSize = 1.0f;
     private float tileSize = 1.4f;
     private final int fieldBlockSize = 14;
@@ -193,8 +193,6 @@ public class DominoGame extends Game {
         Domino.setDominoesTexture(dominoTexture);
         Domino.setTileWidth(tileSize);
 
-        final float imageWidth = 448.0f;
-        final float imageHeight = 2.0f * imageWidth;
         final float dominoWidth = 64.0f;
         final float dominoHeight = 2.0f * dominoWidth;
 
@@ -202,16 +200,17 @@ public class DominoGame extends Game {
             for (int j = i; j >= 0; j--) {
                 List<Vector2f> uv = new ArrayList<>();
                 Vector4f coords = new Vector4f(
-                        (6 - i) * dominoWidth / imageWidth,
-                        (i - j) * dominoHeight / imageHeight,
-                        (6 - i + 1) * dominoWidth / imageWidth,
-                        (i - j + 1) * dominoHeight / imageHeight);
+                        (6 - i) * dominoWidth / dominoTextureSize.x,
+                        (i - j) * dominoHeight / dominoTextureSize.y,
+                        (6 - i + 1) * dominoWidth / dominoTextureSize.x,
+                        (i - j + 1) * dominoHeight / dominoTextureSize.y);
 
                 uv.add(new Vector2f(coords.x, coords.w));
                 uv.add(new Vector2f(coords.x, coords.y));
                 uv.add(new Vector2f(coords.z, coords.y));
                 uv.add(new Vector2f(coords.z, coords.w));
 
+                // Nice positioning in order to see everything
 //                Vector3f position = new Vector3f((6 - i) * 8.0f, HEIGHT - (i - j) * 8.0f, gameLayerDominoesZ);
 
                 Domino domino = new Domino(i, j, new Vector2i(i, j), gameLayerDominoesZ, Domino.DIRECTION.UP, uv);
@@ -222,8 +221,8 @@ public class DominoGame extends Game {
             }
         }
 
-        float ratioW = dominoWidth / imageWidth;
-        float rationH = dominoHeight / imageHeight;
+        float ratioW = dominoWidth / dominoTextureSize.x;
+        float rationH = dominoHeight / dominoTextureSize.y;
         float shift = 1.0f;
 
         List<Vector2f> uvDown = new ArrayList<>();
@@ -285,7 +284,7 @@ public class DominoGame extends Game {
 
             if (i < HAND_AMOUNT) {
                 player1Dominoes.add(allDominoes.get(numbers.get(number)));
-                allDominoes.get(numbers.get(number)).flipUp();
+                allDominoes.get(numbers.get(number)).flipDown();
             } else if (i < 2 * HAND_AMOUNT) {
                 player2Dominoes.add(allDominoes.get(numbers.get(number)));
                 allDominoes.get(numbers.get(number)).flipDown();
@@ -674,15 +673,18 @@ public class DominoGame extends Game {
                     switch (menu.getCurrentButtonName()) {
                         case "Restart":
                             restart(player1, player2);
+                            menu.setCurrent(0);
                             menuOpen = false;
                             break;
                         case "ModePvp":
 //                            restart(new AiPlayer("JAMES"), new AiPlayer("BOB"));
-//                            restart(new HumanPlayer("JAMES", window, gameLayer), new HumanPlayer("BOB", window, gameLayer));
-//                            menuOpen = false;
+                            restart(new HumanPlayer("JAMES", window, gameLayer), new HumanPlayer("BOB", window, gameLayer));
+                            menu.setCurrent(0);
+                            menuOpen = false;
                             break;
                         case "ModePva":
                             restart(new HumanPlayer("RICHARD", window, gameLayer), new AiPlayer("ARNOLD"));
+                            menu.setCurrent(0);
                             menuOpen = false;
                             break;
                         case "Exit":
@@ -697,6 +699,14 @@ public class DominoGame extends Game {
             if (!gameEnded) {
                 if (player1Move) {
                     if (player1.canMakeMove()) {
+                        player2.flipDominoesDown();
+                        if (player1.getType().equals(Player.TYPE.HUMAN)) {
+                            player1.flipDominoesUp();
+                        } else {
+                            if (AiPlayer.showAiDominoes) {
+                                player1.flipDominoesUp();
+                            }
+                        }
                         player1.makeMove();
                         if (player1.isMoveMade()) {
                             player1Move = false;
@@ -712,6 +722,14 @@ public class DominoGame extends Game {
                     }
                 } else {
                     if (player2.canMakeMove()) {
+                        player1.flipDominoesDown();
+                        if (player2.getType().equals(Player.TYPE.HUMAN)) {
+                            player2.flipDominoesUp();
+                        } else {
+                            if (AiPlayer.showAiDominoes) {
+                                player2.flipDominoesUp();
+                            }
+                        }
                         player2.makeMove();
                         if (player2.isMoveMade()) {
                             player1Move = true;

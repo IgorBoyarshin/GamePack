@@ -11,6 +11,8 @@ import java.util.List;
 public class Table {
     private Vector2i tailPos;
     private Vector2i headPos;
+    private boolean headDouble;
+    private boolean tailDouble;
     private int tailNumber;
     private int headNumber;
     //    private Domino.DIRECTION headDirection;
@@ -100,6 +102,8 @@ public class Table {
                 if (side1 == side2) {
                     headPos = getCenterPos(domino);
                     tailPos = getCenterPos(domino);
+                    headDouble = true;
+                    tailDouble = true;
 
                     // DIRECTION REMOVED
 //                    headDirection = Domino.DIRECTION.getDirectionByNumber((domino.getDirection().getNumber() + 1) % 4);
@@ -122,10 +126,12 @@ public class Table {
 
                     if (domino.getSide1() == domino.getSide2()) {
                         headPos = getCenterPos(domino);
+                        headDouble = true;
 
                         // DIRECTION REMOVED
 //                        headDirection = Domino.DIRECTION.getDirectionByNumber((domino.getDirection().getNumber() + 1) % 4);
                     } else {
+                        headDouble = false;
                         if (domino.getSide1() == headNumber) {
                             headNumber = domino.getSide2();
                             headPos = getTailPos(domino);
@@ -147,10 +153,12 @@ public class Table {
 
                     if (domino.getSide1() == domino.getSide2()) {
                         tailPos = getCenterPos(domino);
+                        tailDouble = true;
 
                         // DIRECTION REMOVED
 //                        tailDirection = Domino.DIRECTION.getDirectionByNumber((domino.getDirection().getNumber() + 1) % 4);
                     } else {
+                        tailDouble = false;
                         if (domino.getSide1() == tailNumber) {
                             tailNumber = domino.getSide2();
                             tailPos = getTailPos(domino);
@@ -190,6 +198,23 @@ public class Table {
 
     // ---+++---
 
+    public void printMaskAround(Vector2i point) {
+        System.out.println("Cur shift: " + currentShift.x + ";" + currentShift.y);
+        System.out.println("Cur center: " + point.x + ";" + point.y);
+        int margin = 16;
+
+        for (int y = point.y + margin; y > point.y - margin; y--) {
+            for (int x = point.x - margin; x < point.x + margin; x++) {
+                if (point.x == x && point.y == y) {
+                    System.out.print("*" + " ");
+                } else {
+                    System.out.print((field[x + currentShift.x][y + currentShift.y] ? 1 : 0) + " ");
+                }
+            }
+            System.out.println();
+        }
+    }
+
     public void shift(Vector2i vector) {
         currentShift.x += vector.x;
         currentShift.y += vector.y;
@@ -223,14 +248,17 @@ public class Table {
     }
 
     private void markTrueX(Vector2i point) {
-        for (int i = point.x - 3; i < point.x + 3; i++) {
+        final boolean bigX = true;
+        final int amount = bigX ? 3 : 2;
+
+        for (int i = point.x - amount; i < point.x + amount; i++) {
             for (int j = point.y - 1; j < point.y + 1; j++) {
                 field[i][j] = true;
             }
         }
 
         for (int i = point.x - 1; i < point.x + 1; i++) {
-            for (int j = point.y - 3; j < point.y + 3; j++) {
+            for (int j = point.y - amount; j < point.y + amount; j++) {
                 field[i][j] = true;
             }
         }
@@ -490,9 +518,19 @@ public class Table {
 //        return tailDirection;
 //    }
 
-    public List<Domino> getPool() {
-        return pool;
+    public List<Vector2i> getTableDominoes() {
+        List<Vector2i> result = new ArrayList<>();
+
+        for (Domino domino : dominoes) {
+            result.add(new Vector2i(domino.getSide1(), domino.getSide2()));
+        }
+
+        return result;
     }
+
+//    public List<Domino> getPool() {
+//        return pool;
+//    }
 
     public void setPool(List<Domino> pool) {
         this.pool = pool;
@@ -524,5 +562,13 @@ public class Table {
 
     public int getHeadNumber() {
         return headNumber;
+    }
+
+    public boolean isHeadDouble() {
+        return headDouble;
+    }
+
+    public boolean isTailDouble() {
+        return tailDouble;
     }
 }

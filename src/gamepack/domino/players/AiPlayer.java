@@ -22,9 +22,11 @@ public class AiPlayer extends Player {
 
     public static boolean showAiDominoes = false;
 
+    private final Vector2i AiDoubleStart = new Vector2i(35,35);
+
     private boolean startedThinking = false;
     private long thinkingStart;
-    private static final long thinkingDurationLong = 1000;
+    private static final long thinkingDurationLong = 20;
     private static final long thinkingDurationSmall = 150;
     private static long thinkingDuration = thinkingDurationSmall;
 
@@ -49,6 +51,9 @@ public class AiPlayer extends Player {
             return;
         }
 
+//        System.out.println();
+//        System.out.println("---- STARTING NEW MOVE ----");
+
         // If the first move of the game
         if (table.getAmount() == 0) {
             int counter = 0;
@@ -63,7 +68,7 @@ public class AiPlayer extends Player {
             }
 
             domino.flipUp();
-            domino.setPositionCoord(25, 25);
+            domino.setPositionCoord(AiDoubleStart.x, AiDoubleStart.y);
             table.placeDomino(domino);
             dominoes.remove(domino);
             reposition(repositionStart);
@@ -127,18 +132,22 @@ public class AiPlayer extends Player {
                 getPositionsListForDouble(centerPosition) : getPositionsList(centerPosition))
                 .stream()
                 .filter(position -> table.isPositionValid(position.p1, position.p2))
+                .filter(position -> canPlaceDoubleAndNext(position.p1, position.p2, domino))
                 .collect(Collectors.toList());
+//        System.out.println("Lambda returned " + possiblePositions.size() + " instances for "
+//                + domino.getSide1() + "-" + domino.getSide2());
 
-//        if (possiblePositions.size() == 0) {
-//            System.out.println("NULL");
-//            System.out.println("Domino: " + domino.getSide1() + domino.getSide2());
+        if (possiblePositions.size() == 0) {
+            System.out.println("NULL");
+//            System.out.println("Domino: " + domino.getSide1() + "-" + domino.getSide2());
+//            table.printMaskAround(centerPosition);
 //
 //            try {
-//                Thread.sleep(10000);
+//                Thread.sleep(2000);
 //            } catch (InterruptedException e) {
 //                e.printStackTrace();
 //            }
-//        }
+        }
 
         positionRotateAndPutOnTable(domino, possiblePositions.get(Math.abs(r.nextInt()) % possiblePositions.size()),
                 isTableHead ? table.getHeadNumber() : table.getTailNumber());
@@ -150,6 +159,55 @@ public class AiPlayer extends Player {
         domino.setDirectionUvAndSize(determineDirection(position.p1, position.p2, domino.getSide1() == side));
 
         table.placeDomino(domino);
+    }
+
+    private boolean canPlaceDoubleAndNext(Vector2i p1, Vector2i p2, Domino domino) {
+        if (domino.getSide1() == domino.getSide2()) {
+            return true;
+        }
+
+        boolean isHead = hasSide(domino) == 1;
+        boolean isPlacingOnDouble = isHead ? table.isHeadDouble() : table.isTailDouble();
+
+        if (isPlacingOnDouble) {
+            return true;
+        }
+
+        int number =  isHead ?
+                table.getHeadNumber() :
+                table.getTailNumber();
+        int side = domino.getSide1() == number ? domino.getSide2() : domino.getSide1();
+        boolean doubleIsUsed = doubleHasBeenUsed(side);
+
+        Vector2i diff = new Vector2i(p2.x - p1.x, p2.y - p1.y);
+        Vector2i center = new Vector2i((p1.x + p2.x) / 2, (p1.y + p2.y) / 2);
+
+        Vector2i doubleP1 = new Vector2i(center.x + (diff.x * 3 / 2) + diff.y / 2, center.y + (diff.y * 3 / 2) + diff.x / 2);
+        Vector2i doubleP2 = new Vector2i(center.x + (diff.x * 3 / 2) - diff.y / 2, center.y + (diff.y * 3 / 2) - diff.x / 2);
+        Vector2i nextP1 = new Vector2i(center.x + (diff.x * 5 / 2), center.y + (diff.y * 5 / 2));
+        Vector2i nextP2;
+        if (doubleIsUsed) {
+            nextP2 = new Vector2i(center.x + (diff.x * 3 / 2), center.y + (diff.y * 3 / 2));
+        } else {
+            nextP2 = new Vector2i(center.x + (diff.x * 7 / 2), center.y + (diff.y * 7 / 2));
+        }
+
+//        System.out.println("For (" + p1.x + " " + p1.y + ") (" + p2.x + " " + p2.y + ")");
+//        System.out.println("Double: (" + doubleP1.x + " " + doubleP1.y + ") (" + doubleP2.x + " " + doubleP2.y + ")");
+//        System.out.println("Next: (" + nextP1.x + " " + nextP1.y + ") (" + nextP2.x + " " + nextP2.y + ")");
+
+        if (!doubleIsUsed) {
+            if (!table.isPositionValid(doubleP1, doubleP2)) {
+//            System.out.println("Returning false");
+                return false;
+            }
+        }
+        if (!table.isPositionValid(nextP1, nextP2)) {
+//            System.out.println("Returning false 2");
+            return false;
+        }
+
+        return true;
     }
 
     private Domino.DIRECTION determineDirection(Vector2i head, Vector2i tail, boolean headToHead) {
@@ -174,6 +232,14 @@ public class AiPlayer extends Player {
         }
 
         return direction;
+    }
+
+    private boolean doubleHasBeenUsed(int side) {
+        return table.getTableDominoes()
+                .stream()
+                .filter(vector -> vector.x == vector.y)
+                .filter(vector -> vector.x == side)
+                .count() == 1;
     }
 
     /**

@@ -248,7 +248,7 @@ public class Table {
     }
 
     private void markTrueX(Vector2i point) {
-        final boolean bigX = true;
+        final boolean bigX = false;
         final int amount = bigX ? 3 : 2;
 
         for (int i = point.x - amount; i < point.x + amount; i++) {

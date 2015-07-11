@@ -20,9 +20,11 @@ public class InfoWindow {
     private Layer layer;
     private boolean visible;
     private List<Text> texts;
+    private Vector2f windowStart;
 
     public InfoWindow(Vector3f start, Vector2f size, Vector4f background) {
         zValue = start.z;
+        windowStart = new Vector2f(start.x, start.y);
         visible = false;
 
         texts = new ArrayList<>();
@@ -30,6 +32,10 @@ public class InfoWindow {
         Sprite sprite = new Sprite(start, size, background, Game.spriteRenderer, Game.spriteShader);
 
         layer.add(sprite);
+    }
+
+    public boolean isVisible() {
+        return visible;
     }
 
     public void setVisible(boolean visible) {
@@ -52,7 +58,7 @@ public class InfoWindow {
 
         text.setText(string);
         text.transform(Matrix4f.scaling(new Vector3f(1.2f, 1.0f, 1.0f))
-                .translate(new Vector3f(localPosition.x, localPosition.y, zValue + 0.05f)));
+                .translate(new Vector3f(windowStart.x + localPosition.x, windowStart.y + localPosition.y, zValue + 0.05f)));
 
         layer.add(text);
     }

@@ -22,11 +22,12 @@ public class AiPlayer extends Player {
 
     public static boolean showAiDominoes = false;
 
-    private final Vector2i AiDoubleStart = new Vector2i(27, 27);
+    private final Vector2i AiDoubleStart = new Vector2i(25, 25);
 
     private boolean startedThinking = false;
     private long thinkingStart;
     private static final long thinkingDurationLong = 2000;
+    private static final long thinkingDurationMedium = 500;
     private static final long thinkingDurationSmall = 150;
     private static final long thinkingDurationVerySmall = 20;
     private static long thinkingDuration = thinkingDurationSmall;
@@ -288,6 +289,10 @@ public class AiPlayer extends Player {
 
     public static void setThinkingDurationSmall() {
         thinkingDuration = thinkingDurationSmall;
+    }
+
+    public static void setThinkingDurationMedium() {
+        thinkingDuration = thinkingDurationMedium;
     }
 
     public static void setThinkingDurationVerySmall() {

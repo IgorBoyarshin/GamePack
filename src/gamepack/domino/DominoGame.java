@@ -33,7 +33,7 @@ public class DominoGame extends Game {
     private InfoWindow controlsWindow;
 
     private final float victoryLayerZ = 0.2f;
-    private final float infoLayerZ = 0.35f;
+    private final float avaEntranceLayerZ = 0.65f;
     private final float menuLayerZ = 0.5f;
     private final float gameLayerDominoesZ = 0.0f;
     private final float gameLayerDeskZ = -0.3f;
@@ -43,7 +43,7 @@ public class DominoGame extends Game {
 
     private final float maxTileSize = 2.0f;
     private final float minTileSize = 0.8f;
-    private float tileSize = 1.2f;
+    private float tileSize = 1.1f;
     private final int fieldBlockSize = 20;
     private final int tilesPerBlock = 4;
     private Sprite field[][];
@@ -98,6 +98,7 @@ public class DominoGame extends Game {
     private void setup() {
         prepareTextures();
         prepareVictoryBoard();
+        prepareAvaEntrance();
         prepareMenu();
         prepareField();
         prepareDesks();
@@ -118,10 +119,36 @@ public class DominoGame extends Game {
         victoryWindow = new InfoWindow(new Vector3f(14.0f, 14.0f, victoryLayerZ - 0.05f), new Vector2f(32.0f, 32.0f),
                 new Vector4f(0.0f, 0.0f, 0.0f, 0.8f));
 
-        victoryWindow.addText("", new Vector2f(24.0f, 42.0f), new Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 20);
-        victoryWindow.addText("", new Vector2f(15.0f, 38.0f), new Vector4f(1.0f, 0.0f, 0.0f, 0.9f), 18);
-        victoryWindow.addText("", new Vector2f(15.0f, 34.0f), new Vector4f(1.0f, 0.0f, 0.0f, 0.9f), 18);
-        victoryWindow.addText("", new Vector2f(15.0f, 26.0f), new Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 25);
+        victoryWindow.addText("", new Vector2f(10.0f, 28.0f), new Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 20);
+        victoryWindow.addText("", new Vector2f(1.0f, 24.0f), new Vector4f(1.0f, 0.0f, 0.0f, 0.9f), 18);
+        victoryWindow.addText("", new Vector2f(1.0f, 20.0f), new Vector4f(1.0f, 0.0f, 0.0f, 0.9f), 18);
+        victoryWindow.addText("", new Vector2f(1.0f, 12.0f), new Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 25);
+    }
+
+    private void prepareAvaEntrance() {
+        avaEntranceWindow = new InfoWindow(
+                new Vector3f(WIDTH / 8.0f, HEIGHT / 8.0f, avaEntranceLayerZ),
+                new Vector2f(WIDTH / 4.0f * 3.0f, HEIGHT / 4.0f * 3.0f),
+                new Vector4f(0.2f, 0.0f, 0.0f, 0.9f));
+
+        avaEntranceWindow.addText("THIS MODE IS EXPERIMENTAL NOW",
+                new Vector2f(1.0f, HEIGHT / 4.0f * 3 - 3.0f), new Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 12);
+        avaEntranceWindow.addText("MOSTLY USED FOR AI DEBUGGING",
+                new Vector2f(1.0f, HEIGHT / 4.0f * 3 - 6.0f), new Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 12);
+        avaEntranceWindow.addText("USE IT AT YOUR OWN RISK",
+                new Vector2f(1.0f, HEIGHT / 4.0f * 3 - 9.0f), new Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 12);
+        avaEntranceWindow.addText("I DO NOT TAKE RESPONSIBILITY",
+                new Vector2f(1.0f, HEIGHT / 4.0f * 3 - 12.0f), new Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 12);
+        avaEntranceWindow.addText("FOR ANYTHING THAT YOU ENCOUNTER HERE",
+                new Vector2f(1.0f, HEIGHT / 4.0f * 3 - 15.0f), new Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 12);
+
+        avaEntranceWindow.addText("SOME GAME SESSIONS MAY CRASH",
+                new Vector2f(1.0f, HEIGHT / 4.0f * 3 - 19.0f), new Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 12);
+        avaEntranceWindow.addText("BUT OTHERWISE IT IS AN AMAZING THING TO SEE",
+                new Vector2f(1.0f, HEIGHT / 4.0f * 3 - 22.0f), new Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 12);
+
+        avaEntranceWindow.addText("PRESS ENTER IF YOU WISH TO PROCEED",
+                new Vector2f(1.0f, HEIGHT / 4.0f * 3 - 26.0f), new Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 12);
     }
 
     private void prepareField() {
@@ -711,12 +738,22 @@ public class DominoGame extends Game {
                             menuOpen = false;
                             break;
                         case "ModeAva":
-                            restart(new AiPlayer("IGOR"), new AiPlayer("JARVIS"));
-                            CurrentDomino.setMaskVisible(false);
-                            AiPlayer.setThinkingDurationSmall();
-                            AiPlayer.showAiDominoes = true;
-                            menu.setCurrent(0);
-                            menuOpen = false;
+                            if (avaEntranceWindow.isVisible()) {
+                                avaEntranceWindow.setVisible(false);
+                                restart(new AiPlayer("IGOR"), new AiPlayer("JARVIS"));
+                                CurrentDomino.setMaskVisible(false);
+                                AiPlayer.setThinkingDurationMedium();
+                                AiPlayer.showAiDominoes = true;
+                                menu.setCurrent(0);
+                                menuOpen = false;
+
+                                if (tileSize >= 1.2f) {
+                                    setNewTileSize(1.0f);
+                                }
+                            } else {
+//                                menuOpen = false;
+                                avaEntranceWindow.setVisible(true);
+                            }
                             break;
                         case "Exit":
                             alive = false;
@@ -784,7 +821,7 @@ public class DominoGame extends Game {
         gameLayer.render();
 
         victoryWindow.render();
-//        avaEntranceWindow.render();
+        avaEntranceWindow.render();
 //        controlsWindow.render();
 
         if (menuOpen) {

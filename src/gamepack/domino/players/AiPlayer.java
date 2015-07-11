@@ -22,7 +22,7 @@ public class AiPlayer extends Player {
 
     public static boolean showAiDominoes = false;
 
-    private final Vector2i AiDoubleStart = new Vector2i(35,35);
+    private final Vector2i AiDoubleStart = new Vector2i(27, 27);
 
     private boolean startedThinking = false;
     private long thinkingStart;
@@ -174,7 +174,7 @@ public class AiPlayer extends Player {
             return true;
         }
 
-        int number =  isHead ?
+        int number = isHead ?
                 table.getHeadNumber() :
                 table.getTailNumber();
         int side = domino.getSide1() == number ? domino.getSide2() : domino.getSide1();

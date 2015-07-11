@@ -26,9 +26,14 @@ import java.util.*;
 public class DominoGame extends Game {
     private Layer menuLayer;
     private Layer gameLayer;
-    private Layer victoryLayer;
+//    private Layer victoryLayer;
 
-    private final float victoryLayerZ = 0.3f;
+    private InfoWindow victoryWindow;
+    private InfoWindow avaEntranceWindow;
+    private InfoWindow controlsWindow;
+
+    private final float victoryLayerZ = 0.2f;
+    private final float infoLayerZ = 0.35f;
     private final float menuLayerZ = 0.5f;
     private final float gameLayerDominoesZ = 0.0f;
     private final float gameLayerDeskZ = -0.3f;
@@ -59,11 +64,6 @@ public class DominoGame extends Game {
     private Player player1;
     private Player player2;
 
-    private Text victoryText;
-    private Text victoryText2;
-    private Text victoryText3;
-    private Text victoryText4;
-
     private boolean menuOpen = false;
     private boolean gameEnded = false;
     private boolean player1Move = true;
@@ -73,7 +73,6 @@ public class DominoGame extends Game {
 
         gameLayer = new Layer();
         menuLayer = new Layer();
-        victoryLayer = new Layer();
 
         field = new Sprite[fieldBlockSize][fieldBlockSize];
 
@@ -92,6 +91,7 @@ public class DominoGame extends Game {
         this.player2 = player2;
 
         gameEnded = false;
+        victoryWindow.setVisible(false);
         player1Move = true;
     }
 
@@ -115,20 +115,13 @@ public class DominoGame extends Game {
     }
 
     private void prepareVictoryBoard() {
-        Sprite victoryBoard = new Sprite(new Vector3f(14.0f, 14.0f, victoryLayerZ - 0.05f), new Vector2f(32.0f, 32.0f),
-                new Vector4f(0.0f, 0.0f, 0.0f, 0.8f),
-                Game.spriteRenderer, Game.spriteShader);
-        victoryLayer.add(victoryBoard);
+        victoryWindow = new InfoWindow(new Vector3f(14.0f, 14.0f, victoryLayerZ - 0.05f), new Vector2f(32.0f, 32.0f),
+                new Vector4f(0.0f, 0.0f, 0.0f, 0.8f));
 
-        victoryText = new Text("", 20, new Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
-        victoryText2 = new Text("", 18, new Vector4f(1.0f, 0.0f, 0.0f, 0.9f));
-        victoryText3 = new Text("", 18, new Vector4f(1.0f, 0.0f, 0.0f, 0.9f));
-        victoryText4 = new Text("", 25, new Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
-
-        victoryLayer.add(victoryText);
-        victoryLayer.add(victoryText2);
-        victoryLayer.add(victoryText3);
-        victoryLayer.add(victoryText4);
+        victoryWindow.addText("", new Vector2f(24.0f, 42.0f), new Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 20);
+        victoryWindow.addText("", new Vector2f(15.0f, 38.0f), new Vector4f(1.0f, 0.0f, 0.0f, 0.9f), 18);
+        victoryWindow.addText("", new Vector2f(15.0f, 34.0f), new Vector4f(1.0f, 0.0f, 0.0f, 0.9f), 18);
+        victoryWindow.addText("", new Vector2f(15.0f, 26.0f), new Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 25);
     }
 
     private void prepareField() {
@@ -643,26 +636,19 @@ public class DominoGame extends Game {
         int scorePlayer1 = player1.getScore();
         int scorePlayer2 = player2.getScore();
 
-        victoryText.setText("THE END");
-        victoryText2.setText(player1.getName() + ": " + scorePlayer1);
-        victoryText3.setText(player2.getName() + ": " + scorePlayer2);
+        victoryWindow.setText(0, "THE END");
+        victoryWindow.setText(1, player1.getName() + ": " + scorePlayer1);
+        victoryWindow.setText(2, player2.getName() + ": " + scorePlayer2);
 
         if (scorePlayer1 > scorePlayer2) {
-            victoryText4.setText(player2.getName() + " WON");
+            victoryWindow.setText(3, player2.getName() + " WON");
         } else if (scorePlayer1 < scorePlayer2) {
-            victoryText4.setText(player1.getName() + " WON");
+            victoryWindow.setText(3, player1.getName() + " WON");
         } else {
-            victoryText4.setText("CALL IT A DRAW");
+            victoryWindow.setText(3, "CALL IT A DRAW");
         }
 
-        victoryText.transform(Matrix4f.scaling(new Vector3f(1.2f, 1.0f, 1.0f))
-                .translate(new Vector3f(24f, 42.0f, victoryLayerZ + 0.05f)));
-        victoryText2.transform(Matrix4f.scaling(new Vector3f(1.2f, 1.0f, 1.0f))
-                .translate(new Vector3f(15.0f, 38.0f, victoryLayerZ + 0.05f)));
-        victoryText3.transform(Matrix4f.scaling(new Vector3f(1.2f, 1.0f, 1.0f))
-                .translate(new Vector3f(15.0f, 34.0f, victoryLayerZ + 0.05f)));
-        victoryText4.transform(Matrix4f.scaling(new Vector3f(1.2f, 1.0f, 1.0f))
-                .translate(new Vector3f(15.0f, 26.0f, victoryLayerZ + 0.05f)));
+        victoryWindow.setVisible(true);
 
 //        System.out.println("GAME ENDED!");
 //        System.out.println("SCORE:");
@@ -711,11 +697,13 @@ public class DominoGame extends Game {
                             break;
                         case "ModePvp":
 //                            restart(new AiPlayer("JAMES"), new AiPlayer("BOB"));
+                            CurrentDomino.setMaskVisible(true);
                             restart(new HumanPlayer("JAMES", window, gameLayer), new HumanPlayer("BOB", window, gameLayer));
                             menu.setCurrent(0);
                             menuOpen = false;
                             break;
                         case "ModePva":
+                            CurrentDomino.setMaskVisible(true);
                             restart(new HumanPlayer("RICHARD", window, gameLayer), new AiPlayer("ARNOLD"));
                             AiPlayer.setThinkingDurationSmall();
                             AiPlayer.showAiDominoes = false;
@@ -724,6 +712,7 @@ public class DominoGame extends Game {
                             break;
                         case "ModeAva":
                             restart(new AiPlayer("IGOR"), new AiPlayer("JARVIS"));
+                            CurrentDomino.setMaskVisible(false);
                             AiPlayer.setThinkingDurationSmall();
                             AiPlayer.showAiDominoes = true;
                             menu.setCurrent(0);
@@ -794,9 +783,9 @@ public class DominoGame extends Game {
     public void render() {
         gameLayer.render();
 
-        if (gameEnded) {
-            victoryLayer.render();
-        }
+        victoryWindow.render();
+//        avaEntranceWindow.render();
+//        controlsWindow.render();
 
         if (menuOpen) {
             menuLayer.render();

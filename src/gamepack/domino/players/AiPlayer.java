@@ -22,6 +22,12 @@ public class AiPlayer extends Player {
 
     public static boolean showAiDominoes = false;
 
+    private boolean startedThinking = false;
+    private long thinkingStart;
+    private static final long thinkingDurationLong = 1000;
+    private static final long thinkingDurationSmall = 150;
+    private static long thinkingDuration = thinkingDurationSmall;
+
     public void reposition(Vector2i start) {
         for (int i = 0; i < dominoes.size(); i++) {
             Domino domino = dominoes.get(i);
@@ -34,6 +40,15 @@ public class AiPlayer extends Player {
     }
 
     public void makeMove() {
+        if (!startedThinking) {
+            startedThinking = true;
+            thinkingStart = System.currentTimeMillis();
+        }
+
+        if (System.currentTimeMillis() - thinkingStart < thinkingDuration) {
+            return;
+        }
+
         int counter = 0;
 
         if (dominoes.size() == 0) {
@@ -42,6 +57,7 @@ public class AiPlayer extends Player {
                 reposition(repositionStart);
             } else {
                 moveMade = true;
+                startedThinking = false;
                 return;
             }
         }
@@ -56,6 +72,7 @@ public class AiPlayer extends Player {
                     // Should do repositioning here(after each take), but it is gonna be done anyway later at the end
                 } else {
                     moveMade = true;
+                    startedThinking = false;
                     reposition(repositionStart); // The case when we took from pool but didn't move domino to the AI
                     return;
                 }
@@ -67,6 +84,7 @@ public class AiPlayer extends Player {
         reposition(repositionStart);
 
         moveMade = true;
+        startedThinking = false;
     }
 
     private void makeMoveWith(Domino domino) {
@@ -166,6 +184,14 @@ public class AiPlayer extends Player {
         positions.add(new Position(new Vector2i(center.x - 1, center.y - 2), new Vector2i(center.x + 1, center.y - 2)));
 
         return positions;
+    }
+
+    public static void setThinkingDurationSmall() {
+        thinkingDuration = thinkingDurationSmall;
+    }
+
+    public static void setThinkingDurationLong() {
+        thinkingDuration = thinkingDurationLong;
     }
 
     private class Position {

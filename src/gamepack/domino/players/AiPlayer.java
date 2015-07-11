@@ -49,6 +49,30 @@ public class AiPlayer extends Player {
             return;
         }
 
+        // If the first move of the game
+        if (table.getAmount() == 0) {
+            int counter = 0;
+            Domino domino = dominoes.get(counter);
+            while (dominoes.get(counter).getSide1() != dominoes.get(counter).getSide2()) {
+                counter++;
+                if (counter == dominoes.size()) {
+                    dominoes.add(table.takeDominoFromPool());
+                    reposition(repositionStart);
+                }
+                domino = dominoes.get(counter);
+            }
+
+            domino.flipUp();
+            domino.setPositionCoord(25, 25);
+            table.placeDomino(domino);
+            dominoes.remove(domino);
+            reposition(repositionStart);
+
+            moveMade = true;
+            startedThinking = false;
+            return;
+        }
+
         int counter = 0;
 
         if (dominoes.size() == 0) {
@@ -104,8 +128,17 @@ public class AiPlayer extends Player {
                 .stream()
                 .filter(position -> table.isPositionValid(position.p1, position.p2))
                 .collect(Collectors.toList());
-//        System.out.println("Before lambda: " + getPositionsList(centerPosition).size() + " instances");
-//        System.out.println("Lambda returnned " + possiblePositions.size() + " instances");
+
+//        if (possiblePositions.size() == 0) {
+//            System.out.println("NULL");
+//            System.out.println("Domino: " + domino.getSide1() + domino.getSide2());
+//
+//            try {
+//                Thread.sleep(10000);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//        }
 
         positionRotateAndPutOnTable(domino, possiblePositions.get(Math.abs(r.nextInt()) % possiblePositions.size()),
                 isTableHead ? table.getHeadNumber() : table.getTailNumber());

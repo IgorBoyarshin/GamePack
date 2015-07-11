@@ -21,7 +21,7 @@ public class Table {
 
     private int amount;
 
-    private final int fieldMargin = 30;
+    private final int fieldMargin = 40;
     private Vector2i currentShift = new Vector2i(fieldMargin, fieldMargin);
     private final int fieldSize;
     private boolean field[][];

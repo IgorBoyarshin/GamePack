@@ -39,7 +39,7 @@ public class DominoGame extends Game {
     private final float maxTileSize = 2.1f;
     private final float minTileSize = 0.8f;
     private float tileSize = 1.4f;
-    private final int fieldBlockSize = 14;
+    private final int fieldBlockSize = 17;
     private final int tilesPerBlock = 4;
     private Sprite field[][];
 
@@ -111,7 +111,7 @@ public class DominoGame extends Game {
                 System.getProperty("user.dir") + "//resources//domino//textures//dominoes.png", Texture.TYPE_RGBA);
 
         dominoTextureSize = new Vector2f(448.0f, 896.0f);
-        stuffTextureSize = new Vector2f(600.0f, 224.0f);
+        stuffTextureSize = new Vector2f(600.0f, 264.0f);
     }
 
     private void prepareVictoryBoard() {
@@ -304,23 +304,27 @@ public class DominoGame extends Game {
     }
 
     private void prepareMenu() {
+        final int amountOfButtons = 5;
         final Vector2f menuStart = new Vector2f(WIDTH / 6.0f, HEIGHT / 6.0f);
         final Vector2f menuSize = new Vector2f(WIDTH * 4.0f / 6.0f, HEIGHT * 4.0f / 6.0f);
         final float buttonMarginX = WIDTH / 6.0f / 2.0f;
-        final float buttonMarginY = HEIGHT / 6.0f / 2.0f;
+//        final float buttonMarginY = HEIGHT / 6.0f / 2.0f;
         final float buttonZ = menuLayerZ + 0.05f;
         final Vector2f buttonUvStart = new Vector2f(0.0f / stuffTextureSize.x, 64.0f / stuffTextureSize.y);
         final Vector2f buttonUvSize = new Vector2f(300.0f / stuffTextureSize.x, 40.0f / stuffTextureSize.y);
         final float buttonSizeY = (menuSize.x - 2 * buttonMarginX)
                 / (buttonUvSize.x * stuffTextureSize.x) * (buttonUvSize.y * stuffTextureSize.y);
+        final float buttonMarginY = (menuSize.y - amountOfButtons * buttonSizeY) / (amountOfButtons + 1);
 
         List<Vector2f> buttonRestartUvActive = new ArrayList<>();
         List<Vector2f> buttonModePvpUvActive = new ArrayList<>();
         List<Vector2f> buttonModePvaUvActive = new ArrayList<>();
+        List<Vector2f> buttonModeAvaUvActive = new ArrayList<>();
         List<Vector2f> buttonExitUvActive = new ArrayList<>();
         List<Vector2f> buttonRestartUvIdle = new ArrayList<>();
         List<Vector2f> buttonModePvpUvIdle = new ArrayList<>();
         List<Vector2f> buttonModePvaUvIdle = new ArrayList<>();
+        List<Vector2f> buttonModeAvaUvIdle = new ArrayList<>();
         List<Vector2f> buttonExitUvIdle = new ArrayList<>();
 
         buttonRestartUvIdle.add(
@@ -395,6 +399,24 @@ public class DominoGame extends Game {
         buttonExitUvActive.add(
                 new Vector2f(buttonUvStart.x + 1 * (buttonUvSize.x) + buttonUvSize.x, buttonUvStart.y + 3 * (buttonUvSize.y) + buttonUvSize.y));
 
+        buttonModeAvaUvIdle.add(
+                new Vector2f(buttonUvStart.x + 0 * (buttonUvSize.x), buttonUvStart.y + 4 * (buttonUvSize.y) + buttonUvSize.y));
+        buttonModeAvaUvIdle.add(
+                new Vector2f(buttonUvStart.x + 0 * (buttonUvSize.x), buttonUvStart.y + 4 * (buttonUvSize.y)));
+        buttonModeAvaUvIdle.add(
+                new Vector2f(buttonUvStart.x + 0 * (buttonUvSize.x) + buttonUvSize.x, buttonUvStart.y + 4 * (buttonUvSize.y)));
+        buttonModeAvaUvIdle.add(
+                new Vector2f(buttonUvStart.x + 0 * (buttonUvSize.x) + buttonUvSize.x, buttonUvStart.y + 4 * (buttonUvSize.y) + buttonUvSize.y));
+
+        buttonModeAvaUvActive.add(
+                new Vector2f(buttonUvStart.x + 1 * (buttonUvSize.x), buttonUvStart.y + 4 * (buttonUvSize.y) + buttonUvSize.y));
+        buttonModeAvaUvActive.add(
+                new Vector2f(buttonUvStart.x + 1 * (buttonUvSize.x), buttonUvStart.y + 4 * (buttonUvSize.y)));
+        buttonModeAvaUvActive.add(
+                new Vector2f(buttonUvStart.x + 1 * (buttonUvSize.x) + buttonUvSize.x, buttonUvStart.y + 4 * (buttonUvSize.y)));
+        buttonModeAvaUvActive.add(
+                new Vector2f(buttonUvStart.x + 1 * (buttonUvSize.x) + buttonUvSize.x, buttonUvStart.y + 4 * (buttonUvSize.y) + buttonUvSize.y));
+
         Sprite menuBackground = new Sprite(
                 new Vector3f(menuStart.x, menuStart.y, menuLayerZ),
                 new Vector2f(menuSize.x, menuSize.y),
@@ -404,7 +426,7 @@ public class DominoGame extends Game {
 
         menu.addButton(new Button(
                 "Restart",
-                new Vector3f(menuStart.x + buttonMarginX, menuStart.y + 4 * buttonMarginY + 3 * buttonSizeY, buttonZ),
+                new Vector3f(menuStart.x + buttonMarginX, menuStart.y + 5 * buttonMarginY + 4 * buttonSizeY, buttonZ),
                 new Vector2f(menuSize.x - 2 * buttonMarginX, buttonSizeY),
                 stuffTexture,
                 stuffTexture,
@@ -415,7 +437,7 @@ public class DominoGame extends Game {
                 Game.spriteShader));
         menu.addButton(new Button(
                 "ModePvp",
-                new Vector3f(menuStart.x + buttonMarginX, menuStart.y + 3 * buttonMarginY + 2 * buttonSizeY, buttonZ),
+                new Vector3f(menuStart.x + buttonMarginX, menuStart.y + 4 * buttonMarginY + 3 * buttonSizeY, buttonZ),
                 new Vector2f(menuSize.x - 2 * buttonMarginX, buttonSizeY),
                 stuffTexture,
                 stuffTexture,
@@ -426,12 +448,23 @@ public class DominoGame extends Game {
                 Game.spriteShader));
         menu.addButton(new Button(
                 "ModePva",
-                new Vector3f(menuStart.x + buttonMarginX, menuStart.y + 2 * buttonMarginY + 1 * buttonSizeY, buttonZ),
+                new Vector3f(menuStart.x + buttonMarginX, menuStart.y + 3 * buttonMarginY + 2 * buttonSizeY, buttonZ),
                 new Vector2f(menuSize.x - 2 * buttonMarginX, buttonSizeY),
                 stuffTexture,
                 stuffTexture,
                 buttonModePvaUvActive,
                 buttonModePvaUvIdle,
+                false,
+                Game.spriteRenderer,
+                Game.spriteShader));
+        menu.addButton(new Button(
+                "ModeAva",
+                new Vector3f(menuStart.x + buttonMarginX, menuStart.y + 2 * buttonMarginY + 1 * buttonSizeY, buttonZ),
+                new Vector2f(menuSize.x - 2 * buttonMarginX, buttonSizeY),
+                stuffTexture,
+                stuffTexture,
+                buttonModeAvaUvActive,
+                buttonModeAvaUvIdle,
                 false,
                 Game.spriteRenderer,
                 Game.spriteShader));
@@ -684,6 +717,15 @@ public class DominoGame extends Game {
                             break;
                         case "ModePva":
                             restart(new HumanPlayer("RICHARD", window, gameLayer), new AiPlayer("ARNOLD"));
+                            AiPlayer.setThinkingDurationSmall();
+                            AiPlayer.showAiDominoes = false;
+                            menu.setCurrent(0);
+                            menuOpen = false;
+                            break;
+                        case "ModeAva":
+                            restart(new AiPlayer("IGOR"), new AiPlayer("JARVIS"));
+                            AiPlayer.setThinkingDurationLong();
+                            AiPlayer.showAiDominoes = true;
                             menu.setCurrent(0);
                             menuOpen = false;
                             break;

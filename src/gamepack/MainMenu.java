@@ -138,7 +138,8 @@ public class MainMenu extends Game {
             if (game.isAlive()) {
                 game.update(delta);
             } else {
-                game = null;
+//                game = null;
+                alive = false;
             }
         }
     }

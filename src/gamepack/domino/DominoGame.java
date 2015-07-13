@@ -43,7 +43,7 @@ public class DominoGame extends Game {
 
     private final float maxTileSize = 2.0f;
     private final float minTileSize = 0.8f;
-    private float tileSize = 1.1f;
+    private float tileSize = 1.4f;
     private final int fieldBlockSize = 20;
     private final int tilesPerBlock = 4;
     private Sprite field[][];

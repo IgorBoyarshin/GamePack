@@ -1,0 +1,23 @@
+Controls and About for the Domino game.
+
+Controls:
+- Use the arrow keys to navigate through the menu or to choose a domino to make
+your move with;
+- Use the Enter key to confirm(choose);
+- Use the WASD keys to move the dominoes that are already on the table in order
+to have a better look at them if some get out of the screen;
+- Use + and - keys to zoom in and out;
+- Use the Escape key to enter the menu;
+- Use the Backspace key if you've chosen a wrong domino to make your move with;
+- Use the Shift(right or left) key to move a domino twice as fast;
+- Use the Ctrl(right or left) key to rotate the chosen domino;
+- Use the T key to take a domino from the pool(do it when you can't make your
+move with what you have);
+
+About:
+The first move must be made with a domino that has the same number on each side;
+There are three modes currently in the game:
+- PvP: player vs player;
+- PvA: player vs AI(computer);
+- AvA: AI vs AI(computer vs computer). This mode is experimental and can crash
+the game sometimes;

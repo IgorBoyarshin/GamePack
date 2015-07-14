@@ -273,6 +273,16 @@ public class AiPlayer extends Player {
         positions.add(new Position(new Vector2i(center.x, center.y + 2), new Vector2i(center.x, center.y + 4)));
         positions.add(new Position(new Vector2i(center.x, center.y - 2), new Vector2i(center.x, center.y - 4)));
 
+        positions.add(new Position(new Vector2i(center.x + 2, center.y), new Vector2i(center.x + 2, center.y + 2)));
+        positions.add(new Position(new Vector2i(center.x + 2, center.y), new Vector2i(center.x + 2, center.y - 2)));
+        positions.add(new Position(new Vector2i(center.x - 2, center.y), new Vector2i(center.x - 2, center.y + 2)));
+        positions.add(new Position(new Vector2i(center.x - 2, center.y), new Vector2i(center.x - 2, center.y - 2)));
+
+        positions.add(new Position(new Vector2i(center.x, center.y + 2), new Vector2i(center.x + 2, center.y + 2)));
+        positions.add(new Position(new Vector2i(center.x, center.y + 2), new Vector2i(center.x - 2, center.y + 2)));
+        positions.add(new Position(new Vector2i(center.x, center.y - 2), new Vector2i(center.x + 2, center.y - 2)));
+        positions.add(new Position(new Vector2i(center.x, center.y - 2), new Vector2i(center.x - 2, center.y - 2)));
+
         return positions;
     }
 

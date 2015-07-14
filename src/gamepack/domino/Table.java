@@ -180,6 +180,9 @@ public class Table {
 
             markTrue(pos1);
             markTrue(pos2);
+            if (domino.getSide1() == domino.getSide2()) {
+                markDouble(domino);
+            }
 
             amount++;
 
@@ -269,6 +272,41 @@ public class Table {
         field[point.x - 1][point.y] = true;
         field[point.x][point.y - 1] = true;
         field[point.x][point.y] = true;
+    }
+
+    private void markDouble(Domino domino) {
+        Vector2i point = new Vector2i(domino.getPositionCoord().x + 1 + currentShift.x,
+                domino.getPositionCoord().y + 1 + currentShift.y);
+
+        if (domino.getDirection().getNumber() % 2 == 0) {
+            field[point.x + 2][point.y - 1] = true;
+            field[point.x + 1][point.y - 1] = true;
+            field[point.x][point.y - 1] = true;
+            field[point.x - 1][point.y - 1] = true;
+            field[point.x - 2][point.y - 1] = true;
+            field[point.x - 3][point.y - 1] = true;
+
+            field[point.x + 2][point.y + 2] = true;
+            field[point.x + 1][point.y + 2] = true;
+            field[point.x][point.y + 2] = true;
+            field[point.x - 1][point.y + 2] = true;
+            field[point.x - 2][point.y + 2] = true;
+            field[point.x - 3][point.y + 2] = true;
+        } else {
+            field[point.x - 1][point.y + 2] = true;
+            field[point.x - 1][point.y + 1] = true;
+            field[point.x - 1][point.y] = true;
+            field[point.x - 1][point.y - 1] = true;
+            field[point.x - 1][point.y - 2] = true;
+            field[point.x - 1][point.y - 3] = true;
+
+            field[point.x + 2][point.y + 2] = true;
+            field[point.x + 2][point.y + 1] = true;
+            field[point.x + 2][point.y] = true;
+            field[point.x + 2][point.y - 1] = true;
+            field[point.x + 2][point.y - 2] = true;
+            field[point.x + 2][point.y - 3] = true;
+        }
     }
 
     // ---+++---
@@ -378,6 +416,79 @@ public class Table {
     }
 
     // ---+++---
+
+    private boolean pointNextToPoint(Vector2i p1, Vector2i p2) {
+        if ((p1.x == p2.x && Math.abs(p1.y - p2.y) == 2) || (p1.y == p2.y && Math.abs(p1.x - p2.x) == 2)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean pointBetweenAndShifted(Vector2i p11, Vector2i p12, Vector2i p2) {
+        if (p11.x == p12.x) {
+            if ((p2.x == p11.x + 2) || (p2.x == p11.x - 2)) {
+                if (p2.y == (p11.y + p12.y) / 2) {
+                    return true;
+                }
+            }
+        } else if (p11.y == p12.y) {
+            if ((p2.y == p11.y + 2) || (p2.y == p11.y - 2)) {
+                if (p2.x == (p11.x + p12.x) / 2) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public boolean isPositionValid2(Domino domino) {
+        if (amount == 0) {
+            return true;
+        }
+
+        if (!isPositionValid(domino)) {
+            return false;
+        }
+
+
+        int side1 = domino.getSide1();
+        int side2 = domino.getSide2();
+        Vector2i side1Position = getHeadPos(domino);
+        Vector2i side2Position = getTailPos(domino);
+
+        if (side1 == side2) {
+            if (side1 == headNumber) {
+                return pointBetweenAndShifted(side1Position, side2Position, headPos);
+            } else if (side1 == tailNumber) {
+                return pointBetweenAndShifted(side1Position, side2Position, tailPos);
+            }
+        } else {
+            if (side1 == headNumber) {
+                if (pointNextToPoint(side1Position, headPos)) {
+                    return true;
+                }
+            }
+            if (side1 == tailNumber) {
+                if (pointNextToPoint(side1Position, tailPos)) {
+                    return true;
+                }
+            }
+            if (side2 == headNumber) {
+                if (pointNextToPoint(side2Position, headPos)) {
+                    return true;
+                }
+            }
+            if (side2 == tailNumber) {
+                if (pointNextToPoint(side2Position, tailPos)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
 
     public boolean isPositionValid(Vector2i pos1, Vector2i pos2) {
         Vector2i p1 = new Vector2i(pos1.x + currentShift.x, pos1.y + currentShift.y);

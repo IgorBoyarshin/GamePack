@@ -64,6 +64,14 @@ public class HumanPlayer extends Player {
         repositionStart = start;
     }
 
+    private void maskValidness() {
+        if (Player.table.isPositionValid2(currentDomino.getDomino())) {
+            currentDomino.maskGreen();
+        } else {
+            currentDomino.maskRed();
+        }
+    }
+
     public void makeMove() {
 //        flipDominoesUp();
 
@@ -89,11 +97,7 @@ public class HumanPlayer extends Player {
 //                    System.out.println("CUR: " +
 //                            currentDomino.getDomino().getPosition().x + ";" + currentDomino.getDomino().getPosition().y);
 
-                        if (Player.table.isPositionValid(currentDomino.getDomino())) {
-                            currentDomino.maskGreen();
-                        } else {
-                            currentDomino.maskRed();
-                        }
+                        maskValidness();
                     }
                 }
 
@@ -111,11 +115,7 @@ public class HumanPlayer extends Player {
 //                    System.out.println("CUR: " +
 //                            currentDomino.getDomino().getPosition().x + ";" + currentDomino.getDomino().getPosition().y);
 
-                        if (Player.table.isPositionValid(currentDomino.getDomino())) {
-                            currentDomino.maskGreen();
-                        } else {
-                            currentDomino.maskRed();
-                        }
+                        maskValidness();
                     }
                 }
 
@@ -131,11 +131,7 @@ public class HumanPlayer extends Player {
 //                    System.out.println("CUR: " +
 //                            currentDomino.getDomino().getPosition().x + ";" + currentDomino.getDomino().getPosition().y);
 
-                        if (Player.table.isPositionValid(currentDomino.getDomino())) {
-                            currentDomino.maskGreen();
-                        } else {
-                            currentDomino.maskRed();
-                        }
+                        maskValidness();
                     }
                 }
 
@@ -150,11 +146,7 @@ public class HumanPlayer extends Player {
 //                    System.out.println("CUR: " +
 //                            currentDomino.getDomino().getPosition().x + ";" + currentDomino.getDomino().getPosition().y);
 
-                        if (Player.table.isPositionValid(currentDomino.getDomino())) {
-                            currentDomino.maskGreen();
-                        } else {
-                            currentDomino.maskRed();
-                        }
+                        maskValidness();
                     }
                 }
             }
@@ -173,7 +165,7 @@ public class HumanPlayer extends Player {
                                 currentDomino.setChosen();
                             }
                         } else {
-                            if (table.isPositionValid(currentDomino.getDomino())) {
+                            if (table.isPositionValid2(currentDomino.getDomino())) {
                                 table.placeDomino(currentDomino.getDomino());
                                 dominoes.remove(currentDomino.getDomino());
                                 currentDomino.unChoose();
@@ -201,6 +193,8 @@ public class HumanPlayer extends Player {
                 if (currentDomino.isChosen()) {
                     currentDomino.rotateClockWise();
                 }
+
+                maskValidness();
             }
 
             if (window.isKeyDown(GLFW_KEY_BACKSPACE)) {

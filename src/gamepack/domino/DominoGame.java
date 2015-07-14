@@ -9,9 +9,7 @@ import gamepack.domino.players.Player;
 import himmel.graphics.Sprite;
 import himmel.graphics.Texture;
 import himmel.graphics.Window;
-import himmel.graphics.fonts.Text;
 import himmel.graphics.layers.Layer;
-import himmel.math.Matrix4f;
 import himmel.math.Vector2f;
 import himmel.math.Vector3f;
 import himmel.math.Vector4f;
@@ -31,15 +29,18 @@ public class DominoGame extends Game {
     private InfoWindow victoryWindow;
     private InfoWindow avaEntranceWindow;
     private InfoWindow controlsWindow;
+    private InfoWindow pvpWindow;
 
     private final float victoryLayerZ = 0.2f;
     private final float avaEntranceLayerZ = 0.65f;
+    private final float pvpWindowLayerZ = 0.35f;
     private final float menuLayerZ = 0.5f;
     private final float gameLayerDominoesZ = 0.0f;
     private final float gameLayerDeskZ = -0.3f;
     private final float gameLayerFieldZ = -0.5f;
 
     private Menu menu;
+    private String currentMode = "pva";
 
     private final float maxTileSize = 2.0f;
     private final float minTileSize = 0.8f;
@@ -63,6 +64,8 @@ public class DominoGame extends Game {
 
     private Player player1;
     private Player player2;
+    private Player currentPlayer;
+//    private int movesMade;
 
     private boolean menuOpen = false;
     private boolean gameEnded = false;
@@ -93,12 +96,21 @@ public class DominoGame extends Game {
         gameEnded = false;
         victoryWindow.setVisible(false);
         player1Move = true;
+//        movesMade = 0;
+        currentPlayer = player1Move ? player1 : player2;
+        if (currentMode.equals("pvp")) {
+            pvpWindow.setVisible(true);
+            pvpWindow.setText(1, currentPlayer.getName());
+        } else {
+            pvpWindow.setVisible(false);
+        }
     }
 
     private void setup() {
         prepareTextures();
         prepareVictoryBoard();
         prepareAvaEntrance();
+        preparePvpWindow();
         prepareMenu();
         prepareField();
         prepareDesks();
@@ -149,6 +161,20 @@ public class DominoGame extends Game {
 
         avaEntranceWindow.addText("PRESS ENTER IF YOU WISH TO PROCEED",
                 new Vector2f(1.0f, HEIGHT / 4.0f * 3 - 26.0f), new Vector4f(1.0f, 0.0f, 0.0f, 1.0f), 12);
+    }
+
+    private void preparePvpWindow() {
+        pvpWindow = new InfoWindow(
+                new Vector3f(WIDTH / 6.0f, HEIGHT / 6.0f * 2.0f, pvpWindowLayerZ),
+                new Vector2f(WIDTH / 3.0f * 2.0f, HEIGHT / 6.0f * 2.0f),
+                new Vector4f(0.1f, 0.1f, 0.1f, 0.9f));
+
+        pvpWindow.addText("PASS THE KEYBOARD TO",
+                new Vector2f(1.0f, HEIGHT / 6.0f * 2.0f - 4.0f), new Vector4f(0.9f, 0.0f, 0.0f, 1.0f), 16);
+        pvpWindow.addText("NAME",
+                new Vector2f(1.0f, HEIGHT / 6.0f * 2.0f - 7.0f), new Vector4f(0.9f, 0.0f, 0.0f, 1.0f), 16);
+
+        pvpWindow.setVisible(false);
     }
 
     private void prepareField() {
@@ -592,25 +618,13 @@ public class DominoGame extends Game {
         Player.repositionTablePool(newPoolStart, newPoolFinish);
     }
 
-    private void keyboard() {
+    private void gameKeyboard() {
         if (System.currentTimeMillis() - lastKeyboard > keyboardMillisDelay) {
-//            if (window.isKeyDown(GLFW_KEY_Q)) {
-//                lastKeyboard = System.currentTimeMillis();
-//
-//                alive = false;
-//            }
-
             if (window.isKeyDown(GLFW_KEY_ESCAPE)) {
                 lastKeyboard = System.currentTimeMillis();
 
                 menuOpen = true;
             }
-
-//            if (window.isKeyDown(GLFW_KEY_R)) {
-//                lastKeyboard = System.currentTimeMillis();
-//
-//                restart(player1, player2);
-//            }
 
             if (window.isKeyDown(GLFW_KEY_W)) {
                 lastKeyboard = System.currentTimeMillis();
@@ -656,6 +670,9 @@ public class DominoGame extends Game {
 
     private void processEndOfGame() {
         gameEnded = true;
+        player1.resetMoveMade();
+        player2.resetMoveMade();
+        pvpWindow.setVisible(false);
 
         player1.flipDominoesUp();
         player2.flipDominoesUp();
@@ -691,128 +708,259 @@ public class DominoGame extends Game {
 //        }
     }
 
-    @Override
-    public void update(float delta) {
-        if (menuOpen) {
+    private void menuKeyboard() {
+        if (System.currentTimeMillis() - Game.lastKeyboard > Game.keyboardMillisDelay) {
+            if (window.isKeyDown(GLFW_KEY_ESCAPE)) {
+                Game.lastKeyboard = System.currentTimeMillis();
+
+                menuOpen = false;
+            }
+
+            if (window.isKeyDown(GLFW_KEY_UP)) {
+                Game.lastKeyboard = System.currentTimeMillis();
+
+                menu.moveUp();
+            }
+
+            if (window.isKeyDown(GLFW_KEY_DOWN)) {
+                Game.lastKeyboard = System.currentTimeMillis();
+
+                menu.moveDown();
+            }
+
+            if (window.isKeyDown(GLFW_KEY_ENTER)) {
+                Game.lastKeyboard = System.currentTimeMillis();
+
+                switch (menu.getCurrentButtonName()) {
+                    case "Restart":
+                        restart(player1, player2);
+                        menu.setCurrent(0);
+                        menuOpen = false;
+                        break;
+                    case "ModePvp":
+//                            restart(new AiPlayer("JAMES"), new AiPlayer("BOB"));
+                        CurrentDomino.setMaskVisible(true);
+                        currentMode = "pvp";
+                        restart(new HumanPlayer("JAMES", window, gameLayer), new HumanPlayer("BOB", window, gameLayer));
+                        menu.setCurrent(0);
+                        menuOpen = false;
+                        pvpWindow.setVisible(true);
+                        pvpWindow.setText(1, player1.getName());
+                        break;
+                    case "ModePva":
+                        CurrentDomino.setMaskVisible(true);
+                        currentMode = "pva";
+                        restart(new HumanPlayer("RICHARD", window, gameLayer), new AiPlayer("ARNOLD"));
+                        AiPlayer.setThinkingDurationSmall();
+                        AiPlayer.showAiDominoes = false;
+                        menu.setCurrent(0);
+                        menuOpen = false;
+                        break;
+                    case "ModeAva":
+                        if (avaEntranceWindow.isVisible()) {
+                            avaEntranceWindow.setVisible(false);
+                            currentMode = "ava";
+                            restart(new AiPlayer("IGOR"), new AiPlayer("JARVIS"));
+                            CurrentDomino.setMaskVisible(false);
+                            AiPlayer.setThinkingDurationMedium();
+                            AiPlayer.showAiDominoes = true;
+                            menu.setCurrent(0);
+                            menuOpen = false;
+
+                            if (tileSize >= 1.2f) {
+                                setNewTileSize(1.0f);
+                            }
+                        } else {
+//                                menuOpen = false;
+                            avaEntranceWindow.setVisible(true);
+                        }
+                        break;
+                    case "Exit":
+                        alive = false;
+                        break;
+                }
+            }
+        }
+    }
+
+    private void waitForPvpWindowToClose() {
+        if (pvpWindow.isVisible() && currentMode.equals("pvp")) {
             if (System.currentTimeMillis() - Game.lastKeyboard > Game.keyboardMillisDelay) {
-                if (window.isKeyDown(GLFW_KEY_ESCAPE)) {
-                    Game.lastKeyboard = System.currentTimeMillis();
-
-                    menuOpen = false;
-                }
-
-                if (window.isKeyDown(GLFW_KEY_UP)) {
-                    Game.lastKeyboard = System.currentTimeMillis();
-
-                    menu.moveUp();
-                }
-
-                if (window.isKeyDown(GLFW_KEY_DOWN)) {
-                    Game.lastKeyboard = System.currentTimeMillis();
-
-                    menu.moveDown();
-                }
-
                 if (window.isKeyDown(GLFW_KEY_ENTER)) {
                     Game.lastKeyboard = System.currentTimeMillis();
 
-                    switch (menu.getCurrentButtonName()) {
-                        case "Restart":
-                            restart(player1, player2);
-                            menu.setCurrent(0);
-                            menuOpen = false;
-                            break;
-                        case "ModePvp":
-//                            restart(new AiPlayer("JAMES"), new AiPlayer("BOB"));
-                            CurrentDomino.setMaskVisible(true);
-                            restart(new HumanPlayer("JAMES", window, gameLayer), new HumanPlayer("BOB", window, gameLayer));
-                            menu.setCurrent(0);
-                            menuOpen = false;
-                            break;
-                        case "ModePva":
-                            CurrentDomino.setMaskVisible(true);
-                            restart(new HumanPlayer("RICHARD", window, gameLayer), new AiPlayer("ARNOLD"));
-                            AiPlayer.setThinkingDurationSmall();
-                            AiPlayer.showAiDominoes = false;
-                            menu.setCurrent(0);
-                            menuOpen = false;
-                            break;
-                        case "ModeAva":
-                            if (avaEntranceWindow.isVisible()) {
-                                avaEntranceWindow.setVisible(false);
-                                restart(new AiPlayer("IGOR"), new AiPlayer("JARVIS"));
-                                CurrentDomino.setMaskVisible(false);
-                                AiPlayer.setThinkingDurationMedium();
-                                AiPlayer.showAiDominoes = true;
-                                menu.setCurrent(0);
-                                menuOpen = false;
-
-                                if (tileSize >= 1.2f) {
-                                    setNewTileSize(1.0f);
-                                }
-                            } else {
-//                                menuOpen = false;
-                                avaEntranceWindow.setVisible(true);
-                            }
-                            break;
-                        case "Exit":
-                            alive = false;
-                            break;
-                    }
+                    pvpWindow.setVisible(false);
                 }
             }
-        } else {
-            keyboard();
+        }
+    }
 
-            if (!gameEnded) {
-                if (player1Move) {
-                    if (player1.canMakeMove()) {
-                        player2.flipDominoesDown();
-                        if (player1.getType().equals(Player.TYPE.HUMAN)) {
-                            player1.flipDominoesUp();
-                        } else {
-                            if (AiPlayer.showAiDominoes) {
-                                player1.flipDominoesUp();
+    private void gameLogic() {
+        if (!gameEnded) {
+            if (currentMode.equals("pvp") && pvpWindow.isVisible()) {
+                waitForPvpWindowToClose();
+            } else {
+                if (!currentPlayer.isMoveMade()) {
+                    if (currentPlayer.canMakeMove()) {
+                        currentPlayer.flipDominoesUp();
+
+                        Player theOtherPlayer = player1Move ? player2 : player1;
+                        if (player1Move) {
+                            if (theOtherPlayer.getAmount() == 0 && Player.getPoolSize() == 0) {
+                                processEndOfGame();
+                                return;
                             }
                         }
-                        player1.makeMove();
-                        if (player1.isMoveMade()) {
-                            player1Move = false;
-                            player1.endMove();
-                        }
+
+                        currentPlayer.makeMove();
                     } else {
-                        if (player2.canMakeMove()) {
-                            player1Move = false;
+                        if (currentPlayer.getAmount() == 0) {
+                            currentPlayer.endMove();
                         } else {
-                            // End of game
-                            processEndOfGame();
+                            Player theOtherPlayer = player1Move ? player2 : player1;
+                            if (theOtherPlayer.canMakeMove()) {
+                                currentPlayer.endMove();
+                            } else {
+                                processEndOfGame();
+                                //return;
+                            }
                         }
                     }
                 } else {
-                    if (player2.canMakeMove()) {
-                        player1.flipDominoesDown();
-                        if (player2.getType().equals(Player.TYPE.HUMAN)) {
-                            player2.flipDominoesUp();
-                        } else {
-                            if (AiPlayer.showAiDominoes) {
-                                player2.flipDominoesUp();
+                    currentPlayer.resetMoveMade();
+                    currentPlayer.flipDominoesDown();
+                    if (currentMode.equals("pvp")) {
+                        CurrentDomino.setMaskVisible(false);
+                    }
+
+//                    if (player1Move && currentPlayer.getAmount() == 0) {
+//                        // player2 makes 1 move and then END
+//                    }
+                    if (!player1Move) {
+                        Player theOtherPlayer = player1;
+                        if (currentPlayer.getAmount() == 0 || theOtherPlayer.getAmount() == 0) {
+                            if (Player.getPoolSize() == 0) {
+                                processEndOfGame();
+                                return;
                             }
                         }
-                        player2.makeMove();
-                        if (player2.isMoveMade()) {
-                            player1Move = true;
-                            player2.endMove();
-                        }
-                    } else {
-                        if (player1.canMakeMove()) {
-                            player1Move = true;
-                        } else {
-                            // End of game
-                            processEndOfGame();
-                        }
+                    }
+
+                    player1Move = !player1Move;
+                    currentPlayer = player1Move ? player1 : player2;
+
+                    if (currentMode.equals("pvp")) {
+                        pvpWindow.setVisible(true);
+                        pvpWindow.setText(1, currentPlayer.getName());
                     }
                 }
             }
+        }
+
+//        if (!gameEnded) {
+//            if (player1Move) {
+//                if (player1.canMakeMove()) {
+//                    player2.flipDominoesDown();
+//
+//                    if (player1.getType().equals(Player.TYPE.HUMAN)) {
+//                        if (currentMode.equals("pvp")) {
+//                            if (!pvpWindow.isVisible()) {
+//                                player1.flipDominoesUp();
+//                            }
+//                        } else {
+//                            player1.flipDominoesUp();
+//                        }
+//                    } else {
+//                        if (AiPlayer.showAiDominoes) {
+//                            player1.flipDominoesUp();
+//                        }
+//                    }
+//                    player1.makeMove();
+//                    if (player1.isMoveMade()) {
+//                        player1Move = false;
+//                        if (currentMode.equals("pvp")) {
+//                            pvpWindow.setVisible(true);
+//                            if (player2.canMakeMove()) {
+//                                pvpWindow.setText(1, player2.getName());
+//                            } else {
+//                                // leave that name
+//                            }
+//                        }
+//                        player1.resetMoveMade();
+//                    }
+//                } else {
+//                    if (player2.canMakeMove()) {
+//                        if (player1.getAmount() == 0) {
+//                            if (player2.isMoveMade()) {
+//                                processEndOfGame();
+//                            } else {
+//                                player2.makeMove();
+//                            }
+//                        } else {
+//                            player1Move = false;
+//                        }
+//                    } else {
+//                        // End of game
+//                        processEndOfGame();
+//                    }
+//                }
+//            } else {
+//                if (player2.canMakeMove()) {
+//                    player1.flipDominoesDown();
+//
+//                    if (player2.getType().equals(Player.TYPE.HUMAN)) {
+//                        if (currentMode.equals("pvp")) {
+//                            if (!pvpWindow.isVisible()) {
+//                                player2.flipDominoesUp();
+//                            }
+//                        } else {
+//                            player2.flipDominoesUp();
+//                        }
+//                    } else {
+//                        if (AiPlayer.showAiDominoes) {
+//                            player2.flipDominoesUp();
+//                        }
+//                    }
+//                    player2.makeMove();
+//                    if (player2.isMoveMade()) {
+//                        player1Move = true;
+//                        if (currentMode.equals("pvp")) {
+//                            pvpWindow.setVisible(true);
+//                            if (player1.canMakeMove()) {
+//                                pvpWindow.setText(1, player1.getName());
+//                            } else {
+//                                // leave that name
+//                            }
+//                        }
+//                        player2.resetMoveMade();
+//                    }
+//                } else {
+//                    if (player1.canMakeMove()) {
+//                        if (player2.getAmount() == 0) {
+//                            if (player1.isMoveMade()) {
+//                                processEndOfGame();
+//                            } else {
+//                                player1.makeMove();
+//                            }
+//                        } else {
+//                            player1Move = true;
+//                        }
+//                    } else {
+//                        // End of game
+//                        processEndOfGame();
+//                    }
+//                }
+//            }
+//        }
+    }
+
+    @Override
+    public void update(float delta) {
+        if (menuOpen) {
+            menuKeyboard();
+        } else {
+            gameKeyboard();
+            gameLogic();
         }
     }
 
@@ -822,7 +970,7 @@ public class DominoGame extends Game {
 
         victoryWindow.render();
         avaEntranceWindow.render();
-//        controlsWindow.render();
+        pvpWindow.render();
 
         if (menuOpen) {
             menuLayer.render();

@@ -135,7 +135,15 @@ public abstract class Player {
     public abstract void makeMove();
 
     public void endMove() {
+        moveMade = true;
+    }
+
+    public void resetMoveMade() {
         moveMade = false;
+    }
+
+    public static int getPoolSize() {
+        return table.getPoolSize();
     }
 
     public boolean isMoveMade() {

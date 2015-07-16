@@ -48,13 +48,18 @@ public class GamePack {
                 System.getProperty("user.dir") + "//resources//main//shaders//font.frag");
         spriteShader = new Shader(System.getProperty("user.dir") + "//resources//main//shaders//fast.vert",
                 System.getProperty("user.dir") + "//resources//main//shaders//fast.frag");
+//        textShader = new Shader("resources//main//shaders//font.vert",
+//                "resources//main//shaders//font.frag");
+//        spriteShader = new Shader("resources//main//shaders//fast.vert",
+//                "resources//main//shaders//fast.frag");
         spriteRenderer = new FastSpriteRenderer();
 
         prepareShaders();
 
         Game.spriteRenderer = spriteRenderer;
         Game.spriteShader = spriteShader;
-        Text.setFont(new Font("resources//main//fonts//FontCalibri"));
+        Text.setFont(new Font(System.getProperty("user.dir") + "//resources//main//fonts//FontCalibri"));
+//        Text.setFont(new Font("resources//main//fonts//FontCalibri"));
         Text.setShader(textShader);
 
         mainMenu = new MainMenu(WIDTH_COORD, HEIGHT_COORD, window);
@@ -105,6 +110,7 @@ public class GamePack {
     }
 
     public static void main(String[] args) {
+        System.setProperty("org.lwjgl.librarypath", "natives//windows//x64");
         new GamePack();
     }
 }

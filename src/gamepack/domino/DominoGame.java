@@ -802,7 +802,13 @@ public class DominoGame extends Game {
             } else {
                 if (!currentPlayer.isMoveMade()) {
                     if (currentPlayer.canMakeMove()) {
-                        currentPlayer.flipDominoesUp();
+                        if (currentPlayer.getType().equals(Player.TYPE.AI)) {
+                            if (AiPlayer.showAiDominoes) {
+                                currentPlayer.flipDominoesUp();
+                            }
+                        } else {
+                            currentPlayer.flipDominoesUp();
+                        }
 
                         Player theOtherPlayer = player1Move ? player2 : player1;
                         if (player1Move) {

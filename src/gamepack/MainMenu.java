@@ -4,9 +4,12 @@ import gamepack.domino.DominoGame;
 import himmel.graphics.Sprite;
 import himmel.graphics.Texture;
 import himmel.graphics.Window;
+import himmel.graphics.fonts.Text;
 import himmel.graphics.layers.Layer;
+import himmel.math.Matrix4f;
 import himmel.math.Vector2f;
 import himmel.math.Vector3f;
+import himmel.math.Vector4f;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -84,6 +87,13 @@ public class MainMenu extends Game {
 
         menu.setCurrent("Domino");
         menu.submitAll(mainLayer);
+
+        Text text = new Text("", new Vector4f(0.0f, 0.0f, 0.0f, 1.0f));
+        text.setText("MADE BY IGOR BOYARSHIN");
+        text.setFontSize(10);
+        text.transform(Matrix4f.scaling(new Vector3f(1.2f, 1.0f, 1.0f))
+                .translate(new Vector3f(0.2f, 0.2f, MENU_Z + 0.05f)));
+        mainLayer.add(text);
 
         backgroundAnimation = new BackgroundAnimation(WIDTH, HEIGHT, bgLayer, BG_Z);
 
